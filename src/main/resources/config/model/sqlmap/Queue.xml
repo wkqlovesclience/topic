@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Queue">
+    <typeAlias alias="btocBlockQueue" type="com.coo8.btoc.model.queue.BlockQueue"/>
+    <typeAlias alias="btocProductQueue" type="com.coo8.btoc.model.queue.ProductQueue"/>
+    <resultMap class="btocBlockQueue" id="btocBlockQueueMap">
+        <result property="id" column="id"/>
+        <result property="templateId" column="template_id"/>
+        <result property="blockId" column="block_id"/>
+        <result property="rfid" column="rfid"/>
+        <result property="rtype" column="rtype"/>
+        <result property="priority" column="priority"/>
+        <result property="inputDate" column="input_date"/>
+        <result property="status" column="status"/>
+        <result property="parade1" column="PARAID1"/>
+        <result property="parade2" column="PARAID2"/>
+        <result property="site" column="SITE"/>
+    </resultMap>
+    <resultMap class="btocProductQueue" id="btocProductQueueMap">
+        <result property="id" column="id"/>
+        <result property="rfid" column="rfid"/>
+        <result property="priority" column="priority"/>
+        <result property="type" column="type"/>
+        <result property="inputDate" column="input_date"/>
+        <result property="status" column="status"/>
+        <result property="rtype" column="rtype"/>
+        <result property="suffix" column="suffix"/>
+        <result property="templateId" column="templateid"/>
+        <result property="site" column="SITE"/>
+    </resultMap>
+    
+    <sql id="btocBlockQueueTable">
+        btoc_block_queue
+    </sql>
+    <sql id="btocProductQueueTable">
+        btoc_product_queue
+    </sql>
+    
+    <sql id="btocBlockQueueColumns">
+        id,template_id,block_id,rfid,rtype,priority,input_date,status,PARAID1,PARAID2,SITE
+    </sql>
+    <sql id="btocProductBlockQueue">
+        id,rfid,priority,type,input_date,status,rtype,suffix,templateid,SITE
+    </sql>
+    
+    <insert id="insertProductQueue" parameterClass="btocProductQueue">
+        insert into <include refid="btocProductQueueTable"/>
+        (rfid,priority,type,input_date,status,rtype,suffix,templateid,SITE)
+        values(#rfid#,#priority#,#type#,#inputDate#,#status#,#rtype#,#suffix#,#templateId#,#site#)
+    </insert>
+    <insert id="insertBlockQueue" parameterClass="btocBlockQueue">
+        insert into <include refid="btocBlockQueueTable"/>
+        (template_id,block_id,rfid,rtype,priority,input_date,status,PARAID1,SITE)
+        values(#templateId#,#blockId#,#rfid#,#rtype#,#priority#,#inputDate#,#status#,#parade1#,#site#)
+    </insert>
+    
+    <select id="getRelatedBlockIdList" parameterClass="map" resultClass="int">
+        select b.id
+        from btoc_block b
+        where b.template_id = #templateId# and b.type=#type# and b.status = #status#
+    </select>
+</sqlMap>

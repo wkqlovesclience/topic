@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="topic" default="chooseOne">
+	<property name="basedir" value="." />
+	<property name="topic-war" value="${basedir}/target/btoc_topic.war" />
+	
+	<!-- deploy dir -->
+	<property name="topic.deploy.dir" value="/app/deploy/btoc_topic" />
+	
+	<!-- ##################################compile######################################-->	
+	<target name="app-svn" >
+		<echo> update app throught SVN</echo>
+		<exec executable="svn">
+			<arg value="up"/>
+		</exec>
+	</target>
+	<target name="war-app" depends="app-svn">
+		<echo>War this project ..</echo>
+		<exec executable="mvn" >
+			<arg value="clean"/>
+		</exec>	
+		
+		<exec executable="mvn" >
+			<arg value="install"/>
+		</exec>
+		<echo>War Success : ${topic-war}</echo>
+	</target>
+	
+	<tstamp prefix="build">
+        <format property="time" pattern="yyyy-MM-dd.HH.mm.ss"/>
+		<format property="date" pattern="yyyyMMdd"/>
+    </tstamp>
+	
+<!-- ##################################deploy######################################-->	
+	<target name="deploy-service" depends="war-app">
+		
+		<echo>Begin deploy...</echo>
+		<exec executable="/bin/bash" >
+			<arg line="-c 'rm -f /app/deploy/btoc_topic'" />
+		</exec>
+		<mkdir dir="${topic.deploy.dir}"/>
+		
+		<exec executable="/bin/bash" >
+			<arg line="-c 'ln -sv /home01/website_2011/image_2011_04/publish/catalog /app/publish/catalog/img'" />
+		</exec>
+		<exec executable="/bin/bash" >
+			<arg line="-c 'ln -sv /home01/website_2011/image_2011_04/topic /app/deploy/btoc_topic/img'" />
+		</exec>
+		
+		<exec executable="jar" dir="${topic.deploy.dir}">
+			<arg value="-xfM"/>
+			<arg value="${topic-war}" />
+		</exec>
+		<echo>deploy complete at ${build.time}.</echo>
+		<echo>now you can start the topic tomcat.</echo>
+	</target>
+	<target name="chooseOne">
+		<input message="choose a target " validargs="copy-conf" addproperty="ant.task" />
+		<antcall target="${ant.task}" />
+	</target>
+</project>

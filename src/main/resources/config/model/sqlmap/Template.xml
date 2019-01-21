@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Template">
+	
+	<typeAlias alias="template" type="com.coo8.btoc.model.template.Template"/>
+	<typeAlias alias="catalogTemplate" 
+		type="com.coo8.btoc.model.template.CatalogTemplate"/>
+	<typeAlias alias="templateHistory" 
+		type="com.coo8.btoc.model.template.TemplateHistory"/>
+	
+	<!-- the selected fields of template table -->
+	<sql id="selectTemplateSql">
+		t.id ,t.name ,t.description, t.status, t.content, t.creator, 
+		t.created_time createdTime, t.updator ,t.updated_time updatedTime ,t.site,t.path
+	</sql>
+	
+	<sql id="selectListTemplateSql">
+		t.id ,t.name ,t.description, t.status, t.creator, 
+		t.created_time createdTime, t.updator ,t.updated_time updatedTime ,t.site
+	</sql>
+	
+	<sql id="selectHistoryTemplateSql">
+		h.id ,h.template_id templateId ,h.description , h.content, h.creator, 
+		h.created_time createdTime, h.name
+	</sql>
+	
+	<sql id="selectCatalogTemplateField">
+		id, template_id templateId, catalog_id catalogId, type,
+		status, creator, created_time createdTime, updator, updated_time updatedTime
+	</sql>
+	
+	<!-- template table name -->
+	<sql id="templateTable">
+		btoc_template t
+	</sql>
+	
+	<sql id="templateHistoryTable">
+		btoc_template_history h
+	</sql>
+	
+	<!-- create template -->
+	<insert id="insertTemplate" parameterClass="template">
+		INSERT INTO btoc_template
+				(	name ,description, status, creator, created_time,site )
+   		  VALUES(	#name#, #description#, #status#, #creator#, 
+   		  			CURRENT_TIMESTAMP,#site#
+   				)
+   		<selectKey resultClass="int" keyProperty="id">
+			select last_insert_id() as ID from btoc_template limit 1
+		</selectKey>
+	</insert>
+	
+	<!-- 修改模板除了content 以为的属性 -->
+	<update id="updateTemplate" parameterClass="template">
+		update btoc_template set
+			updated_time = CURRENT_TIMESTAMP,
+			updator = #updator#
+			<isNotEmpty property="name" prepend="," >
+				name = #name#
+			</isNotEmpty>
+			<isNotEmpty property="description" prepend=",">
+				description = #description#
+			</isNotEmpty>
+			<isNotNull property="status" prepend="," >
+				status = #status#
+			</isNotNull>
+			<isNotNull property="path" prepend="," >
+				path = #path#
+			</isNotNull>
+		where id = #id#
+	</update>
+	
+	<!-- 应用模板 -->
+	<update id="applyTemplate" parameterClass="template">
+		update btoc_template set
+			updated_time = CURRENT_TIMESTAMP,
+			updator = #updator#
+			<isNotEmpty property="content" prepend="," >
+				content = #content#
+			</isNotEmpty>
+		where id = #id#
+	</update>
+	
+	<!-- query template by id -->
+	<select id="getTemplateById" parameterClass="int" resultClass="template">
+		SELECT
+			<include refid="selectTemplateSql"/>
+		FROM
+			<include refid="templateTable"/>
+		WHERE
+			id = #id#	
+	</select>
+	
+	<!-- 符合条件 模板 的个数 -->
+	<select id="queryTemplateCount" parameterClass="template" resultClass="int">
+		SELECT 
+			count(1)
+		FROM
+			<include refid="templateTable"/>
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="name" prepend="and">
+				upper(t.name) like CONCAT('%',upper(trim(#name#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="description" prepend="and">
+				upper(t.description) like CONCAT('%',upper(trim(#description#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="creator" prepend="and">
+				upper(t.creator) like CONCAT('%',upper(trim(#creator#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="updator" prepend="and">
+				upper(t.updator) like CONCAT('%',upper(trim(#updator#)),'%')
+			</isNotEmpty>
+			<isNotNull property="status" prepend="and">
+				t.status = #status#
+			</isNotNull>
+			<isNotEmpty property="site" prepend="and">
+				t.SITE = #site#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- 符合条件模板的块 -->
+	<select id="queryTemplates" parameterClass="template" resultClass="template">
+		SELECT 
+			<include refid="selectListTemplateSql"/>
+		FROM
+			<include refid="templateTable"/>
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="name" prepend="and">
+				upper(t.name) like CONCAT('%',upper(trim(#name#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="description" prepend="and">
+				upper(t.description) like CONCAT('%',upper(trim(#description#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="creator" prepend="and">
+				upper(t.creator) like CONCAT('%',upper(trim(#creator#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="updator" prepend="and">
+				upper(t.updator) like CONCAT('%',upper(trim(#updator#)),'%')
+			</isNotEmpty>
+			<isNotNull property="status" prepend="and">
+				t.status = #status#
+			</isNotNull>
+			<isNotEmpty property="site" prepend="and">
+				t.SITE = #site#
+			</isNotEmpty>
+		</dynamic>
+		order by
+			t.updated_time desc, t.created_time desc		
+	</select>
+	
+	
+	
+	<!-- 模板历史相关操作 -->
+	
+	<insert id="insertTemplateHistory" parameterClass="template">
+		insert into btoc_template_history 
+			(template_id, name, content, creator, created_time, description)
+		values
+			(#id#, #name#, #content#, #creator#, CURRENT_TIMESTAMP, #description#)
+	</insert>
+	
+	<update id="updateTemplateHistory" parameterClass="templateHistory">
+		update btoc_template_history set
+			<isNotEmpty property="content">
+				content = #content#
+			</isNotEmpty>
+		where id = #id#
+	</update>
+	
+	<!--  -->
+	<select id="queryTemplateLastHistory" parameterClass="int" resultClass="templateHistory">
+		SELECT 
+			<include refid="selectHistoryTemplateSql"/>
+		FROM
+			<include refid="templateHistoryTable"/>
+		where 
+			h.template_id = #templateId#
+		order by
+			h.id desc
+		limit 1		
+	</select>
+	
+	<!-- catalog template operation -->
+	
+	<insert id="insertCatalogTemplate" parameterClass="catalogTemplate">
+		insert into btoc_catalog_template 
+			(template_id, catalog_id, status, type, created_time, creator)
+		values
+			(#templateId#, #catalogId#, #status#, #type#, CURRENT_TIMESTAMP, #creator#)
+	</insert>
+	
+	<update id="updateCatalogTemplate" parameterClass="catalogTemplate">
+		update btoc_catalog_template set
+			updator = #updator#,
+			updated_time = CURRENT_TIMESTAMP
+			<isNotEmpty property="templateId" prepend=",">
+				template_id = #templateId#
+			</isNotEmpty>
+		where id = #id#
+	</update>
+	
+	<delete id="deleleCatalogTemplate" parameterClass="catalogTemplate">
+		delete from btoc_catalog_template
+			<dynamic prepend="where">
+				<isNotNull property="id" prepend="and">
+					id = #id#
+				</isNotNull>
+				<isNotNull property="type" prepend="and">
+					type = #type#
+				</isNotNull>
+				<isNotNull property="catalogId" prepend="and">
+					catalog_id = #catalogId#
+				</isNotNull>
+			</dynamic>
+	</delete>
+	
+	<select id="selectCatalogTemplateByCatalogIdAndType" 
+			parameterClass="catalogTemplate" resultClass="catalogTemplate">
+		select
+			<include refid="selectCatalogTemplateField"/>
+		from
+			btoc_catalog_template
+		<dynamic prepend="where">
+			<isNotNull property="catalogId" prepend="and">
+				catalog_id = #catalogId#
+			</isNotNull>
+			<isNotNull property="type" prepend="and">
+				type = #type#
+			</isNotNull>
+		</dynamic>	
+	</select>
+	
+</sqlMap>

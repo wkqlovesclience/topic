@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="GBK" ?>
+
+<!DOCTYPE sqlMapConfig
+        PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
+        "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+    <settings cacheModelsEnabled="true" enhancementEnabled="true"
+              lazyLoadingEnabled="true" errorTracingEnabled="true" maxRequests="5120"
+              maxSessions="300" maxTransactions="256" useStatementNamespaces="true"/>
+    <typeHandler jdbcType="CLOB" javaType="java.lang.String"
+                 callback="com.ibatis.sqlmap.engine.type.ClobTypeHandlerCallback"/>
+    <typeHandler jdbcType="BLOB" javaType="object" callback="com.ibatis.sqlmap.engine.type.BlobTypeHandlerCallback"/>
+    <sqlMap resource="config/model/btocbase.xml"/>
+
+    <!-- 百度黑五 -->
+    <sqlMap resource="config/model/sqlmap/BaiDuBlackFridayCardSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/BaiduBlackFridayErrorCard.xml"/>
+
+    <!-- sc -->
+    <sqlMap resource="config/model/gomesc/gomeStores.xml"/>
+    <!-- sqlmap -->
+    <sqlMap resource="config/model/sqlmap/AladdinSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/CategoryNavigationSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/AuchorSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/Block.xml"/>
+    <sqlMap resource="config/model/sqlmap/Category.xml"/>
+    <sqlMap resource="config/model/sqlmap/FacetGroup.xml"/>
+    <sqlMap resource="config/model/sqlmap/FacetGroupItem.xml"/>
+    <sqlMap resource="config/model/sqlmap/HotkeyIndex.xml"/>
+    <sqlMap resource="config/model/sqlmap/Hotkeyword.xml"/>
+    <sqlMap resource="config/model/sqlmap/HotLinkSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/HotSearchIndex.xml"/>
+    <sqlMap resource="config/model/sqlmap/HotSearchword.xml"/>
+    <sqlMap resource="config/model/sqlmap/KeywordsRelSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/KeywordsSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/NewsSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/Queue.xml"/>
+    <sqlMap resource="config/model/sqlmap/Resource.xml"/>
+    <sqlMap resource="config/model/sqlmap/SingleTopRanking.xml"/>
+    <sqlMap resource="config/model/sqlmap/SitemapSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/static-html.xml"/>
+    <sqlMap resource="config/model/sqlmap/Tag.xml"/>
+    <sqlMap resource="config/model/sqlmap/Template.xml"/>
+    <sqlMap resource="config/model/sqlmap/TitleGoodsSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/TitlesSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/ErrorTitlesSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/ToptitleSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/AllHotKeyword.xml"/>
+    <sqlMap resource="config/model/sqlmap/Item.xml"/>
+    <sqlMap resource="config/model/sqlmap/ProductBlackSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/IndexFloorSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/GroupHotLinks.xml"/>
+    <!-- Label -->
+    <sqlMap resource="config/model/sqlmap/LabelSqlMap.xml"/>
+    <!-- LabelRel -->
+    <sqlMap resource="config/model/sqlmap/LabelRelSqlMap.xml"/>
+    <!-- btop -->
+    <sqlMap resource="config/model/btoc/BtoCItems.xml"/>
+    <!-- 百度优惠卡 -->
+    <sqlMap resource="config/model/sqlmap/BaiDuCardSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/ErrorBaiduCardSqlMap.xml"/>
+
+    <!--商品词-->
+    <sqlMap resource="config/model/sqlmap/ProductWordsCardSqlMap.xml"/>
+    <sqlMap resource="config/model/sqlmap/ProductWordsErrorCard.xml"/>
+
+</sqlMapConfig>

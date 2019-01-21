@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC 
+	"-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+	
+<beans>
+	<!-- 热部署 quartz任务  -->
+	<!-- 调度器 -->
+        <bean id="startQuertz" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        	<!--  必须填写  QuartzScheduler 延时启动，应用启动完后 QuartzScheduler 再启动  -->
+        	<!-- <property name="startupDelay" value="15"/> -->
+            <property name="triggers">
+                <list>
+                	<!-- 作业1 -->
+                	<ref bean="trigger_SeoPublishJobForUncreate" />
+                	<!-- 作业2 -->
+                    <ref bean="trigger_SeoPublishJobForRebuildAll" />
+                </list>
+            </property>
+        </bean>
+        
+        
+         <!--作业1 默认晚上10点开始发布未生成热词，每天生成热词数量2000个 -->
+         <!-- 触发器 -->
+        <bean id="trigger_SeoPublishJobForUncreate" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            <property name="jobDetail" ref="publishJobForUncreate" />
+            <!-- cron表达式 -->
+            <property name="cronExpression">
+                <value>0 0 22 * * ?</value><!-- 晚上10点开始执行 -->
+            </property>
+        </bean>
+        
+        <!--作业2  -->
+        <!-- 触发器 -->
+        <!-- 只跑已发布数据 -->
+        <!-- 按照热词id 每天跑5000 记录一下最后一个热词id --> 
+        <!-- 全量数据更新时间：每天晚上2点到5点 -->
+        <bean id="trigger_SeoPublishJobForRebuildAll" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        	<property name="jobDetail" ref="publishJobForRebuildAll" />
+            <!-- cron表达式 -->
+            <property name="cronExpression">
+                <value>0 0 2 * * ?</value><!-- 午夜2点开始执行 -->
+            </property>
+        </bean>
+    
+    <bean id="myJob" class="com.coo8.topic.task.taskPublish" />
+    <!-- 作业1 -->    
+    <!-- 定时器 -->
+    <bean id="publishJobForUncreate" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" >
+        	<ref bean="myJob" />
+         </property>	
+          <property name="targetMethod">
+            <value>publishJobForUncreateMethod</value>
+        </property>
+        <!-- 是否并发执行 false表示不并发 -->
+        <property name="concurrent" value="false" />
+    </bean>
+    
+    <!-- 作业2 -->    
+    <!-- 定时器 -->
+    <bean id="publishJobForRebuildAll" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" >
+        	<ref bean="myJob" />
+         </property>	
+          <property name="targetMethod">
+            <value>publishJobForRebuildAllMethod</value>
+        </property>
+        <!-- 是否并发执行 false表示不并发 -->
+        <property name="concurrent" value="false" />
+    </bean>
+    
+</beans>
+

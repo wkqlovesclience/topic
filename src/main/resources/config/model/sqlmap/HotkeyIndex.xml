@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="HotKeyIndexs">
+    <typeAlias alias="HotkeyIndex" type="com.coo8.topic.model.HotkeyIndex"/>
+	<resultMap id="HotkeyIndexMap" class="com.coo8.topic.model.HotkeyIndex">
+	    <result property="id" column="id"/>
+	    <result property="hotkeyId" column="hotkey_id"/>
+	    <result property="hotkeyTitle" column="title"/>
+	    <result property="pinyin" column="pinyin"/>
+	    <result property="hotkeyIndex" column="hotkey_index"/>
+	    <result property="source" column="source"/>
+	    <result property="priority" column="priority"/>
+	    <result property="status" column="status"/>
+	    <result property="operator" column="operator"/>
+	    <result property="updatetime" column="updatetime"/>
+	    <result property="site" column="site"/>
+	</resultMap>
+	<sql id="columns">
+	   <![CDATA[
+	   t1.id,t1.hotkey_id,t2.title,t1.pinyin,t1.hotkey_index,t1.source,t1.priority,t1.status,t1.operator,t1.updatetime,t1.site
+	   ]]>
+	</sql>
+	<sql id="conditionWheres">
+	   <dynamic prepend="and">
+	       <isNotEmpty prepend="and" property="hotkeyIndex">
+               <isEqual property="hotkeyIndex" compareValue="_" open="(" close=")">
+                   <![CDATA[ t1.hotkey_index >='0' AND t1.hotkey_index <='9' ]]>
+               </isEqual>
+               <isNotEqual property="hotkeyIndex" compareValue="_">
+                   t1.hotkey_index = #hotkeyIndex#
+               </isNotEqual>
+           </isNotEmpty>
+	       <isNotEmpty property="id" prepend="and">
+	           t1.id=#id#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="site">
+               t1.site = #site#
+           </isNotEmpty>
+           <isNotEmpty prepend="ORDER BY" property="sortColumns">
+               $sortColumns$
+           </isNotEmpty>
+	   </dynamic>
+	</sql>
+	<select id="queryList" resultMap="HotKeyIndexs.HotkeyIndexMap" parameterClass="map">
+	   select <include refid="HotKeyIndexs.columns"/>
+	   from t_hotkey_index t1 join t_hotkeywords t2 on t1.hotkey_id = t2.id
+	   where t1.source='0' 
+	   <include refid="HotKeyIndexs.conditionWheres"/>
+	</select>
+	<select id="queryListCount" resultClass="int">
+	   select count(0) 
+	   from t_hotkey_index t1 join t_hotkeywords t2 on t1.hotkey_id = t2.id 
+	   where t1.source='0' 
+	   <include refid="HotKeyIndexs.conditionWheres"/>
+	</select>
+	<select id="getById" parameterClass="int" resultMap="HotKeyIndexs.HotkeyIndexMap">
+	   select <include refid="HotKeyIndexs.columns"/>
+       from t_hotkey_index t1 join t_hotkeywords t2 on t1.hotkey_id = t2.id
+       where t1.source='0' and t1.id=#id#
+	</select>
+	<insert id="insertHotkeyIndex" parameterClass="HotkeyIndex">
+	   insert into t_hotkey_index(hotkey_id,pinyin,hotkey_index,source,priority,status,operator,updatetime,site)
+	   values(#hotkeyId#,#pinyin#,#hotkeyIndex#,#source#,#priority#,#status#,#operator#,NOW(),#site#)
+	</insert>
+	<update id="updateHotkeyIndex" parameterClass="HotkeyIndex">
+	   update t_hotkey_index
+	   set hotkey_index=#hotkeyIndex#,priority=#priority#,status=#status#,operator=#operator#,updatetime=NOW()
+	   where id=#id#
+	</update>
+	<delete id="deleteHotkeyIndex" parameterClass="int">
+	   DELETE FROM t_hotkey_index where `id`=#id#
+	</delete>
+	<select id="getSpecificHotkeyCheck" parameterClass="map" resultClass="int">
+	   select t.ISCHECK isCheck from t_hotkeywords t where t.id=#hotkeyId# and t.site=#site#
+	</select>
+	<select id="getSpecificHotkeyIndexCount" parameterClass="map" resultClass="int">
+	   select count(0) from t_hotkey_index t where t.hotkey_id=#hotkeyId# and t.site=#site#
+	   <isNotEmpty property="source" prepend="and">
+	       t.source=#source#
+	   </isNotEmpty>
+	</select>
+	<select id="getHotkeyTitleName" parameterClass="int" resultClass="string">
+	   select t.title from t_hotkeywords t where t.id=#hotkeyId#
+	</select>
+	
+	<!--  发布存储过程调用  linchengjun 2013-11-6 start -->
+	<procedure id="publishHotkeyHomePage">
+	   {call put_hoykeyIndex_to_queue()}
+	</procedure>
+	
+	<procedure id="publishMobileHotkeyHomePage">
+	   {call put_wap_hoykeyIndex_to_queue()}
+	</procedure>
+	
+	<procedure id="publishAllHotkeyListPage">
+       {call put_hoykeyIndexList_to_queue()}
+    </procedure>
+</sqlMap>

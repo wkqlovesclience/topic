@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="SingleTopRankings">
+    <typeAlias alias="singleTopRanking" type="com.coo8.btoc.model.rank.SingleTopRanking"/>
+    <resultMap id="singleTopRankingMap" class="com.coo8.btoc.model.rank.SingleTopRanking">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="url" column="url"/>
+        <result property="sort" column="sortNum"/>
+        <result property="parent" column="parent"/>
+        <result property="creator" column="creator"/>
+        <result property="createTime" column="createTime"/>
+        <result property="updator" column="updator"/>
+        <result property="updateTime" column="updateTime"/>
+        <result property="isShow" column="isShow"/>
+    </resultMap>
+    <sql id="singleTopRankingColumns">
+       id,name,url,`sortNum`,parent,creator,createTime,updator,updateTime,isShow
+    </sql>
+    <sql id="singleTopRankingTable">
+        t_single_top_ranking
+    </sql>
+    <select id="getById" parameterClass="int" resultMap="singleTopRankingMap">
+        select <include refid="singleTopRankingColumns"/>
+        from <include refid="singleTopRankingTable"/>
+        where id=#id#
+    </select>
+    <insert id="insert" parameterClass="singleTopRanking">
+        insert into <include refid="singleTopRankingTable"/>(name,url,sortNum,parent,creator,createTime,updateTime,isShow)
+        values(#name#,#url#,#sort#,#parent#,#creator#,NOW(),NOW(),#isShow#)
+        <selectKey resultClass="int" keyProperty="id">
+            select last_insert_id() as ID from <include refid="singleTopRankingTable"/> limit 1
+        </selectKey>
+    </insert>
+    <update id="update" parameterClass="singleTopRanking">
+        update <include refid="singleTopRankingTable"/>
+        set updateTime=NOW()
+        <isNotEmpty property="name" prepend=",">
+            name=#name#
+        </isNotEmpty>
+        <isNotEmpty property="url" prepend=",">
+            url=#url#
+        </isNotEmpty>
+        <isNotEmpty property="sort" prepend=",">
+            sortNum=#sort#
+        </isNotEmpty>
+        <isNotEmpty property="updator" prepend=",">
+            updator=#updator#
+        </isNotEmpty>
+        <isNotEmpty property="isShow" prepend=",">
+            isShow=#isShow#
+        </isNotEmpty>
+        where id=#id#
+    </update>
+    
+    <delete id="delete" parameterClass="int">
+        delete from <include refid="singleTopRankingTable"/>
+        where id=#id#
+    </delete>
+    <delete id="batchDelete" parameterClass="int">
+        delete from <include refid="singleTopRankingTable"/>
+        where parent=#id#
+    </delete>
+    
+    <select id="getListByWheres" parameterClass="map" resultMap="singleTopRankingMap">
+        select <include refid="singleTopRankingColumns"/>
+        from <include refid="singleTopRankingTable"/>
+        <dynamic prepend="where">
+            <isNotEmpty property="id" prepend="and">
+                id=#id#
+            </isNotEmpty>
+            <isNotEmpty property="name" prepend="and">
+                name like "%$name$%"
+            </isNotEmpty>
+            <isNotEmpty property="parent" prepend="and">
+                parent=#parent#
+            </isNotEmpty>
+            <isNotEmpty property="isShow" prepend="and">
+                isShow=#isShow#
+            </isNotEmpty>
+        </dynamic>
+        <dynamic prepend="ORDER BY">
+            <isNotEmpty property="sortColumns" prepend=" ">
+                $sortColumns$
+            </isNotEmpty>
+        </dynamic>
+    </select>
+    <select id="getTotalCount" parameterClass="map" resultClass="int">
+        select count(0)
+        from <include refid="singleTopRankingTable"/>
+        <dynamic prepend="where">
+            <isNotEmpty property="id" prepend="and">
+                id=#id#
+            </isNotEmpty>
+            <isNotEmpty property="name" prepend="and">
+                name like "%$name$%"
+            </isNotEmpty>
+            <isNotEmpty property="parent" prepend="and">
+                parent=#parent#
+            </isNotEmpty>
+            <isNotEmpty property="isShow" prepend="and">
+                isShow=#isShow#
+            </isNotEmpty>
+        </dynamic>
+    </select>
+    
+    <select id="hasChildrenOrNot" parameterClass="int" resultClass="int">
+        select count(0)
+        from <include refid="singleTopRankingTable"/>
+        where parent=#id#
+    </select>
+    
+    <update id="changeState" parameterClass="map">
+        update <include refid="singleTopRankingTable"/>
+        set updateTime=NOW(),isShow=#isShow#
+        where 1=1 
+        <isNotEmpty prepend=" and " property="id">id=#id#</isNotEmpty>
+        <isEmpty prepend=" and " property="id" open="(" close=")">parent=#parent# OR id=#parent#</isEmpty>
+    </update>
+</sqlMap>

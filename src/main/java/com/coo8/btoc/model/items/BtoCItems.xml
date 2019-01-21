@@ -1,0 +1,1858 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Items">
+	<typeAlias alias="items" type="com.coo8.btoc.model.items.BtoCItems" />
+	
+	<sql id="selectItemSql">
+		IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+		IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+		IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+		IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+	    ,gift,IFNULL(moneyback,0) moneyback,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+	    IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,
+	    IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+	    ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+	    color,IFNULL(points,0) points,saleinfo,maininfo,`desc`,size,
+	    province,city,provinceid,cityid,properties,specialStatus,showstatus,IFNULL(limitcount,0) limitcount,IFNULL(paystatus,0) paystatus
+	</sql>
+	
+	<typeAlias alias="param" type="com.coo8.btoc.model.items.ItemQueryParam" />
+	
+	<sql id="insertSql">
+		itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,definitionid,definitionname
+        ,brandid,brandname,brandenglishname,seriesid,seriesname,catalogid,catalogname,recommendprice,originalprice,price,memberprice
+        ,gift,moneyback,`desc`,salescount,usergradecount,usergrade,priority,pageviw,maininfo,baseproductid,weight,length,status
+        ,comments,time,inputdate,inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,color,points,saleinfo
+        ,province,city,provinceid,cityid,properties,specialStatus,showstatus,limitcount,paystatus,munit,listpagesize,size,defectstatus,
+        subtotalscore,showpic,isnew,mainpush,branchpush,stockcompanyid,qiangprice
+	</sql>
+	<insert id="insertItemsAttributes" >
+        $value$
+    </insert>
+    <insert id="insertDynamicTable">
+    	$value$
+    </insert>
+    
+    <insert id="insertMoveItemsValue">
+    	$value$
+    </insert>
+    
+    <insert id="insertPricePic" parameterClass="map">
+    	insert into btoc_price_queue (item_id, type, price, spare_money, input_date, status)
+    	values(#id#,1,#originalprice#,0, CURRENT_TIMESTAMP,0 )
+    </insert>
+    
+    <update id="updateItemsAttributes">
+    	$value$
+    </update>
+    <delete id="deleteItemsAttributes">
+    	$value$
+    </delete>
+	<insert id="insert" parameterClass="items">
+		insert into btoc_item (<include refid="insertSql" />) values(
+			#itemid#,#name#,#productname#,#byname#,#othername#,#mainimg1#,#mainimg2#,#mainimg3#,#mainimg4#,
+			#mainimg5#,#mainimg6#,#definitionid#,#definitionname#, #brandid#,#brandname#,#brandenglishname#,#seriesid#,#seriesname#,#catalogid#,#catalogname#,
+			#recommendprice#,#originalprice#,#price#,#memberprice#,#gift#,#moneyback#,#desc#,#salescount#,#usergradecount#,#usergrade#,
+			#priority#,#pageviw#,#maininfo#,#baseproductid#,#weight#,#length#,#status#,#comments#,#time#,#inputdate#,
+			#inputuserid#,#inputer#,#updatetime#,#updater#,#productarea#,#detail#,#volume#,#saleservice#,#color#,#points#,#saleinfo#,
+			#province#,#city#,#provinceid#,#cityid#,#properties#,#specialStatus#,#showstatus#,#limitcount#,#paystatus#,#unit#,#listpagesize#,#size#,#defectstatus#,
+			#subtotalscore#,#showpic#,#isnew#,#mainpush#,#branchpush#,#stockcompanyid#,#qiangprice#
+		)
+		 
+		<selectKey resultClass="int" type="post" keyProperty="id">
+			 select last_insert_id();
+		</selectKey>
+	</insert>
+	<update id="updateItemsAfterCopy" parameterClass="map">
+		update btoc_item
+		set itemid=#itemid# where id=#id#
+	</update>
+	
+	<update id="updateParameterByCatalogid" parameterClass="items">
+		update btoc_item
+		set updatetime = #updatetime#,updater=#updater#
+			<isNotNull property="maininfo">,maininfo=#maininfo#</isNotNull>
+		where id=#id#
+	</update>
+	<update id="updateItemsSubTotalScore" parameterClass="map">
+		update btoc_item
+		set subtotalscore=#subtotalscore# where id=#id#
+	</update>
+	<!--  -->
+	<update id="updateItemsQiangPrice" parameterClass="int">
+		update btoc_item
+			set qiangprice = originalprice
+		where id = $value$
+	</update>
+	<!-- 停止主推job -->
+	<update id="updateMainPushByJob" parameterClass="items">
+	<![CDATA[ 
+		update btoc_item
+			set mainpush=#mainpush#,branchpush=#branchpush#,stockcompanyid=#stockcompanyid#
+		where id=#id#
+	]]>
+	</update>
+	<update id="updateItemMainPushById" parameterClass="items">
+		update  btoc_item 
+    	set updatetime = #updatetime#,updater=#updater#,mainpush=#mainpush#,branchpush=#branchpush#,stockcompanyid=#stockcompanyid#
+    	where id=#id#
+	</update>
+	
+	<!-- 停止新品job -->
+	<update id="updateIsNewByJob" parameterClass="int">
+		update btoc_item 
+		set isnew=0, showpic =
+			(
+			CASE
+			when showpic=6 then 0
+			else showpic
+			end
+			)
+		where id=$value$
+	</update>
+	<update id="updateItemIsNewById" parameterClass="items">
+    	update  btoc_item 
+    	set updatetime = #updatetime#,updater=#updater#,isnew=#isnew#
+    	where id=#id#
+    </update>
+
+	<update id="updateOriginalprice" parameterClass="items">
+		update btoc_item
+		set updatetime = #updatetime# ,updater=#updater#
+			<isGreaterEqual compareValue="0" property="originalprice">
+				,originalprice=#originalprice#,qiangprice=#originalprice#
+			</isGreaterEqual>
+		where id=#id#
+	</update>
+	<update id="updateItemsMoneyback" parameterClass="items">
+		update btoc_item
+		set updatetime = #updatetime# ,updater=#updater#
+			<isGreaterEqual compareValue="0" property="moneyback">
+				,moneyback=#moneyback#
+			</isGreaterEqual>
+		where id=#id#
+	</update>
+	<update id="updateItems" parameterClass="items">
+		update 
+			btoc_item 
+		set	
+			updatetime = now()		
+			<isNotEmpty></isNotEmpty>	
+			<isNotNull property="itemid">,itemid=#itemid#</isNotNull><isNotNull property="name">,name=#name#</isNotNull>
+			<isNotNull property="productname">,productname=#productname#</isNotNull><isNotNull property="byname">,byname=#byname#</isNotNull>
+			<isNotNull property="othername">,othername=#othername#</isNotNull><isNotNull property="mainimg1">,mainimg1=#mainimg1#</isNotNull>
+			<isNotNull property="mainimg2">,mainimg2=#mainimg2#</isNotNull><isNotNull property="mainimg3">,mainimg3=#mainimg3#</isNotNull>
+			<isNotNull property="mainimg4">,mainimg4=#mainimg4#</isNotNull><isNotNull property="mainimg5">,mainimg5=#mainimg5#</isNotNull>
+			<isNotNull property="mainimg6">,mainimg6=#mainimg6#</isNotNull>
+			<isNotNull property="definitionid">,definitionid=#definitionid#</isNotNull><isNotNull property="definitionname">,definitionname=#definitionname#</isNotNull>
+			<isNotNull property="brandid">,brandid=#brandid#</isNotNull><isNotNull property="brandname">,brandname=#brandname#</isNotNull>
+			<isNotNull property="brandenglishname">,brandenglishname=#brandenglishname#</isNotNull><isNotNull property="seriesid">,seriesid=#seriesid#</isNotNull>
+			<isNotNull property="seriesname">,seriesname=#seriesname#</isNotNull><isNotNull property="catalogid">,catalogid=#catalogid#</isNotNull>
+			<isNotNull property="catalogname">,catalogname=#catalogname#</isNotNull><isNotNull property="recommendprice">,recommendprice=#recommendprice#</isNotNull>
+			<isNotNull property="originalprice">,originalprice=#originalprice#</isNotNull><isNotNull property="price">,price=#price#</isNotNull>
+			<isNotNull property="memberprice">,memberprice=#memberprice#</isNotNull><isNotNull property="gift">,gift=#gift#</isNotNull>
+			<isNotNull property="moneyback">,moneyback=#moneyback#</isNotNull><isNotNull property="desc">,desc=#desc#</isNotNull>				
+			<isNotNull property="salescount">,salescount=#salescount#</isNotNull><isNotNull property="usergradecount">,usergradecount=#usergradecount#</isNotNull>
+			<isNotNull property="usergrade">,usergrade=#usergrade#</isNotNull><isNotNull property="priority">,priority=#priority#</isNotNull>
+			<isNotNull property="pageviw">,pageviw=#pageviw#</isNotNull><isNotNull property="maininfo">,maininfo=#maininfo#</isNotNull>
+			<isNotNull property="baseproductid">,baseproductid=#baseproductid#</isNotNull><isNotNull property="weight">,weight=#weight#</isNotNull>
+			<isNotNull property="length">,length=#length#</isNotNull><isNotNull property="status">,status=#status#</isNotNull>
+			<isNotNull property="comments">,comments=#comments#</isNotNull><isNotNull property="time">,time=#time#</isNotNull>
+			<isNotNull property="inputdate">,inputdate=#inputdate#</isNotNull><isNotNull property="inputuserid">,inputuserid=#inputuserid#</isNotNull>
+			<isNotNull property="inputer">,inputer=#inputer#</isNotNull><isNotNull property="updater">,updater=#updater#</isNotNull>	
+			<isNotNull property="productarea">,productarea=#productarea#</isNotNull><isNotNull property="color">,color=#color#</isNotNull>	
+			<isNotNull property="saleinfo">,saleinfo=#saleinfo#</isNotNull>
+			<isGreaterThan compareValue="0" property="points">
+                 ,points=#points#
+            </isGreaterThan>		
+		where 
+			id=#id#
+	</update>
+	
+	<update id="updateSnatchbuyPrice" parameterClass="map">
+		update btoc_item
+		set  updatetime = #updatetime#
+			<isGreaterEqual compareValue="0" property="originalprice">
+				,originalprice=#originalprice#
+			</isGreaterEqual>
+			<isGreaterEqual compareValue="0" property="moneyback">
+				,moneyback=#moneyback#
+			</isGreaterEqual>
+			<isGreaterEqual compareValue="0" property="showpic">
+				,showpic=#showpic#
+			</isGreaterEqual>
+		where id=#id#
+	</update>
+	<!-- 抢购 -->
+	<parameterMap id="SnatchbuyPriceMap" class="map">
+		<parameter property="id"  javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN"></parameter>
+    </parameterMap>
+    <procedure id="updateSnatchbuyPriceProcedure" parameterMap="SnatchbuyPriceMap">
+        { call put_product_to_queue(?) }
+    </procedure>
+    
+    <!-- 销售价格下架 -->
+    <parameterMap id="PriceXiaMap" class="map">
+		<parameter property="id"  javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN"></parameter>
+    </parameterMap>
+    <procedure id="updateXiaProcedure" parameterMap="PriceXiaMap">
+        { call put_delete_product_to_queue(?) }
+    </procedure>
+    
+    <!-- 销售价格上架 -->
+    <parameterMap id="PriceMap" class="map">
+		<parameter property="id"  javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN"></parameter>
+    </parameterMap>
+    <procedure id="updatePriceProcedure" parameterMap="PriceMap">
+        { call put_price_to_queue(?) }
+    </procedure>
+	
+	<!-- 抢购-->
+	<procedure id="updateSnatPriceProcedure">
+    	{call  put_one_no_template_block_to_queue()}    	
+    </procedure>
+	
+	<update id="updateItemsByUsergrade" parameterClass="map">
+		update btoc_item
+		set usergrade=#usergrade#
+		where id=#id#
+	</update>
+	
+	<update id="updateItemsByCatalog" parameterClass="items">
+		update  btoc_item
+		set updatetime = #updatetime# ,updater=#updater#
+			<isGreaterThan compareValue="0" property="catalogid">
+				,catalogid=#catalogid#
+			</isGreaterThan>	
+			<isGreaterThan compareValue="0" property="definitionid">
+				,definitionid=#definitionid#
+			</isGreaterThan>		
+			<isGreaterThan compareValue="0" property="brandid">
+				,brandid=#brandid#
+			</isGreaterThan>				
+			<isNotEmpty property="catalogname">,catalogname=#catalogname#</isNotEmpty>
+			<isNotEmpty property="brandname">,brandname=#brandname#</isNotEmpty>
+			<isNotEmpty property="definitionname">,definitionname=#definitionname#</isNotEmpty>
+			<isNotEmpty property="brandenglishname">,brandenglishname=#brandenglishname#</isNotEmpty>
+		where itemid=#itemid#
+	</update>
+	
+	<update id="updateParam" parameterClass="items">
+		update btoc_item
+		set size = #size#, updatetime = #updatetime# ,updater=#updater#,listpagesize=(
+			CASE WHEN (select specialstatus &amp; 2 from btoc_catalog where id = #catalogid#) = 2 THEN #size#
+				ELSE NULL
+			END
+		)
+		<isNotNull property="name">,name=#name#</isNotNull>
+		<isNotNull property="productname">,productname=#productname#</isNotNull>
+		
+		<isNotNull property="byname">,byname=#byname#</isNotNull>
+		<isNotNull property="othername">,othername=#othername#</isNotNull>
+		<isNotEmpty property="maininfo">,maininfo=#maininfo#</isNotEmpty>
+        <isGreaterEqual compareValue="0" property="status">
+                 ,status=#status#
+        </isGreaterEqual>
+        ,time=#time#
+      where itemid=#itemid#		
+	</update> 
+	
+	<update id="updateParamNoStatus" parameterClass="items">
+		update btoc_item
+		set 
+			updatetime = #updatetime# ,updater=#updater#
+		<isNotNull property="name">,name=#name#</isNotNull>
+		<isNotNull property="productname">,productname=#productname#</isNotNull>
+		
+		<isNotNull property="byname">,byname=#byname#</isNotNull>
+		<isNotNull property="othername">,othername=#othername#</isNotNull>
+		<isNotEmpty property="maininfo">,maininfo=#maininfo#</isNotEmpty>
+        ,time=#time#
+      where itemid=#itemid#		
+	</update> 
+    <update id="updatePrice" parameterClass="items">
+    	update  btoc_item 
+    	set updatetime = #updatetime#,updater=#updater#,recommendprice=#recommendprice#,moneyback=#moneyback#,price=#price#,status=#status#
+    		<isNotEmpty property="gift">
+    		,gift=#gift#
+    		</isNotEmpty>
+    	where id=#id#
+    </update>
+    
+    <update id="updatePriceGiftById" parameterClass="items">
+    	update btoc_item
+    	set updatetime = #updatetime#,updater=#updater#,gift=#gift# 
+    		,paystatus=#paystatus#
+    	where id=#id#
+    </update>
+    
+    <select id="findYiJiuHuanXinByItemId" parameterClass="String" resultClass="items">
+    	select id,IFNULL(status,0) status
+    	from btoc_item
+    	where  itemid=#itemid#  	
+    </select>
+    
+    <update id="updateYiJiuStatusById" parameterClass="items">
+    	update btoc_item
+    	set updatetime = #updatetime#,updater=#updater#,status=#status#
+    	where id=#id#
+    </update>
+    
+    <update id="updateStatus" parameterClass="items">
+    	update  btoc_item 
+    	set updatetime = #updatetime#,updater=#updater#,`status`=#status#,specialStatus=#specialStatus#,showstatus=#showstatus#
+    	where id=#id#
+    </update>
+    
+    <update id="updatePointById" parameterClass="items">
+    	update  btoc_item 
+    	set updatetime = #updatetime#,updater=#updater#
+    		<isGreaterEqual compareValue="0" property="points">
+    			,points=#points#
+    		</isGreaterEqual>
+    	where id=#id#
+    </update>
+    
+    <update id="updateLimitCountById" parameterClass="items">
+    	update  btoc_item 
+    	set updatetime = #updatetime#,updater=#updater#
+    		<isGreaterEqual compareValue="0" property="limitcount">
+    			,limitcount=#limitcount#
+    		</isGreaterEqual>
+    	where id=#id#
+    </update>
+    
+    
+    <update id="updateMaininfo" parameterClass="items">
+    	update btoc_item
+    	set updatetime=#updatetime# ,updater=#updater#
+    		<isNotNull property="maininfo">,maininfo=#maininfo#</isNotNull>
+    	where itemid=#itemid#
+    </update>
+	
+	<update id="updateGift" parameterClass="items">
+    	update  btoc_item 
+    	set  updatetime = #updatetime#	,updater=#updater#, saleinfo=#saleinfo#,gift=#gift#
+    	    ,status=#status#
+    	    <isGreaterEqual compareValue="0" property="showpic">
+    	    	,showpic=#showpic#
+    	    </isGreaterEqual>
+    	    <isGreaterEqual compareValue="0" property="paystatus">
+    	    	,paystatus=#paystatus#
+    	    </isGreaterEqual>
+    	    <isGreaterEqual compareValue="0" property="recommendprice">
+    	    	,recommendprice = #recommendprice#
+    	    </isGreaterEqual>
+    	where id=#id#
+    </update>
+    <update id="updatePriorityById" parameterClass="map">
+    	update btoc_item
+    	set updatetime = #updatetime#,updater=#updater# ,priority=#priority#
+    	where itemid=#itemid#
+    </update>
+    <update id="updatePriority" parameterClass="map">
+    	update btoc_item
+		set updatetime = #updatetime# ,updater=#updater#,priority = #downprio#
+		where id = #downid# 
+    </update>
+    
+    <select id="findExportItemsByIdList" parameterClass="java.util.ArrayList" resultClass="items" >
+    	select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+			IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+			IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+			IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+		    ,gift,IFNULL(moneyback,0) moneyback,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+	        IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,
+	        IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+	        ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+	        color,IFNULL(points,0) points,saleinfo
+	    from btoc_item
+	   <dynamic prepend="where id in">
+			<iterate  open="(" close=")" conjunction=",">
+				#idList[]#
+			</iterate>
+		
+		</dynamic>
+    </select>
+   
+    
+   
+    
+    <select id="findParamColumnsValue" remapResults="true" resultClass="java.util.HashMap">
+    	$value$
+    </select>
+    
+    <select id="findParamIdByName" remapResults="true" resultClass="int">
+    	$value$
+    </select>
+    
+    <select id="findItemsIdByDefinitionid" parameterClass="int" resultClass="String">
+    	select DISTINCT itemid from btoc_item where definitionid = #definitionid#
+    </select>
+    
+    <!-- 得到商品积分，前台用 -->
+    <select id="findItemsPointById" parameterClass="int" resultClass="int">
+    	select IFNULL(points,0) points from btoc_item where id=#id#
+    </select>
+    <select id="findItemsByKeywordsCount" parameterClass="map" resultClass="int">
+    	SELECT COUNT(*) FROM btoc_item WHERE `status` &amp; 8 != 0 AND specialStatus &amp; 8 = 0
+    	AND catalogid = (SELECT catalogid FROM btoc_item WHERE id = #id#)
+    	<dynamic prepend="AND" >
+    		<isNotEmpty property="itemid" prepend="and">
+    			itemid like  CONCAT('%',#itemid#,'%')
+    		</isNotEmpty>
+    		<isNotEmpty property="productname" prepend="and">
+    			productname like CONCAT('%',upper(trim(#productname#)),'%')
+    		</isNotEmpty>
+    		<isNotEmpty property="operator" prepend="and">
+    			inputer=#operator# or updater=#operator#
+    		</isNotEmpty>
+    	</dynamic>
+    </select>
+    
+    <select id="findItemsToFrontById" parameterClass="int" resultClass="items">
+    	select id,productname,mainimg5,IFNULL(usergrade,0) usergrade,IFNULL(catalogid,0) catalogid
+    	from btoc_item
+    	where id=#id# and `status`!=0
+    </select>
+    
+    <!-- 新添加的 修改商品用户评分，刘俊梅使用 -->
+    <select id="findItemsToFrontByItemId" parameterClass="String" resultClass="items">
+    	select id,productname,mainimg5,IFNULL(usergrade,0) usergrade
+    	from btoc_item
+    	where itemid=#itemid#
+    </select>
+    
+    <select id="findFrontItemsById" parameterClass="int" resultClass="items">
+    	select  IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+			IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+			IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+			IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+		    ,gift,IFNULL(moneyback,0) moneyback,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+	        IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,
+	        IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+	        ,comments,time,productarea,detail,volume,saleservice,
+	        color,IFNULL(points,0) points,city,province,IFNULL(limitcount,0) limitcount,IFNULL(paystatus,0) paystatus,size,munit as unit
+    	from btoc_item
+    	where id=#id# and `status`!=0
+    </select>
+    
+	<select id="findItemsByKeywords" parameterClass="map" resultClass="items">
+    	select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+			IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+			IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+			IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+		    ,gift,IFNULL(moneyback,0) moneyback,`desc`,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+	        IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,maininfo,
+	        IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+	        ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+	        color,IFNULL(points,0) points,saleinfo
+		from btoc_item
+		WHERE `status` &amp; 8 != 0 AND specialStatus &amp; 8 = 0
+		AND catalogid = (SELECT catalogid FROM btoc_item WHERE id = #id#)
+    	<dynamic prepend="AND">
+    		<isNotEmpty property="itemid" prepend="and">
+    			itemid like  CONCAT('%',#itemid#,'%')
+    		</isNotEmpty>
+    		<isNotEmpty property="productname" prepend="and">
+    			productname like CONCAT('%',upper(trim(#productname#)),'%')
+    		</isNotEmpty>
+    		<isNotEmpty property="operator" prepend="and">
+    			(inputer=#operator# or updater=#operator#)
+    		</isNotEmpty>    		
+    	</dynamic>
+    	order by updatetime desc limit #startPos#,#endPos#
+    </select>
+    
+    <select id="findScatByNameCount" parameterClass="map" resultClass="int">
+    	select count(*) from btoc_item
+    	<dynamic prepend="where id in" >
+    		<isNotNull property="idList">
+			<iterate  property="idList"  open="(" close=")" conjunction=",">
+				#idList[]#
+			</iterate>
+			</isNotNull>
+    	</dynamic>
+    </select>
+    <select id="findScatByName" parameterClass="map" resultClass="items">
+    select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+			IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+			IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+			IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+		    ,gift,IFNULL(moneyback,0) moneyback,`desc`,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+	        IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,maininfo,
+	        IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+	        ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+	        color,IFNULL(points,0) points,saleinfo
+		from btoc_item
+    	<dynamic prepend="where id in" >
+    		<isNotNull property="idList">
+			<iterate  property="idList"  open="(" close=")" conjunction=",">
+				#idList[]#
+			</iterate>
+			</isNotNull>
+    		order by updatetime desc limit #startPos#,#endPos#
+    	</dynamic>
+    	
+    </select>
+    
+    
+    <select id="findScatByPriceCount" parameterClass="map" resultClass="int">
+    	select count(*) from btoc_item
+    	<dynamic prepend="where" >
+    		<isGreaterThan compareValue="0" property="catalogid" prepend="and">
+    			catalogid=#catalogid# 
+    		</isGreaterThan>
+    		<isGreaterEqual compareValue="0" property="minprice" prepend="and">    			 
+    			 <![CDATA[ originalprice >= #minprice# ]]>
+    		</isGreaterEqual>
+    		<isGreaterEqual compareValue="0" property="maxprice" prepend="and">    			
+    			 <![CDATA[ originalprice <= #maxprice#  ]]>
+    		</isGreaterEqual>
+    	</dynamic>
+    </select>
+    
+    <select id="findScatByPrice" parameterClass="map" resultClass="items">
+    select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+			IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+			IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+			IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+		    ,gift,IFNULL(moneyback,0) moneyback,`desc`,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+	        IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,maininfo,
+	        IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+	        ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+	        color,IFNULL(points,0) points,saleinfo
+		from btoc_item
+    	<dynamic prepend="where" >
+    		<isGreaterThan compareValue="0" property="catalogid" prepend="and">
+    			catalogid=#catalogid# 
+    		</isGreaterThan>
+    		<isGreaterEqual compareValue="0" property="minprice" prepend="and">    			 
+    			 <![CDATA[ originalprice >= #minprice# ]]>
+    		</isGreaterEqual>
+    		<isGreaterEqual compareValue="0" property="maxprice" prepend="and">    			
+    			 <![CDATA[ originalprice <= #maxprice#  ]]>
+    		</isGreaterEqual>
+    		order by updatetime desc limit #startPos#,#endPos#
+    	</dynamic>
+    	
+    </select>
+    <!-- 判断是否以旧换新 -->
+    <select id="findItemsIsTMById" parameterClass="int" resultClass="int">
+    <![CDATA[ 
+    	select id from btoc_item
+    	where id=#id# and (status=24 or status=26)
+    ]]>
+    </select>
+    
+    <select id="findItemsByCatalog" parameterClass="map" resultClass="String">
+    	select IFNULL(itemid,"") itemid    	
+    	from btoc_item
+    	<dynamic prepend="where">
+    		<isNotEmpty property="catalogIdList" prepend="and">
+            	catalogid in
+			<iterate  property="catalogIdList"  open="(" close=")" conjunction=",">
+				#catalogIdList[]#
+			</iterate>
+			</isNotEmpty>
+           <isGreaterThan compareValue="0" property="catalogid" prepend="and">
+                 catalogid=#catalogid#
+            </isGreaterThan>
+             <isGreaterThan compareValue="0" property="brandid" prepend="and">
+                 brandid=#brandid#
+             </isGreaterThan>
+        </dynamic>
+    </select>
+    <select id="findItemsMoveItemsById" parameterClass="int" resultClass="items">
+    select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+	IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+	IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+	IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+        ,gift,IFNULL(moneyback,0) moneyback,`desc`,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+        IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,maininfo,
+        IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+        ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+        color,IFNULL(points,0) points,saleinfo
+	
+	from  btoc_item where id=#id#
+    </select>
+    
+    <!-- 复制和带图复制使用 -->
+    <select id="findItemsAllColumnsById" parameterClass="int" resultClass="items">
+    select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+	IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+	IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,0 originalprice,
+	IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+        ,gift,IFNULL(moneyback,0) moneyback,`desc`,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+        IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,maininfo,
+        IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,0 status
+        ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+        color,IFNULL(points,0) points,saleinfo,province,city,IFNULL(provinceid,0) provinceid,IFNULL(cityid,0) cityid,properties,0 specialStatus,0 showstatus,
+        IFNULL(limitcount,0) limitcount,IFNULL(paystatus,0) paystatus,munit as unit,listpagesize,size,IFNULL(defectstatus,0) defectstatus,IFNULL(subtotalscore,0) subtotalscore,
+        IFNULL(showpic,0) showpic,IFNULL(isnew,0) isnew ,IFNULL(mainpush,0) mainpush,branchpush,stockcompanyid,IFNULL(qiangprice,0) qiangprice
+	
+	from  btoc_item where id=#id#
+    </select>
+    
+	<!-- 后台查询公共接口 -->
+	<select id="findAllItemsById" parameterClass="int" resultClass="items">
+		select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+		IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+		IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+		IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+	    ,gift,IFNULL(moneyback,0) moneyback,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+	    IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,
+	    IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+	    ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+	    color,IFNULL(points,0) points,saleinfo,maininfo,`desc`,size,
+	    province,city,provinceid,cityid,properties,specialStatus,showstatus,IFNULL(limitcount,0) limitcount,IFNULL(paystatus,0) paystatus,munit as unit,size
+		,IFNULL(defectstatus,0) defectstatus,IFNULL(subtotalscore,0) subtotalscore,IFNULL(showpic,0) showpic,IFNULL(isnew,0) isnew ,IFNULL(mainpush,0) mainpush,
+		branchpush,stockcompanyid,IFNULL(qiangprice,0) qiangprice,
+		(SELECT count(id) FROM btoc_item WHERE itemid = t.itemid  AND id != SUBSTRING(itemid,2,12) AND `status` > 1)count,
+		(SELECT `name` from btoc_catalog where id in (SELECT fatherid from btoc_catalog where id=t.catalogid)) bigcatalogname
+		from  btoc_item t where id=#id#
+	</select>
+	
+	<!-- 根据itemid（带P的）查询原商品 ，刘俊梅使用-->
+	<select id="findAllItemsByPid" parameterClass="String" resultClass="items">
+		select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+		IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+		IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+		IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+	    ,gift,IFNULL(moneyback,0) moneyback,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+	    IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,
+	    IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+	    ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+	    color,IFNULL(points,0) points,saleinfo,
+	    province,city,provinceid,cityid,properties,specialStatus,showstatus
+		
+		from  btoc_item where specialStatus &amp; 8 =0 and itemid=#itemid# limit 0,1
+	</select>
+	
+	<select id="findAllItemsByName" parameterClass="String" resultClass="items">
+	select IFNULL(id,0) id,name,brandname,catalogname
+	from  btoc_item where name like CONCAT(upper(trim(#productname#)),'%') order by length(name) 
+	limit 0,6 
+	</select>
+	
+	<select id="findItemsByName" parameterClass="String" resultClass="items">
+	select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+		IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+		IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+		IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+	    ,gift,IFNULL(moneyback,0) moneyback,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+	    IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,
+	    IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+	    ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+	    color,IFNULL(points,0) points,saleinfo
+	from  btoc_item where name like CONCAT('%',upper(trim(#name#)),'%')
+	</select>
+	
+	<select id="findItemsBycatalogid" parameterClass="map" resultClass="items">
+	select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+		IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+		IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+		IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+	    ,gift,IFNULL(moneyback,0) moneyback,`desc`,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+        IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,maininfo,
+        IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+        ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+        color,IFNULL(points,0) points,saleinfo
+	
+	from  btoc_item where catalogid=#catalogid# and brandid=#brandid#		
+	</select>
+	<select id="findItemsBybrandid" parameterClass="int" resultClass="String">
+	select itemid from btoc_item
+	where brandid=#brandid#
+	</select>
+	
+	<select id="findItemsByBigCatIdCount" parameterClass="map" resultClass="int">
+		select count(*) from btoc_item		 
+		where 1=1
+		<isEmpty property="showstatus" prepend="and">
+			specialStatus &amp; 8 = 0
+		</isEmpty>
+		<isNotEmpty property="showstatus" prepend="and">
+			showstatus = #showstatus#
+		</isNotEmpty>
+		
+		<isNotNull open="and catalogid in" property="catalogIdList">
+			<iterate  property="catalogIdList"  open="(" close=")" conjunction=",">
+				#catalogIdList[]#
+			</iterate>
+		</isNotNull>
+		
+			
+	</select>
+	<select id="findItemsByBigCatId" parameterClass="map" resultClass="items">
+		select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+			IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+			IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+			IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+		    ,gift,IFNULL(moneyback,0) moneyback,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+	        IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,
+	        IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+	        ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+	        color,IFNULL(points,0) points,saleinfo,specialStatus,showStatus
+	        ,(SELECT count(id) FROM btoc_item WHERE itemid = t.itemid  AND id != SUBSTRING(itemid,2,12) AND `status` > 1)count
+		
+		from btoc_item t
+		<dynamic prepend="where specialStatus &amp; 8 = 0 and catalogid in">
+			<isNotNull property="catalogIdList">
+			<iterate  property="catalogIdList"  open="(" close=")" conjunction=",">
+				#catalogIdList[]#
+			</iterate>
+			</isNotNull>
+		</dynamic>
+		order by updatetime desc limit #startPos#,#endPos#
+	</select>
+	
+	<select id="findFitConditionsCount" parameterClass="map" resultClass="int">
+	
+	select count(*) from  btoc_item 
+	where  <![CDATA[  status&8!=0  and specialstatus &24=0 and originalprice>0  and defectstatus=0 ]]>
+			<isNotEmpty property="productname" prepend="and">
+			(
+				itemid like CONCAT('%',upper(trim(#productname#)),'%')
+				or
+				productname like CONCAT('%',upper(trim(#productname#)),'%')
+			)
+			</isNotEmpty>
+			<isGreaterThan compareValue="0" property="catalogid" prepend="and">
+                 catalogid=#catalogid#
+            </isGreaterThan>
+             <isGreaterThan compareValue="0" property="brandid" prepend="and">
+                 brandid=#brandid#
+             </isGreaterThan>
+            
+             
+	</select>
+	<select id="findFitConditions" parameterClass="map" resultClass="items">
+	select id,itemid,name,productname,mainimg5,mainimg6,IFNULL(originalprice,0) originalprice,city from  btoc_item 
+	where  <![CDATA[  status&8!=0 and specialstatus &24=0 and originalprice>0 and defectstatus=0 ]]>	
+			<isNotEmpty property="productname" prepend="and">
+			(
+				itemid like CONCAT('%',upper(trim(#productname#)),'%')
+				or
+				productname like CONCAT('%',upper(trim(#productname#)),'%')
+			)
+			</isNotEmpty>
+			<isGreaterThan compareValue="0" property="catalogid" prepend="and">
+                 catalogid=#catalogid#
+            </isGreaterThan>
+             <isGreaterThan compareValue="0" property="brandid" prepend="and">
+                 brandid=#brandid#
+             </isGreaterThan>
+             
+             order by id limit #startPos#,#endPos#
+		
+	</select>
+	
+	<!-- 算综合评分使用 -->
+	<select id="findItemsInStateShangCount" resultClass="int">
+	 select count(id)
+	 from  btoc_item 
+	 where <![CDATA[ status&8!=0 ]]> 
+	</select>
+	
+	<select id="findItemsInStateShang" parameterClass="map" resultClass="items">
+	select id,itemid,IFNULL(catalogid,0) catalogid,IFNULL(brandid,0) brandid,IFNULL(originalprice,0) originalprice,
+			IFNULL(status,0) status,IFNULL(isnew,0) isnew,IFNULL(mainpush,0) mainpush,IFNULL(subtotalscore,0) subtotalscore
+	from  btoc_item 
+	where <![CDATA[ status&8!=0 ]]> 
+	order by id
+	limit #begin#,#end#
+	</select>
+	
+	
+	<select id="findPriceById" parameterClass="int" resultClass="items">
+	select id,itemid,name,productname,mainimg6,IFNULL(catalogid,0) catalogid,IFNULL(brandid,0) brandid,IFNULL(originalprice,0) originalprice,
+			IFNULL(status,0) status,IFNULL(isnew,0) isnew,IFNULL(mainpush,0) mainpush
+	 from  btoc_item where id=#id#
+	</select>
+	<!-- specialstatus&8=8 多价，status&8=8上架 -->
+	<select id="findAllItemsByItemId" parameterClass="String" resultClass="items">
+	select IFNULL(id,0) id,itemid,name,productname,byname
+	from  btoc_item where specialstatus &amp; 8=8 and status &amp; 8=8 and itemid =#itemid# 
+	</select>
+	<!-- ,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+	IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+	IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+	IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+        ,gift,IFNULL(moneyback,0) moneyback,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+        IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,
+        IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+        ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+        color,IFNULL(points,0) points,saleinfo 
+        like CONCAT('%',upper(trim(#itemid#)),'%')
+        -->
+	
+	<select id="findItemsByPriorityCount" parameterClass="map" resultClass="int">
+	select count(*) from btoc_item
+		<dynamic prepend="where">
+			<isNotEmpty property="catalogIdList" prepend="and">
+            	catalogid in
+			<iterate  property="catalogIdList"  open="(" close=")" conjunction=",">
+				#catalogIdList[]#
+			</iterate>
+			</isNotEmpty>
+            <isNotEmpty property="itemid" prepend="and">
+                itemid like CONCAT('%',upper(trim(#itemid#)),'%')
+            </isNotEmpty> 
+            <isNotEmpty property="name" prepend="and">
+            	name like  CONCAT('%',upper(trim(#name#)),'%')
+            </isNotEmpty>     
+            <isNotEmpty property="productname" prepend="and">
+            	productname like CONCAT('%',upper(trim(#productname#)),'%') 
+            </isNotEmpty> 
+            <isGreaterThan compareValue="0" property="catalogid" prepend="and">
+                 catalogid=#catalogid#
+            </isGreaterThan>
+             <isGreaterThan compareValue="0" property="brandid" prepend="and">
+                 brandid=#brandid#
+             </isGreaterThan>   
+             
+             <isNotEmpty property="operator" prepend="and"> 
+             	(updater=#operator# or inputer=#operator#)
+             </isNotEmpty>
+             
+             <isEqual compareValue="0" property="status" prepend="and">
+             	status=#status#
+             </isEqual>
+             
+             
+              <isGreaterThan compareValue="0" property="status" prepend="and">
+              <![CDATA[ status&#status# ]]>
+             	
+            </isGreaterThan>             
+            
+             <isNotNull property="inbegintime" prepend="and">
+            	inputdate >= #inbegintime#
+            </isNotNull> 
+           <isNotNull property="inendtime" prepend="and">            	
+            	 <![CDATA[inputdate<=#inendtime# ]]>            	
+            </isNotNull> 
+            <isNotNull property="upbegintime" prepend="and">
+            	updatetime >=#upbegintime#
+            </isNotNull>     
+             <isNotNull property="upendtime" prepend="and">            	
+            	 <![CDATA[updatetime<=#upendtime# ]]>            	
+            </isNotNull>
+        </dynamic>
+	</select>
+	<select id="findItemsByPriorityASC" parameterClass="map" resultClass="items">
+	select IFNULL(id,0) id,itemid,name,productname,mainimg6,brandname,catalogname,IFNULL(originalprice,0) originalprice,IFNULL(moneyback,0) moneyback,IFNULL(status,0) status,priority,inputdate,inputer,updatetime,updater
+	from btoc_item
+		<dynamic prepend="where">
+			 <isNotEmpty property="catalogIdList" prepend="and">
+            	catalogid in
+			<iterate  property="catalogIdList"  open="(" close=")" conjunction=",">
+				#catalogIdList[]#
+			</iterate>
+			</isNotEmpty>
+            <isNotEmpty property="itemid" prepend="and">
+                itemid like CONCAT('%',upper(trim(#itemid#)),'%') 
+            </isNotEmpty> 
+            <isNotEmpty property="name" prepend="and">
+            	name like  CONCAT('%',upper(trim(#name#)),'%')
+            </isNotEmpty>     
+            <isNotEmpty property="productname" prepend="and">
+            	productname like CONCAT('%',upper(trim(#productname#)),'%')
+            </isNotEmpty> 
+            <isGreaterThan compareValue="0" property="catalogid" prepend="and">
+                 catalogid=#catalogid#
+            </isGreaterThan>
+             <isGreaterThan compareValue="0" property="brandid" prepend="and">
+                 brandid=#brandid#
+             </isGreaterThan>   
+             <isNotEmpty property="operator" prepend="and"> 
+             	(updater=#operator# or inputer=#operator#)
+             </isNotEmpty>
+             
+             <isEqual compareValue="0" property="status" prepend="and">
+             	status=#status#
+             </isEqual>
+              <isGreaterThan compareValue="0" property="status" prepend="and">
+              <![CDATA[ status&#status# ]]>
+             	
+            </isGreaterThan>      
+             <isNotNull property="inbegintime" prepend="and">
+            	inputdate >= #inbegintime#
+            </isNotNull> 
+           <isNotNull property="inendtime" prepend="and">            	
+            	 <![CDATA[inputdate<=#inendtime# ]]>            	
+            </isNotNull> 
+            <isNotNull property="upbegintime" prepend="and">
+            	updatetime >=#upbegintime#
+            </isNotNull>     
+             <isNotNull property="upendtime" prepend="and">            	
+            	 <![CDATA[updatetime<=#upendtime# ]]>            	
+            </isNotNull> 
+             </dynamic>
+            order by priority asc  
+            limit #startPos#,#endPos#
+       
+	</select>
+	<select id="findItemsByPriorityDESC" parameterClass="map" resultClass="items">
+	select IFNULL(id,0) id,itemid,name,productname,mainimg6,brandname,catalogname,IFNULL(originalprice,0) originalprice,IFNULL(moneyback,0) moneyback,IFNULL(status,0) status,priority,inputdate,inputer,updatetime,updater
+	from btoc_item
+		<dynamic prepend="where">
+			 <isNotEmpty property="catalogIdList" prepend="and">
+            	catalogid in
+			<iterate  property="catalogIdList"  open="(" close=")" conjunction=",">
+				#catalogIdList[]#
+			</iterate>
+			</isNotEmpty>
+            <isNotEmpty property="itemid" prepend="and">
+                itemid like CONCAT('%',upper(trim(#itemid#)),'%') 
+            </isNotEmpty> 
+            <isNotEmpty property="name" prepend="and">
+            	name like  CONCAT('%',upper(trim(#name#)),'%')
+            </isNotEmpty>     
+            <isNotEmpty property="productname" prepend="and">
+            	productname like CONCAT('%',upper(trim(#productname#)),'%')
+            </isNotEmpty> 
+            <isGreaterThan compareValue="0" property="catalogid" prepend="and">
+                 catalogid=#catalogid#
+            </isGreaterThan>
+             <isGreaterThan compareValue="0" property="brandid" prepend="and">
+                 brandid=#brandid#
+             </isGreaterThan>   
+             <isNotEmpty property="operator" prepend="and"> 
+             	(updater=#operator# or inputer=#operator#)
+             </isNotEmpty>
+             
+             <isEqual compareValue="0" property="status" prepend="and">
+             	status=#status#
+             </isEqual>
+              <isGreaterThan compareValue="0" property="status" prepend="and">
+              <![CDATA[ status&#status# ]]>
+             	
+            </isGreaterThan>      
+             <isNotNull property="inbegintime" prepend="and">
+            	inputdate >= #inbegintime#
+            </isNotNull> 
+           <isNotNull property="inendtime" prepend="and">            	
+            	 <![CDATA[inputdate<=#inendtime# ]]>            	
+            </isNotNull> 
+            <isNotNull property="upbegintime" prepend="and">
+            	updatetime >=#upbegintime#
+            </isNotNull>     
+             <isNotNull property="upendtime" prepend="and">            	
+            	 <![CDATA[updatetime<=#upendtime# ]]>            	
+            </isNotNull> 
+             </dynamic>
+            order by priority desc  
+            limit #startPos#,#endPos#
+       
+	</select>
+	<!-- 根据具体的选择条选择具体的商品，分页 -->
+	<select id="findItemsByConditionsCount"  parameterClass="map" resultClass="int">
+		select count(*) from btoc_item
+		WHERE 1=1
+		<dynamic>
+			<isEmpty property="showstatus" prepend="and">
+				specialStatus &amp; 8 = 0
+			</isEmpty>
+			<isNotEmpty property="showstatus" prepend="and">
+				showstatus = #showstatus#
+			</isNotEmpty>
+			<isNotEmpty property="catalogIdList" prepend="and">
+            	catalogid in
+				<iterate  property="catalogIdList"  open="(" close=")" conjunction=",">
+					#catalogIdList[]#
+				</iterate>
+			</isNotEmpty>
+            <isNotEmpty property="itemid" prepend="and">
+                itemid like CONCAT('%',upper(trim(#itemid#)),'%')
+            </isNotEmpty> 
+            <isNotEmpty property="name" prepend="and">
+            	name like  CONCAT('%',upper(trim(#name#)),'%')
+            </isNotEmpty>     
+            <isNotEmpty property="productname" prepend="and">
+            	productname like CONCAT('%',upper(trim(#productname#)),'%') 
+            </isNotEmpty> 
+            <isGreaterThan compareValue="0" property="catalogid" prepend="and">
+                 catalogid=#catalogid#
+            </isGreaterThan>
+             <isGreaterThan compareValue="0" property="brandid" prepend="and">
+                 brandid=#brandid#
+             </isGreaterThan>   
+             
+             <isNotEmpty property="operator" prepend="and"> 
+             	(updater=#operator# or inputer=#operator#)
+             </isNotEmpty>
+             
+             <isEqual compareValue="0" property="status" prepend="and">
+             	status=#status#
+             </isEqual>
+             
+             
+              <isGreaterThan compareValue="0" property="status" prepend="and">
+              <![CDATA[ status&#status# ]]>
+             	
+            </isGreaterThan>             
+            
+             <isNotNull property="inbegintime" prepend="and">
+            	inputdate >= #inbegintime#
+            </isNotNull> 
+           <isNotNull property="inendtime" prepend="and">            	
+            	 <![CDATA[inputdate<=#inendtime# ]]>            	
+            </isNotNull> 
+            <isNotNull property="upbegintime" prepend="and">
+            	updatetime >=#upbegintime#
+            </isNotNull>     
+             <isNotNull property="upendtime" prepend="and">            	
+            	 <![CDATA[updatetime<=#upendtime# ]]>            	
+            </isNotNull>
+            
+            <isEqual compareValue="0" property="defectstatus" prepend="and">
+            	defectstatus=0
+            </isEqual>
+           	<isGreaterThan compareValue="0" property="defectstatus" prepend="and">
+           		<![CDATA[defectstatus&1 ]]>
+           	</isGreaterThan>
+        </dynamic>
+	</select>
+	
+	<select id="findItemsByConditions"  parameterClass="map" resultClass="items">
+		select IFNULL(id,0) id,itemid,name,productname,mainimg6,brandname,catalogname
+			,IFNULL(originalprice,0) originalprice,IFNULL(moneyback,0) moneyback
+			,IFNULL(status,0) status,priority,inputdate,inputer,updatetime,updater,specialStatus,IFNULL(defectstatus,0) defectstatus
+			,(SELECT count(id) FROM btoc_item WHERE itemid = t.itemid  AND id != SUBSTRING(itemid,2,12) AND `status` > 1)count
+		from btoc_item t
+		WHERE 1=1
+		<dynamic>
+			<isNull property="showstatus" prepend="and">
+				specialStatus &amp; 8 = 0
+			</isNull>
+			<isNotNull property="showstatus" prepend="and">
+				showstatus = 1
+			</isNotNull>
+			<isNotEmpty property="catalogIdList" prepend="and">
+            	catalogid in
+				<iterate  property="catalogIdList"  open="(" close=")" conjunction=",">
+					#catalogIdList[]#
+				</iterate>
+			</isNotEmpty>
+            <isNotEmpty property="itemid" prepend="and">
+                itemid like CONCAT('%',upper(trim(#itemid#)),'%') 
+            </isNotEmpty> 
+            <isNotEmpty property="name" prepend="and">
+            	name like  CONCAT('%',upper(trim(#name#)),'%')
+            </isNotEmpty>     
+            <isNotEmpty property="productname" prepend="and">
+            	productname like CONCAT('%',upper(trim(#productname#)),'%')
+            </isNotEmpty> 
+            <isGreaterThan compareValue="0" property="catalogid" prepend="and">
+                 catalogid=#catalogid#
+            </isGreaterThan>
+             <isGreaterThan compareValue="0" property="brandid" prepend="and">
+                 brandid=#brandid#
+             </isGreaterThan>   
+             <isNotEmpty property="operator" prepend="and"> 
+             	(updater=#operator# or inputer=#operator#)
+             </isNotEmpty>
+             
+             <isEqual compareValue="0" property="status" prepend="and">
+             	status=#status#
+             </isEqual>
+              <isGreaterThan compareValue="0" property="status" prepend="and">
+              <![CDATA[ status&#status# ]]>
+             	
+            </isGreaterThan>      
+             <isNotNull property="inbegintime" prepend="and">
+            	inputdate >= #inbegintime#
+            </isNotNull> 
+           <isNotNull property="inendtime" prepend="and">            	
+            	 <![CDATA[inputdate<=#inendtime# ]]>            	
+            </isNotNull> 
+            <isNotNull property="upbegintime" prepend="and">
+            	updatetime >=#upbegintime#
+            </isNotNull>     
+             <isNotNull property="upendtime" prepend="and">            	
+            	 <![CDATA[updatetime<=#upendtime# ]]>            	
+            </isNotNull> 
+            <isEqual compareValue="0" property="defectstatus" prepend="and">
+            	defectstatus=0
+            </isEqual>
+           	<isGreaterThan compareValue="0" property="defectstatus" prepend="and">
+           		<![CDATA[defectstatus&1 ]]>
+           	</isGreaterThan>
+             </dynamic>
+            order by updatetime desc limit #startPos#,#endPos#
+       
+	</select>
+	<!-- 导出数据 -->
+	<select id="findExportItemsByConditions"  parameterClass="map" resultClass="items">
+		select IFNULL(id,0) id,itemid,name,productname,byname,othername,mainimg1,mainimg2,mainimg3,mainimg4,mainimg5,mainimg6,
+			IFNULL(definitionid,0) definitionid,definitionname,IFNULL(brandid,0) brandid,brandname,brandenglishname,IFNULL(seriesid,0) seriesid,seriesname,
+			IFNULL(catalogid,0) catalogid,catalogname,IFNULL(recommendprice,0) recommendprice,IFNULL(originalprice,0) originalprice,
+			IFNULL(price,0) price,IFNULL(memberprice,0) memberprice
+		    ,gift,IFNULL(moneyback,0) moneyback,IFNULL(salescount,0) salescount,IFNULL(usergradecount,0) usergradecount,IFNULL(usergrade,0) usergrade,
+	        IFNULL(priority,0) priority,IFNULL(pageviw,0) pageviw,
+	        IFNULL(baseproductid,0) baseproductid,IFNULL(weight,0) weight,IFNULL(length,0) length,IFNULL(status,0) status
+	        ,comments,time,inputdate,IFNULL(inputuserid,0) inputuserid,inputer,updatetime,updater,productarea,detail,volume,saleservice,
+	        color,IFNULL(points,0) points,saleinfo
+		from btoc_item
+		<dynamic prepend="where">
+            <isNotEmpty property="itemid" prepend="and">
+                itemid like CONCAT('%',upper(trim(#itemid#)),'%')
+            </isNotEmpty> 
+            <isNotEmpty property="name" prepend="and">
+            	name like  CONCAT('%',upper(trim(#name#)),'%')
+            </isNotEmpty>     
+            <isNotEmpty property="productname" prepend="and">
+            	productname like  CONCAT('%',upper(trim(#productname#)),'%')
+            </isNotEmpty> 
+            <isGreaterThan compareValue="0" property="catalogid" prepend="and">
+                 catalogid=#catalogid#
+            </isGreaterThan>
+             <isGreaterThan compareValue="0" property="brandid" prepend="and">
+                 brandid=#brandid#
+             </isGreaterThan>   
+             <isNotEmpty property="operator" prepend="and"> 
+             	(updater=#operator# or inputer=#operator#)
+             </isNotEmpty>
+             
+             <isEqual compareValue="0" property="status" prepend="and">
+             	status=#status#
+             </isEqual>
+              <isGreaterThan compareValue="0" property="status" prepend="and">
+              <![CDATA[ status&#status# ]]>
+             	
+            </isGreaterThan>      
+             <isNotNull property="inbegintime" prepend="and">
+            	inputdate >= #inbegintime#
+            </isNotNull> 
+           <isNotNull property="inendtime" prepend="and">            	
+            	 <![CDATA[inputdate<=#inendtime# ]]>            	
+            </isNotNull> 
+            <isNotNull property="upbegintime" prepend="and">
+            	updatetime >=#upbegintime#
+            </isNotNull>     
+             <isNotNull property="upendtime" prepend="and">            	
+            	 <![CDATA[updatetime<=#upendtime# ]]>            	
+            </isNotNull> 
+            <isNotEmpty property="catalogIdList" prepend="and">
+            	catalogid in
+			<iterate  property="catalogIdList"  open="(" close=")" conjunction=",">
+				#catalogIdList[]#
+			</iterate>
+			</isNotEmpty>
+            
+        </dynamic>
+         order by updatetime desc 
+	</select>
+	<!-- 选出所有的商品，分页 -->
+	<select id="findAllItemsCount"  resultClass="int">
+		select count(*) from btoc_item WHERE specialStatus &amp; 8 = 0
+	</select>
+	<select id="findAllItems" parameterClass="map" resultClass="items">
+		select IFNULL(id,0) id,itemid,name,productname,mainimg6,brandname,catalogname
+			,IFNULL(originalprice,0) originalprice,IFNULL(moneyback,0) moneyback
+			,IFNULL(status,0) status,priority,inputdate,inputer,updatetime,updater,specialStatus
+			,(SELECT count(id) FROM btoc_item WHERE itemid = t.itemid  AND id != SUBSTRING(itemid,2,12) AND `status` > 1) count
+		from btoc_item t
+		WHERE 1=1
+		<isEmpty property="specialStatus" prepend="and">
+			specialStatus &amp; 8 = 0
+		</isEmpty>
+		<isNotEmpty property="showstatus" prepend="and">
+			showstatus = #showstatus#
+		</isNotEmpty>
+		order by updatetime desc limit #startPos#,#endPos#
+	</select>
+	<!-- 结束 -->
+	<select id="findItemsByBrandCount" parameterClass="map" resultClass="int">
+	select count(*) from btoc_item
+		<dynamic prepend="where">
+            <isNotEmpty property="itemid" prepend="and">
+                itemid=#itemid#
+            </isNotEmpty>
+            <isNotEmpty property="name" prepend="and">
+                name like  CONCAT('%',upper(trim(#name#)),'%')
+            </isNotEmpty>
+           <isGreaterThan compareValue="0" property="catalogid" prepend="and">
+                 catalogid=#catalogid#
+            </isGreaterThan>
+             <isGreaterThan compareValue="0" property="brandid" prepend="and">
+                 brandid=#brandid#
+             </isGreaterThan>
+        </dynamic>
+	</select>
+	<select id="findItemsByBrand" parameterClass="map" resultClass="items">
+	select itemid,name,catalogname,color,IFNULL(length,0) length 
+	from btoc_item
+        <dynamic prepend="where">
+            <isNotEmpty property="itemid" prepend="and">
+                itemid=#itemid#
+            </isNotEmpty>
+            <isNotEmpty property="name" prepend="and">
+                name like  CONCAT('%',upper(trim(#name#)),'%')
+            </isNotEmpty>
+           <isGreaterThan compareValue="0" property="catalogid" prepend="and">
+                 catalogid=#catalogid#
+            </isGreaterThan>
+             <isGreaterThan compareValue="0" property="brandid" prepend="and">
+                 brandid=#brandid#
+             </isGreaterThan>
+        </dynamic>
+        order by itemid limit #startPos#,#endPos#
+	</select>
+	
+	<delete id="delete" parameterClass="int">
+		delete from 
+			btoc_item
+		where 
+			id=#id#
+	</delete>
+	
+	<parameterMap id="catalogTemplateByItemsIdMap" class="map">
+		<parameter property="itemid"  javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN"></parameter>
+    </parameterMap>
+    
+    <procedure id="getProductTemplateById" parameterMap="catalogTemplateByItemsIdMap">
+        {call put_product_to_queue(?)}
+    </procedure>
+    
+    
+	<!-- 查询推荐商品  条件：有货，优先级高，被浏览次数多 -->
+	<select id="queryrecommended" parameterClass="java.util.HashMap"  resultClass="items"	>
+		<![CDATA[
+		select id, productname, mainimg4, gift,recommendprice,originalprice, price from  btoc_item where  status&8!=0  order by priority desc, pageviw desc limit #startPos#,#endPos#			
+	]]>
+	</select>
+	
+	<select id="queryItemByIds" parameterClass="String" resultClass="items">
+		select 
+			IFNULL(id,0) id,productname,mainimg6,
+			IFNULL(originalprice,0) originalprice,status,IFNULL(priority,0) priority
+			,saleinfo
+		from btoc_item
+		where id in ($value$)  
+		order by priority desc
+	</select>   
+	
+	<parameterMap class="map" id="para">
+		<parameter property="startnum" javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN"/>
+		<parameter property="pagesize" javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN"/>
+	</parameterMap>
+	<!-- publish all product page -->
+	<procedure id="publishAllProductPage"  parameterMap="para">
+        {call test_put_product_to_queue(?,?)}
+    </procedure>
+	
+	<select id="queryOnlineItemcount" resultClass="int">
+	<![CDATA[
+		SELECT count(*) FROM btoc_item b where b.status&8 != 0
+		]]>
+	</select>
+	<select id="queryOnlineitemid" resultClass="int">
+		<![CDATA[
+		SELECT id FROM btoc_item b where b.status&8 != 0
+		]]>
+	</select>
+	
+	<select id="isExsitManyPriceItem" parameterClass="map" resultClass="int">
+		SELECT COUNT(id) FROM btoc_item
+		WHERE itemid = concat('P',#itemid#) AND provinceid = #provinceid# AND cityid = #cityid#
+	</select>
+	
+	<select id="getAllManyPriceItemidByiid" parameterClass="int" resultClass="int">
+		SELECT id FROM btoc_item WHERE itemid IN(
+			SELECT itemid FROM btoc_item WHERE id IN(
+				SELECT itemid FROM btoc_attribute_special 
+				WHERE productid = (select productid from btoc_attribute_special where itemid = (
+					SELECT id FROM btoc_item WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)
+				)limit 1)
+				GROUP BY itemid
+			)
+		)
+	</select>
+	
+	
+	<select id="getAllOriginalItemidByiid" parameterClass="int" resultClass="int">
+		SELECT SUBSTR(itemid,2,12)itemid FROM btoc_item WHERE id in(
+			SELECT itemid FROM btoc_attribute_special 
+			WHERE productid = (select productid from btoc_attribute_special where itemid IN (
+				SELECT id FROM btoc_item WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)
+			)limit 1)
+			GROUP BY itemid
+		)
+	</select>
+	
+	<update id="stopItemShowStatus" parameterClass="java.util.List">
+		UPDATE btoc_item SET showstatus = 0 WHERE id in(
+			-1
+			<iterate open="," conjunction=",">
+				#[]#
+			</iterate>
+		)
+	</update>
+	
+	<select id="getManyPriceItems" parameterClass="int" resultClass="items">
+		<![CDATA[
+			SELECT id,itemid,`name`,originalprice,province,city,IFNULL(provinceid,0) provinceid,`status`,moneyback,
+				IFNULL(cityid,0) cityid,properties,IFNULL(specialStatus,0) specialStatus,IFNULL(showstatus,0) showstatus
+			FROM btoc_item
+			WHERE itemid = CONCAT('P',#itemid#) AND specialStatus&8>0
+			order by provinceid
+		]]>
+	</select>
+	
+	<select id="getItemAndManyPriceItems" parameterClass="int" resultClass="items">
+		<![CDATA[
+			SELECT id,itemid,`name`,originalprice,province,city,IFNULL(provinceid,0) provinceid,`status`,
+				IFNULL(cityid,0) cityid,properties,IFNULL(specialStatus,0) specialStatus,IFNULL(showstatus,0) showstatus
+			FROM btoc_item
+			WHERE itemid = CONCAT('P',#itemid#)
+		]]>
+	</select>
+	
+	<select id="getManyPriceItemsForInterface" parameterClass="java.lang.String" resultClass="items">
+		SELECT id, province, city, IFNULL(cityid,0) cityid, IFNULL(provinceid,0) provinceid,gift,showstatus
+		FROM btoc_item
+		WHERE itemid = #itemid# AND specialStatus &amp; 8>0 AND  status &amp; 8 != 0 order by provinceid
+	</select>
+	
+	<update id="updateManyPriceItemPrice" parameterClass="map">
+		UPDATE btoc_item SET originalprice = #price# WHERE id = #id#
+	</update>
+	
+	<update id="cancelAllShowstatus" parameterClass="map">
+		UPDATE btoc_item SET showstatus = 0 WHERE id IN(
+    		-1
+    		<iterate open="," conjunction="," property="ids">#ids[]#</iterate>
+    	) OR itemid = #itemid#
+	</update>
+	
+	<update id="showStatus" parameterClass="int">
+		UPDATE btoc_item SET showstatus = 1 WHERE id = #itemid#
+	</update>
+	
+	<select id="selectManyPriceAndSpecialAttrItemids" parameterClass="int" resultClass="int">
+			SELECT id FROM btoc_item
+			WHERE itemid IN(
+				SELECT itemid FROM btoc_item WHERE id in(
+					SELECT itemid FROM btoc_attribute_special 
+					WHERE productid = (select productid from btoc_attribute_special where itemid IN (
+						SELECT id FROM btoc_item WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)<!-- AND specialStatus &amp; 1 = 1 --> 
+						UNION SELECT -1
+					)limit 1)
+					GROUP BY itemid
+				)
+			)
+			UNION SELECT id FROM btoc_item WHERE id = #itemid# <!-- AND specialStatus & 1 = 1 -->  
+	</select>
+	
+	<select id="getPromotionalGoodsByManyPriceAndSpecialAttr" parameterClass="int" resultClass="int">
+			SELECT id FROM btoc_item
+			WHERE itemid IN(
+				SELECT itemid FROM btoc_item WHERE id in(
+					SELECT itemid FROM btoc_attribute_special 
+					WHERE productid = (select productid from btoc_attribute_special where itemid IN (
+						SELECT id FROM btoc_item WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)<!-- AND specialStatus &amp; 1 = 1 --> 
+						UNION SELECT -1
+					)limit 1)
+					GROUP BY itemid
+				)
+			) AND `status`&amp;10=10
+			UNION SELECT id FROM btoc_item WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#) AND `status`&amp;10=10
+	</select>
+	
+	<select id="selectSpecialAttrItemids" parameterClass="int" resultClass="int">
+		SELECT id FROM btoc_item
+		WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #id#)
+	</select>
+	
+	<select id="getItemidByid" parameterClass="int" resultClass="java.lang.String">
+		SELECT itemid FROM btoc_item WHERE id = #itemid#
+	</select>
+	
+	<update id="cancelSpecialStatus" parameterClass="java.lang.String">
+		<![CDATA[
+			UPDATE btoc_item SET specialStatus =
+			(CASE 	
+			    WHEN specialStatus&4=0 THEN specialStatus
+			    WHEN specialStatus&4=4 THEN specialStatus - 4
+			END)
+			WHERE itemid = #id#
+		]]>
+	</update>
+	
+	<update id="setSpecialStatus" parameterClass="int">
+		<![CDATA[
+			UPDATE btoc_item SET specialStatus = 
+			(CASE 	
+			    WHEN specialStatus&4=0 THEN specialStatus + 4
+			    WHEN specialStatus&4=4 THEN specialStatus
+			END)
+			WHERE id = #itemid#
+		]]>
+	</update>
+	
+	<update id="updateShowSpecialItem" parameterClass="int">
+		<![CDATA[
+		UPDATE btoc_item SET specialStatus = 
+		(CASE 	
+		    WHEN specialStatus&3=0 THEN specialStatus + 3
+		    WHEN specialStatus&3=1 THEN specialStatus + 2
+		    WHEN specialStatus&3=2 THEN specialStatus + 1
+		END)
+		WHERE id = #id#
+		]]>
+	</update>
+	
+	<update id="cancelAllSpecialstatus">
+		<![CDATA[
+		UPDATE btoc_item SET specialStatus = 
+		(CASE 	
+		    WHEN specialStatus&1=0 THEN specialStatus
+		    WHEN specialStatus&1=1 THEN specialStatus - 1
+		END)
+		]]>
+		WHERE id in(
+			-1 
+			<iterate open="," conjunction=",">
+				#[]#
+			</iterate>
+		)
+	</update>
+	
+	<select id="getEndPageShowNum" parameterClass="int" resultClass="int">
+		SELECT count(id) FROM btoc_item
+		WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)
+		AND id != #itemid# AND specialStatus &amp; 1=1 AND `status` &amp; 8 = 8 
+	</select>
+	
+	<select id="getListPageShowNum" parameterClass="int" resultClass="int">
+		SELECT count(id) FROM btoc_item
+		WHERE itemid IN(
+			SELECT itemid FROM btoc_item WHERE id in(
+				SELECT itemid FROM btoc_attribute_special 
+				WHERE productid = (select productid from btoc_attribute_special where itemid IN (
+					SELECT id FROM btoc_item WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)
+				)limit 1)
+				GROUP BY itemid
+			)
+			UNION
+			SELECT itemid FROM btoc_item WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)
+		)AND id NOT IN(
+			SELECT substr(itemid,2,12) FROM btoc_item WHERE id in(
+				SELECT itemid FROM btoc_attribute_special 
+				WHERE productid = (select productid from btoc_attribute_special where itemid IN (
+					SELECT id FROM btoc_item WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)
+				)limit 1)
+				GROUP BY itemid
+			)
+			UNION
+			SELECT substr(itemid,2,12) FROM btoc_item WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)
+		)AND showstatus = 1
+	</select>
+	
+	<select id="getOriginalidByid" parameterClass="int" resultClass="int">
+		SELECT SUBSTRING(itemid,2,12) FROM btoc_item WHERE id = #itemid#
+	</select>
+	
+	<update id="escEndPageShow" parameterClass="java.lang.Object">
+		<![CDATA[
+			UPDATE btoc_item SET specialStatus = 
+			(CASE 	
+			    WHEN specialStatus&1=0 THEN specialStatus
+			    WHEN specialStatus&1=1 THEN specialStatus - 1
+			END)
+			WHERE id = #id#
+		]]>
+	</update>
+	
+	<update id="associatedShowSpecialItemid" parameterClass="int">
+		UPDATE btoc_attribute_special SET itemid = #itemid# WHERE itemid = (
+			SELECT id FROM btoc_item WHERE itemid = (
+				SELECT itemid FROM btoc_item WHERE id = #itemid#
+			) AND specialstatus &amp; 1 = 1
+		)
+	</update>
+	
+	<update id="synchronizationDataToSpecial" parameterClass="java.util.Map">
+		UPDATE btoc_attribute_special SET itemid = #newid# WHERE itemid = #oldid#
+	</update>
+	
+	<update id="synchronizationDataToSpecialTable" parameterClass="int">
+		UPDATE btoc_attribute_special SET itemid = #itemid# WHERE itemid IN(
+			select id FROM btoc_item
+			WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)
+		)
+	</update>
+	
+	<update id="updateIidToDynamicTable" parameterClass="java.util.Map">
+		UPDATE btoc_$catid$_product SET iId = #id# WHERE itemid = CONCAT('P', #itemid#)
+	</update>
+	
+	<select id="countManyPriceItemNum" parameterClass="int" resultClass="int">
+		SELECT COUNT(id) FROM btoc_item WHERE itemid = CONCAT('P', #itemid#) AND id != #itemid#
+	</select>
+	
+	<select id="countShelvesManyPriceItemNum" parameterClass="int" resultClass="int">
+		SELECT COUNT(id) FROM btoc_item WHERE itemid = CONCAT('P', #itemid#) AND id != #itemid# AND `status` &amp; 8=8
+	</select>
+	
+	<select id="getSaleinfoAndMoneybackByIid" parameterClass="int" resultClass="items">
+		SELECT saleinfo,moneyback,gift FROM btoc_item WHERE id = #id#
+	</select>
+	
+	<update id="setEndPageShow" parameterClass="int">
+		UPDATE btoc_item SET specialStatus = (
+			CASE
+				WHEN specialStatus &amp; 1 = 1 THEN specialStatus
+				WHEN specialStatus &amp; 1 = 0 THEN specialStatus + 1
+			END
+		) WHERE id = #itemid#
+	</update>
+	
+	<update id="escAllShowStatusToDynamicTable" parameterClass="java.util.HashMap">
+		UPDATE btoc_$catid$_product SET `status` = 0 WHERE iid IN(
+			-1
+			<iterate open="," conjunction="," property="ids">#ids[]#</iterate>
+		)
+	</update>
+	
+	<update id="setNewShowStatusItemidToDynamicTable" parameterClass="java.util.HashMap">
+		UPDATE btoc_$catid$_product SET iId = #itemid#
+		WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)
+	</update>
+	
+	<update id="setShowStatusToDynamicTable" parameterClass="java.util.HashMap">
+		UPDATE btoc_$catid$_product SET `status` = 1 WHERE itemid = (
+			SELECT itemid FROM btoc_item WHERE id = #itemid#
+		)
+	</update>
+	
+	<update id="setShowStatusToDynamicTableByitemid" parameterClass="java.util.HashMap">
+		UPDATE btoc_$catid$_product SET `status` = 1 WHERE itemid = #itemid#
+	</update>
+	
+	<select id="getShelvesItemAndManyPriceItems" resultClass="int" parameterClass="int">
+		<!-- SELECT * FROM btoc_item WHERE id IN(
+			SELECT id FROM btoc_item WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#)
+		)AND `status` &amp; 8 = 8 -->
+		SELECT id FROM btoc_item
+		WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #itemid#) AND `status` &amp; 8 = 8
+	</select>
+	
+	<select id="getShelvesItemAndManyPriceItemsByIds" resultClass="int">
+		<!-- SELECT id FROM btoc_item WHERE id IN(
+			SELECT id FROM btoc_item WHERE itemid IN (SELECT itemid FROM btoc_item WHERE id IN(
+				-1
+				<iterate open="," conjunction=",">#[]#</iterate>
+			))
+		) -->
+		SELECT id FROM btoc_item WHERE itemid IN (SELECT itemid FROM btoc_item WHERE id IN(
+			-1
+			<iterate open="," conjunction=",">#[]#</iterate>
+		))
+	</select>
+	
+	<select id="isSpecialAttrItem" resultClass="int">
+		SELECT COUNT(id) FROM btoc_item WHERE id IN(
+			-1
+			<iterate open="," conjunction=",">#[]#</iterate>
+		) AND specialstatus &amp; 2 = 2
+	</select>
+	
+	<select id="getProductidByItemid" resultClass="int" parameterClass="int">
+		SELECT productid FROM btoc_attribute_special WHERE itemid = #id# LIMIT 1
+	</select>	
+	
+	<delete id="deleteSpecialAttributeBuItemid" parameterClass="int">
+		DELETE FROM btoc_attribute_special where itemid = #id#
+	</delete>
+	
+	<update id="restoreTheDynamicTable" parameterClass="java.util.Map">
+		UPDATE btoc_$catid$_product
+		SET iId = (SELECT SUBSTRING(itemid,2,12) FROM btoc_item WHERE id = #id#),
+		`status` = (SELECT `status` &amp; 8 FROM btoc_item WHERE id = (SELECT SUBSTRING(itemid,2,12) FROM btoc_item WHERE id = #id#))=8
+		WHERE itemid = (SELECT itemid FROM btoc_item WHERE id = #id#)
+	</update>
+	
+	
+	
+	
+	 <select id="getShowstatusItemNumByProductid" parameterClass="int" resultClass="int">
+    	SELECT COUNT(id) FROM btoc_item WHERE itemid IN(
+			SELECT CONCAT('P',itemid) FROM btoc_attribute_special WHERE productid = #productid# GROUP BY itemid
+		) AND specialstatus &amp; 8 = 8 AND showstatus = 1
+    </select>
+    
+    <select id="getShowstatusItemByProductid" parameterClass="int" resultClass="int">
+    	SELECT id FROM btoc_item WHERE itemid IN(
+			SELECT CONCAT('P',itemid) FROM btoc_attribute_special WHERE productid = #productid# GROUP BY itemid
+		) AND `status` &amp; 8 = 8 AND specialstatus &amp; 8 = 8 LIMIT 1
+    </select>
+    
+    <select id="getOldShowstatusItemByProductid" parameterClass="int" resultClass="int">
+    	SELECT id FROM btoc_item WHERE itemid IN(
+			SELECT CONCAT('P',itemid) FROM btoc_attribute_special WHERE productid = #productid# GROUP BY itemid
+		) AND `status` &amp; 8 = 8 LIMIT 1
+    </select>
+    
+    <update id="escDynamicTable" parameterClass="java.util.Map">
+    	UPDATE btoc_$catid$_product SET `status` = 0 WHERE itemid IN(
+    		SELECT CONCAT('P',itemid) FROM btoc_attribute_special WHERE productid = #productid# GROUP BY itemid
+    	)
+    </update>
+    
+    <update id="synchronousToDynamicTable" parameterClass="java.util.Map">
+    	UPDATE btoc_$catid$_product SET `status` = 1 WHERE itemid = #itemid#
+    </update>
+    
+    <update id="synchronousIidToDynamicTable" parameterClass="java.util.Map">
+    	UPDATE btoc_$catid$_product SET iid = #showid# WHERE itemid = #itemid#
+    </update>
+    
+    <select id="getEndSpecialshowitemid" parameterClass="int" resultClass="string">
+    	SELECT CONCAT('P',itemid) FROM btoc_attribute_special where productid = #productid# LIMIT 1
+    </select>
+    
+    <select id="getEndSpecialItem" parameterClass="int" resultClass="int">
+        SELECT id FROM btoc_item
+		WHERE itemid = CONCAT('P',(SELECT itemid FROM btoc_attribute_special where productid = #productid# LIMIT 1))
+		AND id = (
+			CASE
+				WHEN (SELECT COUNT(id) FROM btoc_item 
+							WHERE itemid = CONCAT('P',(SELECT itemid FROM btoc_attribute_special where productid = #productid# LIMIT 1)) 
+							AND `status` &amp; 8 = 8 AND specialStatus &amp; 12 = 12) > 0
+					THEN (SELECT id FROM btoc_item 
+								WHERE itemid = CONCAT('P',(SELECT itemid FROM btoc_attribute_special where productid = #productid# LIMIT 1)) 
+								AND `status` &amp; 8 = 8 AND specialStatus &amp; 12 = 12 LIMIT 1)
+				WHEN (SELECT COUNT(id) FROM btoc_item 
+							WHERE itemid = CONCAT('P',(SELECT itemid FROM btoc_attribute_special where productid = #productid# LIMIT 1)) 
+							AND `status` &amp; 8 = 8 AND specialStatus &amp; 8 = 8) > 0
+					THEN (SELECT id FROM btoc_item 
+								WHERE itemid = CONCAT('P',(SELECT itemid FROM btoc_attribute_special where productid = #productid# LIMIT 1)) 
+								AND `status` &amp; 8 = 8 AND specialStatus &amp; 8 = 8 LIMIT 1)
+				ELSE (SELECT itemid FROM btoc_attribute_special where productid = #productid# LIMIT 1)
+			END
+		)
+    </select>
+    
+    <update id="escSpecialstatusByProductid" parameterClass="int">
+    	UPDATE btoc_item SET specialStatus = (
+    		CASE
+    			WHEN specialStatus &amp; 3 = 3 THEN specialStatus - 3
+    			WHEN specialStatus &amp; 3 = 2 THEN specialStatus - 2
+    			WHEN specialStatus &amp; 3 = 1 THEN specialStatus - 1
+    			WHEN specialStatus &amp; 3 = 0 THEN specialStatus
+    		END
+    	) WHERE itemid IN(
+    		SELECT CONCAT('P',itemid) p FROM btoc_attribute_special WHERE productid = #productid# GROUP BY p
+    	)
+    </update>
+    
+    <update id="updateItemStatus" parameterClass="map">
+    	UPDATE btoc_item SET `status` = #status# WHERE id = #id#
+    </update>
+    
+    <update id="updateTheDynamicTableStatus" parameterClass="map">
+    	UPDATE btoc_$dname$_product SET `status` = #value# WHERE itemid = #itemid#
+    </update>
+    
+    <update id="escPromotionalGoodsStatus">
+    	UPDATE btoc_item SET `status` = (
+    		CASE
+    			WHEN `status` &amp; 2 = 2 THEN `status`-2
+    			WHEN `status` &amp; 2 = 0 THEN `status`
+    		END
+    	) WHERE id IN(
+    		<iterate conjunction=",">#[]#</iterate>
+    	)
+    </update>
+    
+    <select id="getShowStatusItemByIds" resultClass="int">
+    	SELECT id FROM btoc_item WHERE showstatus = 1 AND id IN(
+    		<iterate conjunction=",">#[]#</iterate>
+    	)
+    </select>
+    
+    <update id="setPromotionalGoodsStatusForShowItem" parameterClass="int">
+    	UPDATE btoc_item SET `status` = (
+    		CASE
+    			WHEN `status` &amp; 2 = 0 THEN `status`+2
+    			WHEN `status` &amp; 2 = 2 THEN `status`
+    		END 
+    	) WHERE id = #showid#
+    </update>
+    
+    <select id="getDefinationSpecialAttribute" parameterClass="java.lang.Object" resultClass="java.lang.String">
+    	<!-- SELECT ATTRIBUTENAME FROM btoc_definitionattribute
+		WHERE DEFINITIONID = #defid# AND `STATUS` &amp; 8 = 8 -->
+		
+		SELECT t.ATTRIBUTENAME FROM btoc_definitionattribute t,
+			(SELECT p1.* FROM btoc_attribute_special_priority p1 WHERE p1.DEFINITIONID = #defid# AND p1.ATTRIBUTENAME = '主属性设置') p
+		WHERE t.DEFINITIONID = #defid# AND t.`STATUS` &amp; 8 = 8
+		AND p.definitionid = t.DEFINITIONID
+		AND p.attvalue = t.ATTRIBUTEDISPLAYNAME
+		ORDER BY p.priority DESC
+    </select>
+    
+    <select id="searchSpecialItem" parameterClass="java.util.HashMap" resultClass="items">
+		<!-- SELECT <include refid="selectItemSql"/> FROM btoc_item t WHERE t.id IN(
+			SELECT iId from btoc_$defname$_product
+			WHERE TRUE
+			<iterate open="AND" conjunction="AND" property="specialattr">
+				 `$specialattr[]$` != ''
+			</iterate>
+		)AND t.id NOT IN (SELECT itemid FROM btoc_attribute_special GROUP BY itemid)
+		AND t.`status` &amp; 8 != 0
+		
+		<isNotEmpty property="key" open="AND">
+			(itemid = #key# OR id = #key# OR productname LIKE CONCAT('%', #key#, '%'))
+		</isNotEmpty>
+		
+		LIMIT #start#, #num# -->
+		
+		SELECT <include refid="selectItemSql"/> FROM btoc_item t, (
+		    SELECT iId FROM btoc_$defname$_product
+		    <iterate property="specialattr">
+		    	, (
+					SELECT t.`VALUE` val FROM btoc_attributeenumvalue t
+					WHERE t.attributeid IN(
+						SELECT d.attributeid FROM btoc_definitionattribute d WHERE d.DEFINITIONID = #defid#
+						AND ATTRIBUTENAME = #specialattr[]#
+					)
+				) t_$specialattr[]$
+		    </iterate>
+		    
+		    WHERE TRUE
+		    <iterate property="specialattr">
+				 AND TRIM(`$specialattr[]$`) != ''
+				 AND `$specialattr[]$` is not null
+				 AND `$specialattr[]$` = t_$specialattr[]$.val
+			</iterate>
+			AND iId NOT IN (SELECT itemid FROM btoc_attribute_special GROUP BY itemid)
+		) i
+		WHERE t.id = i.iId
+		AND t.`status` &amp; 8 != 0
+		
+		<isNotEmpty property="key" open="AND">
+			(itemid = #key# OR id = #key# OR productname LIKE CONCAT('%', #key#, '%'))
+		</isNotEmpty>
+		
+		LIMIT #start#, #num#
+    </select>
+    
+    <select id="countSearchSpecialItem" parameterClass="java.util.HashMap" resultClass="int">
+		<!-- SELECT COUNT(*) FROM btoc_item WHERE id IN(
+			SELECT iId from btoc_$defname$_product
+			WHERE TRUE
+			<iterate open="AND" conjunction="AND" property="specialattr">
+				 TRIM(`$specialattr[]$`) != '' AND `$specialattr[]$` is not null
+			</iterate>
+		) AND id NOT IN (SELECT itemid FROM btoc_attribute_special GROUP BY itemid) -->
+		
+		SELECT COUNT(*) FROM btoc_item t, (
+		    SELECT iId FROM btoc_$defname$_product
+		    <iterate property="specialattr">
+		    	, (
+					SELECT t.`VALUE` val FROM btoc_attributeenumvalue t
+					WHERE t.attributeid IN(
+						SELECT d.attributeid FROM btoc_definitionattribute d WHERE d.DEFINITIONID = #defid#
+						AND ATTRIBUTENAME = #specialattr[]#
+					)
+				) t_$specialattr[]$
+		    </iterate>
+		    
+		    WHERE TRUE
+		    <iterate property="specialattr">
+				 AND TRIM(`$specialattr[]$`) != ''
+				 AND `$specialattr[]$` is not null
+				 AND `$specialattr[]$` = t_$specialattr[]$.val
+			</iterate>
+			AND iId NOT IN (SELECT itemid FROM btoc_attribute_special GROUP BY itemid)
+		) i
+		WHERE t.id = i.iId
+		AND t.`status` &amp; 8 != 0
+		
+		<isNotEmpty property="key" open="AND">
+			(itemid = #key# OR id = #key# OR productname LIKE CONCAT('%', #key#, '%'))
+		</isNotEmpty>
+		
+    </select>
+    
+    <select id="getItemSpecialAttrValMap" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT itemid, <iterate open="CONCAT(" close=")" conjunction=",'^'," property="specialattr">`$specialattr[]$`</iterate> `value`
+    	FROM btoc_$defname$_product WHERE itemid IN(
+    		<iterate conjunction="," property="itemids">#itemids[]#</iterate>
+    	)
+    </select>
+    
+    <select id="getSpecialItem" parameterClass="int" resultClass="items">
+    	SELECT <include refid="selectItemSql"/> FROM btoc_item WHERE id IN(
+			SELECT itemid FROM btoc_attribute_special WHERE productid = (
+				SELECT productid FROM btoc_attribute_special WHERE itemid = #id# LIMIT 1
+			) GROUP BY itemid
+		) ORDER BY productname
+    </select>
+    
+    <select id="mobilePrice" resultClass="items">
+		select p.id, p.productname, p.brandname, p.originalprice, p.gift, p.status
+		from btoc_item p 
+		where p.catalogname = '手机'
+        <![CDATA[
+		and p.status & 8 = 8
+		]]>
+    </select>
+    
+    <!-- query for common query div -->
+    
+    <sql id="commonItemFields">
+    	id, itemid, productname, catalogname, brandid, catalogid
+    	name, status, showstatus, mainimg6, originalprice
+    </sql>
+    
+    <sql id="commonQueryFilter">
+    	where
+    		showstatus = 1
+  		<isNotEmpty property="catalogIds" prepend="and">
+  			catalogid in ($catalogIds$)
+  		</isNotEmpty>
+  		<isNotNull property="brandId" prepend="and">
+  			brandid = #brandId#
+  		</isNotNull>
+  		<isNotNull property="status" prepend="and">
+			<![CDATA[status&#status#]]> 
+  		</isNotNull>
+  		<isNotEmpty property="primaryKey" prepend="and">
+  			id in ($primaryKey$)
+  		</isNotEmpty>
+  		<isNotNull property="defectstatus" prepend="and">
+  			defectstatus = #defectstatus#
+  		</isNotNull>
+  		<isNotEmpty property="itemId" prepend="and">
+  			itemid in (#itemId#)
+  		</isNotEmpty>
+  		<isNotEmpty prepend="and" property="productName">
+  			upper(productname) like CONCAT('%',upper(trim(#productName#)),'%')
+  		</isNotEmpty>
+  	 	<isNotEmpty prepend="and" property="mainPush">
+  			<![CDATA[mainpush & #mainPush# != 0]]> and branchpush like CONCAT('%',#companyId#,'%')
+  		</isNotEmpty>
+    </sql>
+    
+    <select id="commonQueryItems" parameterClass="param" resultClass="items">
+    	select 
+    		<include refid="commonItemFields"/>
+    	from
+    		btoc_item
+    	<include refid="commonQueryFilter"/>
+    	
+    	order by updatetime desc
+    </select>
+    
+    <select id="commonQueryItemsCount" parameterClass="param" resultClass="int">
+    	select count(1) from btoc_item
+    	<include refid="commonQueryFilter"/>
+    </select>
+</sqlMap>

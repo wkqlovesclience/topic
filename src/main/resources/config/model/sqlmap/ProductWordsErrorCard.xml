@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+ 
+<sqlMap namespace="ProductWordsErrorCard" >
+
+	 <typeAlias alias="productWordsCardImportLog" type="com.gome.productwords.model.ProductWordsCardImportLog"/>
+     <typeAlias alias="productWordsErrorCard" type="com.gome.productwords.model.ProductWordsErrorCard"/>
+    
+     <resultMap class="com.gome.productwords.model.ProductWordsErrorCard" id="BB.ErrorCard">
+   		 <result property="id" column="ID"/>
+         <result property="productWordsBase" column="PRODUCTWORDS_BASE"/>
+         <result property="productWordsName" column="PRODUCTWORDS_NAME"/>
+         <result property="createTime" column="CREATE_TIME"/>
+         <result property="creator" column="CREATOR"/>
+         <result property="type" column="TYPE"/>      
+         <result property="logId" column="LOG_ID"/>
+   	 </resultMap>
+ 
+	<sql id="ProductWordsErrorCard.columns">
+	    <![CDATA[
+       ID,PRODUCTWORDS_BASE,PRODUCTWORDS_NAME,CREATE_TIME,CREATOR,TYPE,LOG_ID
+	    ]]>
+	</sql>
+	
+	<insert id="ProductWordsErrorCard.insert" >
+    <![CDATA[
+        INSERT INTO t_error_sku_productwords_promotion ( 
+	        ID,
+			PRODUCTWORDS_BASE,
+			PRODUCTWORDS_NAME,
+			CREATE_TIME,			
+			CREATOR	,
+			TYPE,
+			LOG_ID		
+        ) VALUES ( 
+        	#id# ,
+        	#productWordsBase# ,
+        	#productWordsName# ,
+        	#createTime# ,      
+        	#creator# ,
+        	#type# ,
+        	#logId#
+        )
+    ]]>
+    <selectKey resultClass="int" keyProperty="id" type="post">  
+          select last_insert_id() as id
+    </selectKey>     
+    </insert>    
+	  	  
+	<select id="ProductWordsErrorCard.getById" resultMap="BB.ErrorCard">
+	    SELECT <include refid="ProductWordsErrorCard.columns"/>
+	    <![CDATA[
+	        FROM t_error_sku_productwords_promotion 
+	        WHERE 
+		        ID = #id# 
+	    ]]>
+    </select>
+	  
+    <!-- LOG  -->
+    <!-- 查看日志总数据 -->
+    <sql id="selectLogSql">
+		id, creator, create_time as createTime,
+			total_count as totalCount, fail_count as failCount, down_status as downStatus
+	</sql>
+	
+	<select id="logcount" parameterClass="map" resultClass="int">
+		SELECT count(1) FROM t_sku_productwords_promotion_log
+	</select>
+	
+	<select id="listlog" parameterClass="map" resultClass="productWordsCardImportLog">
+		SELECT <include refid="selectLogSql"/>
+		FROM t_sku_productwords_promotion_log
+		ORDER BY id DESC
+	</select>
+	
+	<!-- create errorTitles log -->
+	<insert id="addLog" parameterClass="productWordsCardImportLog">
+	<![CDATA[
+		INSERT INTO t_sku_productwords_promotion_log
+				(	creator, create_time, total_count, fail_count )
+   		  VALUES(	#creator#, #createTime#,  #totalCount#, #failCount# )
+    ]]>
+   		  <selectKey resultClass="int" keyProperty="id" type="post">  
+               select last_insert_id() as id
+          </selectKey> 
+	</insert>
+	
+	<update id="downLogStatus" parameterClass="java.lang.String">
+		update t_sku_productwords_promotion_log set down_status = 1 where id = #id#
+	</update>
+	
+	
+	
+	
+    <sql id="selectErrorCardSql">
+	 ID,PRODUCTWORDS_BASE,PRODUCTWORDS_NAME,LOG_ID,CREATE_TIME,CREATOR,TYPE
+	</sql>
+
+	<!-- create errorCard  -->
+	<insert id="addError" parameterClass="ProductWordsErrorCard">
+		<![CDATA[
+			INSERT INTO t_error_sku_productwords_promotion 
+					(	PRODUCTWORDS_BASE,PRODUCTWORDS_NAME,LOG_ID,CREATE_TIME,CREATOR,TYPE)
+	   		  VALUES( 	#productWordsBase# ,#productWordsName#, #logId#,  #createTime#, #creator#, #type#)
+	    ]]>
+		<selectKey resultClass="int" keyProperty="id" type="post">
+			select last_insert_id() as id
+		</selectKey>
+	</insert>
+	
+	<select id="listDownLog" parameterClass="map" resultMap="BB.ErrorCard">
+		SELECT 
+			<include refid="selectErrorCardSql"/>
+		FROM t_error_sku_productwords_promotion b
+	    WHERE  LOG_ID = #logId#
+	</select>
+    
+</sqlMap>
+

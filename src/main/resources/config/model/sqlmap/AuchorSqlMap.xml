@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+ 
+<sqlMap namespace="AnchorKeywords" >
+
+    
+    <typeAlias alias="importLog" type="com.coo8.topic.model.ImportLog"/>
+    <typeAlias alias="errorAnchorKeyword" type="com.coo8.topic.model.ErrorAnchorKeyword"/>
+    <typeAlias alias="anchorKeyword" type="com.coo8.topic.model.AnchorKeywords"/>
+
+    <resultMap id="RM.AnchorKeywords" class="com.coo8.topic.model.AnchorKeywords">
+        <result property="id" column="ID"/>
+        <result property="keyName" column="KEY_NAME"/>
+        <result property="pcUrl" column="PC_URL"/>
+        <result property="wapUrl" column="WAP_URL"/>
+        <result property="rate" column="RATE"/>
+        <result property="createDate" column="CREATE_DATE"/>
+        <result property="createUser" column="CREATE_USER"/>
+        <result property="updateUser" column="UPDATE_USER"/>
+        <result property="updateDate" column="UPDATE_DATE"/>
+        <result property="youxianji" column="YOUXIANJI"/>
+        <result property="testUrl" column="TEST_URL"/>
+    </resultMap>
+    
+     <resultMap id="RM.ErrorAnchorKeyword" class="com.coo8.topic.model.ErrorAnchorKeyword">
+        <result property="id" column="ID"/>
+        <result property="keyName" column="KEY_NAME"/>
+        <result property="pcUrl" column="PC_URL"/>
+        <result property="wapUrl" column="WAP_URL"/>
+        <result property="rate" column="RATE"/>
+        <result property="createDate" column="CREATE_DATE"/>
+        <result property="createUser" column="CREATE_USER"/>
+        <result property="type" column="TYPE"/>
+        <result property="youxianji" column="YOUXIANJI"/>
+    </resultMap>
+    
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="AnchorKeywords.columns">
+	    <![CDATA[
+        ID ,KEY_NAME ,PC_URL,WAP_URL,RATE,CREATE_DATE,CREATE_USER,UPDATE_USER,UPDATE_DATE,YOUXIANJI,TEST_URL
+	    ]]>
+	</sql>
+	
+    <insert id="AnchorKeywords.insert">
+    
+    <![CDATA[
+        INSERT INTO t_anchor_keywords ( 
+	        KEY_NAME  ,
+	        PC_URL  ,
+	        WAP_URL  ,
+	        RATE  ,
+	        CREATE_DATE  ,
+	        CREATE_USER  ,
+	        UPDATE_USER  ,
+	        UPDATE_DATE ,
+	        TEST_URL ,
+	        YOUXIANJI
+        ) VALUES ( 
+        	#keyName# ,
+        	#pcUrl# ,
+        	#wapUrl# ,
+        	#rate# ,
+        	#createDate# ,
+        	#createUser# ,
+        	#updateUser# ,
+        	#updateDate#,
+        	#testUrl#,
+        	#youxianji#
+        )
+    ]]>
+    </insert>
+    
+
+   
+
+    <update id="AnchorKeywords.update" >
+        UPDATE t_anchor_keywords SET
+	        KEY_NAME = #keyName# ,
+	        PC_URL = #pcUrl# ,
+	        WAP_URL = #wapUrl# ,
+	        RATE = #rate# ,
+	        CREATE_DATE = #createDate# ,
+	        TEST_URL = #testUrl# ,	        
+	        CREATE_USER = #createUser#,
+	        UPDATE_USER = #updateUser# ,
+	        UPDATE_DATE = #updateDate# ,
+	         YOUXIANJI = 	#youxianji#
+        WHERE 
+	        ID = #id#
+    </update>
+
+    <delete id="AnchorKeywords.delete">
+    <![CDATA[
+        DELETE FROM t_anchor_keywords WHERE
+        ID = #id#
+    ]]>
+    </delete>
+    
+    
+    <delete id="AnchorKeywords.deleteAll">
+    <![CDATA[
+        DELETE FROM t_anchor_keywords WHERE 1=1
+    ]]>
+    </delete>
+    
+    
+    
+    <select id="AnchorKeywords.getById" resultMap="RM.AnchorKeywords">
+	    SELECT <include refid="AnchorKeywords.columns"/>
+	    <![CDATA[
+	        FROM t_anchor_keywords 
+	        WHERE 
+		        ID = #id#
+	    ]]>
+    </select>
+    
+        
+
+
+
+	<sql id="AnchorKeywords.findPage.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="keyName">
+		             KEY_NAME = #keyName#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="pcUrl">
+		             PC_URL = #pcUrl#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="wapUrl">
+		             WAP_URL = #wapUrl#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="rate">
+		             RATE = #rate#
+		       </isNotEmpty>
+		        <isNotEmpty prepend="AND" property="createUser">
+		             CREATE_USER = #createUser#
+		       </isNotEmpty>
+		        <isNotEmpty prepend="AND" property="testUrl">
+		              TEST_URL = #testUrl#
+		       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	
+	
+	<sql id="AnchorKeywords.getByWhere.where">
+	    <dynamic>
+		       <isNotEmpty prepend="AND" property="keyName">
+		             KEY_NAME = #keyName#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="pcUrl">
+		             PC_URL = #pcUrl#
+		       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	
+	
+	<sql id="AnchorKeywords.findPageLike.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="keyName">
+		             KEY_NAME = #keyName#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="pcUrl">
+		             PC_URL = #pcUrl#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="wapUrl">
+		             WAP_URL = #wapUrl#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="rate">
+		             RATE = #rate#
+		       </isNotEmpty>
+		        <isNotEmpty prepend="AND" property="createUser">
+		             CREATE_USER = #createUser#
+		       </isNotEmpty>
+		         <isNotEmpty prepend="AND" property="idBegin">
+		             <![CDATA[ ID >= #idBegin# ]]>
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="idEnd">
+		             <![CDATA[ ID <= #idEnd#  ]]>
+		       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	 
+	 <select id="AnchorKeywords.getByWhere" parameterClass="anchorKeyword" resultMap="RM.AnchorKeywords">
+	    SELECT <include refid="AnchorKeywords.columns"/>
+        FROM t_anchor_keywords 
+        WHERE 1=1
+         <include refid="AnchorKeywords.getByWhere.where"/>
+	 
+    </select>
+    
+    <select id="AnchorKeywords.findPage.count" parameterClass="map"  resultClass="long">
+        SELECT count(*) FROM t_anchor_keywords 
+        <dynamic prepend="WHERE">
+			<isNotNull property="anchorId" prepend="and">
+				ID = #anchorId#			
+			</isNotNull>
+			<isNotNull property="anchorName" prepend="and">
+				KEY_NAME = #anchorName#			
+			</isNotNull>
+			<isNotEmpty prepend="AND" property="testUrl">
+		              TEST_URL = #testUrl#
+		       </isNotEmpty>
+		</dynamic>
+    </select>
+
+	
+	<select id="AnchorKeywords.findPage" parameterClass="map"   resultMap="RM.AnchorKeywords">
+	    	SELECT <include refid="AnchorKeywords.columns"/> FROM t_anchor_keywords 
+	    	<dynamic prepend="WHERE">
+			<isNotNull property="anchorId" prepend="and">
+				ID = #anchorId#			
+			</isNotNull>
+			<isNotNull property="anchorName" prepend="and">
+				KEY_NAME = #anchorName#			
+			</isNotNull>
+			 <isNotEmpty prepend="AND" property="testUrl">
+		              TEST_URL = #testUrl#
+		       </isNotEmpty>
+		</dynamic>
+		 ORDER BY id DESC
+			<!-- <include refid="AnchorKeywords.findPage.where"/>
+			<dynamic prepend="ORDER BY">
+				<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+			</dynamic> -->
+	    </select>
+	    
+		<select id="AnchorKeywords.findAll" resultMap="RM.AnchorKeywords">
+	      SELECT <include refid="AnchorKeywords.columns"/> FROM t_anchor_keywords 
+	    </select>
+	    
+	    
+	<select id="AnchorKeywords.findPageLike" resultMap="RM.AnchorKeywords">
+    	SELECT <include refid="AnchorKeywords.columns"/> FROM t_anchor_keywords 
+		<include refid="AnchorKeywords.findPageLike.where"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    
+    
+    <!-- LOG  -->
+    <!-- 查看日志总数据 -->
+    <sql id="selectLogSql">
+		id, creator, create_time as createTime, file_url as fileUrl,
+			total_count as totalCount, fail_count as failCount, down_status as downStatus
+	</sql>
+	
+	<select id="logcount" parameterClass="map" resultClass="int">
+		SELECT count(1) FROM t_anchor_keywords_log 
+	</select>
+	
+	<select id="listlog" parameterClass="map" resultClass="importLog">
+		SELECT <include refid="selectLogSql"/>
+		FROM t_anchor_keywords_log
+		ORDER BY id DESC
+	</select>
+	
+	<!-- create errorhotkeyword log -->
+	<insert id="addLog" parameterClass="importLog">
+		INSERT INTO t_anchor_keywords_log
+				(	creator, create_time, file_url, total_count, fail_count )
+   		  VALUES(	#creator#, #createTime#, #fileUrl#, #totalCount#, #failCount# )
+	</insert>
+	
+	<update id="downLogStatus" parameterClass="java.lang.String">
+		update t_anchor_keywords_log set down_status = 1 where id = #id#
+	</update>
+	
+	<!-- 错误关键词 -->
+	
+	
+	<sql id="selectErrorAnthorkeyWordSql">
+	 id,key_name,pc_url,wap_url,rate,create_date,create_user,type,youxianji 
+	</sql>
+	<!-- create errorhotkeyword  -->
+	<insert id="addError" parameterClass="errorAnchorKeyword">
+		INSERT INTO t_error_anchorkeywords 
+				(	key_name, pc_url, wap_url, rate, create_date, create_user , type,  youxianji)
+   		  VALUES(	#keyName#, #pcUrl#, #wapUrl#, #rate#, #createDate#, #createUser# ,#type#, #youxianji#)
+	</insert>
+	
+	<select id="listDownLog" parameterClass="map" resultMap="RM.ErrorAnchorKeyword">
+		SELECT 
+			<include refid="selectErrorAnthorkeyWordSql"/>
+		FROM t_error_anchorkeywords b
+	    WHERE  upper(b.create_date) like CONCAT('%',upper(trim(#createTime#)),'%')
+	</select>
+</sqlMap>
+

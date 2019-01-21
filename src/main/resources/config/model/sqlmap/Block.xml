@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Block">
+	
+	<typeAlias alias="block" type="com.coo8.btoc.model.block.Block"/>
+	<typeAlias alias="blockContentHistory" 
+		type="com.coo8.btoc.model.block.BlockContentHistory"/>
+	
+	<!-- the selected fields of block table -->
+	<sql id="selectBlockSql">
+		b.id, b.template_id templateId, b.resource_id resourceId, b.type, b.name, 
+		b.display_name displayName, b.content, b.description, b.status, b.data_num dataNum, 
+		b.created_time createdTime, b.creator, b.updator, b.updated_time, location, page
+	</sql>
+	
+	<!-- block table name -->
+	<sql id="blockTable">
+		btoc_block b
+	</sql>
+	
+	<!-- create block -->
+	<insert id="insertBlock" parameterClass="block">
+		INSERT INTO btoc_block 
+				(	template_id, resource_id, type, name, display_name, content, 
+   					description, status, data_num , created_time , creator, location, page ,site
+   				)
+   		  VALUES(	#templateId#, #resourceId#, #type#, #name#, #displayName#, #content#,
+   					#description#, #status#, #dataNum#, CURRENT_TIMESTAMP, #creator#, #location#
+   					, #page# ,#site#
+   				)
+   		<selectKey resultClass="int" keyProperty="id">
+			select last_insert_id() as ID from btoc_block limit 1
+		</selectKey>		
+	</insert>
+	
+	<!-- update block -->
+	<update id="updateBlock" parameterClass="block">
+		update btoc_block set
+			updator = #updator#,
+			updated_time = CURRENT_TIMESTAMP
+			<isNotNull property="resourceId" prepend=",">
+				resource_id = #resourceId#
+			</isNotNull>
+			<isNotEmpty property="displayName" prepend=",">
+				display_name = #displayName#
+			</isNotEmpty>
+			<isNotEmpty property="name" prepend=",">
+				name = #name#
+			</isNotEmpty>
+			<isNotEmpty property="content" prepend=",">
+				content = #content#
+			</isNotEmpty>
+			<isNotEmpty property="description" prepend=",">
+				description = #description#
+			</isNotEmpty>
+			<isNotNull property="status" prepend=",">
+				status = #status#
+			</isNotNull>
+			<isNotNull property="dataNum" prepend=",">
+				data_num = #dataNum#
+			</isNotNull>
+			<isNotEmpty property="location" prepend=",">
+				location = #location#
+			</isNotEmpty>
+			<isNotEmpty property="page" prepend=",">
+				page = #page#
+			</isNotEmpty>
+		where
+			id = #id#
+	</update>
+	
+	<!-- update block location-->
+	<update id="updateBlockLocation" parameterClass="block">
+		update btoc_block set
+			<isNotEmpty property="location">
+				location = #location#
+			</isNotEmpty>
+		where
+			id = #id#
+	</update>
+	
+	<!-- query block by id -->
+	<select id="getBlockById" parameterClass="int" resultClass="block">
+		SELECT
+			<include refid="selectBlockSql"/>
+		FROM
+			<include refid="blockTable"/>
+		WHERE
+			id = #id#	
+	</select>
+	
+	<!-- 符合条件块的个数 -->
+	<select id="queryBlockCount" parameterClass="block" resultClass="int">
+		SELECT 
+			count(1)
+		FROM
+			<include refid="blockTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="templateId" prepend="and">
+				b.template_id = #templateId#			
+			</isNotNull>
+			<isNotEmpty property="name" prepend="and">
+				upper(b.name) like CONCAT('%',upper(trim(#name#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="description" prepend="and">
+				upper(b.description) like CONCAT('%',upper(trim(#description#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="displayName" prepend="and">
+				upper(b.display_name) like CONCAT('%',upper(trim(#displayName#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="creator" prepend="and">
+				upper(b.creator) like CONCAT('%',upper(trim(#creator#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="updator" prepend="and">
+				upper(b.updator) like CONCAT('%',upper(trim(#updator#)),'%')
+			</isNotEmpty>
+			<isNotNull property="type" prepend="and">
+				b.type = #type#		
+			</isNotNull>
+			<isNotNull property="status" prepend="and">
+				b.status = #status#
+			</isNotNull>
+			<isNotNull property="resourceId" prepend="and">
+				b.resource_id = #resourceId#			
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<!-- 符合条件的块 -->
+	<select id="queryBlocks" parameterClass="block" resultClass="block">
+		SELECT 
+			<include refid="selectBlockSql"/>
+		FROM
+			<include refid="blockTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="templateId" prepend="and">
+				b.template_id = #templateId#			
+			</isNotNull>
+			<isNotEmpty property="name" prepend="and">
+				upper(b.name) like CONCAT('%',upper(trim(#name#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="description" prepend="and">
+				upper(b.description) like CONCAT('%',upper(trim(#description#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="displayName" prepend="and">
+				upper(b.display_name) like CONCAT('%',upper(trim(#displayName#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="creator" prepend="and">
+				upper(b.creator) like CONCAT('%',upper(trim(#creator#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="updator" prepend="and">
+				upper(b.updator) like CONCAT('%',upper(trim(#updator#)),'%')
+			</isNotEmpty>
+			<isNotNull property="type" prepend="and">
+				b.type = #type#		
+			</isNotNull>
+			<isNotNull property="status" prepend="and">
+				b.status = #status#
+			</isNotNull>
+			<isNotNull property="resourceId" prepend="and">
+				b.resource_id = #resourceId#			
+			</isNotNull>
+		</dynamic>
+		order by
+			b.created_time desc
+	</select>
+	
+	<select id="queryBlockWithResource" parameterClass="block" resultClass="block">
+		SELECT 
+			<include refid="selectBlockSql"/>
+		FROM
+			<include refid="blockTable"/>, btoc_resource r
+		WHERE
+			r.id = b.resource_id
+			<isNotNull property="templateId" prepend="and">
+				b.template_id = #templateId#			
+			</isNotNull>
+			<isNotNull property="type" prepend="and">
+				r.type = #type#			
+			</isNotNull>
+		ORDER BY
+			b.created_time desc
+	</select>
+	
+	<!-- blockContentHistory 相关的操作 -->
+	
+	<insert id="insertBlockContetnHistory" parameterClass="block">
+		insert into btoc_block_content_history
+			(template_id, content, description, creator, created_time)
+		values
+			(#templateId#, #content#, #description#, #updator#, CURRENT_TIMESTAMP)
+	</insert>
+	<!-- 通过静态页ID与模板ID查询块 -->
+	<select id="queryBlockWithHtmlid" parameterClass="map" resultClass="block">
+		SELECT 
+			<include refid="selectBlockSql"/>
+		FROM
+			<include refid="blockTable"/>, btoc_static_html h
+		WHERE
+			h.template_id = b.template_id
+			<isNotNull property="htmlId" prepend="and">
+				h.id = #htmlId#
+			</isNotNull>
+			<isNotNull property="resourceId" prepend="and">
+				b.resource_id = #resourceId#			
+			</isNotNull>
+	
+	</select>
+	<insert id="insertBlockQueue" parameterClass="map">
+		insert into btoc_block_queue
+			(template_id, block_id, rfid, rtype, priority, input_date,status)
+		values
+			(#templateid#,#blockid#,#productid#,2,0, CURRENT_TIMESTAMP,0);
+	</insert>
+	
+</sqlMap>

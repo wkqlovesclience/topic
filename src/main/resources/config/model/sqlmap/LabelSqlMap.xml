@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Label" >
+
+    <resultMap id="RM.Label" class="com.coo8.topic.labelart.modal.Label">
+        <result property="id" column="ID"/>
+        <result property="types" column="TYPES"/>
+        <result property="names" column="NAMES"/>
+        <result property="url" column="URL"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="modifier" column="MODIFIER"/>
+        <result property="site" column="SITE"/>
+        <result property="everySearch" column="EVERY_SEARCH"/>
+          <result property="states" column="STATES"/>
+    </resultMap>
+    
+    <!-- 索引映像 -->
+   	<resultMap class="com.coo8.topic.labelart.modal.LabelIndex" id="RM.LabelIndex">
+   		<result property="id" column="ID"/>
+   		<result property="labelId" column="LABELID"/>
+   		<result property="title" column="NAMES"/>
+   		<result property="cindex" column="CINDEX"/>
+   		<result property="priority" column="PRIORITY"/>
+   		<result property="operator" column="OPERATOR"/>
+   		<result property="status" column="STATUS"/>
+   		<result property="updatetime" column="UPDATETIME"/>
+   	</resultMap>
+   	
+   	<sql id="LabelIndex.index.columns">
+   		<![CDATA[
+   		t1.ID,t1.LABELID,t2.NAMES,t1.STATUS,t1.CINDEX,t1.PRIORITY,t1.OPERATOR,t1.UPDATETIME
+   		]]>
+   	</sql>
+   	
+   	<sql id="LabelIndex.index.where">
+   		<dynamic prepend="AND">
+   			<isNotEmpty prepend="AND" property="cindex">
+   				<isEqual property="cindex" compareValue="_" open="(" close=")">
+   					<![CDATA[t1.CINDEX >='0' AND t1.CINDEX <='9']]>
+   				</isEqual>
+   				<isNotEqual property="cindex" compareValue="_">
+   					t1.CINDEX = #cindex#
+   				</isNotEqual>
+   			</isNotEmpty>
+   			<isNotEmpty prepend="AND" property="titleId">
+   				t1.LABELID = #labelId#
+   			</isNotEmpty>
+   		</dynamic>
+   			<isNotEmpty prepend="ORDER BY" property="sortColumns">
+   				$sortColumns$
+   			</isNotEmpty>
+   	</sql>
+   	
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Label.columns">
+	    <![CDATA[
+        ID ,TYPES ,NAMES ,URL ,CREATE_TIME ,UPDATE_TIME ,CREATOR ,MODIFIER,SITE,STATES,EVERY_SEARCH
+	    ]]>
+	</sql>
+	
+	 <insert id="Label.insert" >
+    <![CDATA[
+        INSERT INTO t_label_art ( 
+	        TYPES  ,
+	        NAMES  ,
+	        URL  ,
+	        CREATE_TIME  ,
+	        UPDATE_TIME  ,
+	        CREATOR  ,
+	        SITE ,
+	        STATES ,
+	        EVERY_SEARCH
+        ) VALUES ( 
+        	#types# ,
+        	#names# ,
+        	#url# ,
+        	#createTime# ,
+        	#updateTime# ,
+        	#creator# ,
+        	#site# ,
+        	#states# ,
+        	#everySearch#
+        )
+    ]]>
+    <selectKey resultClass="int" keyProperty="id" type="post">  
+          select last_insert_id() as id
+    </selectKey>  
+    <!--
+    mysql:		type="post" SELECT  select last_insert_id()
+    sqlserver:	type="post" SELECT  @@identity  AS  ID
+    sybase:		type="post" SELECT  @@identity  AS  ID
+    oracle:		type="pre" 	SELECT  sequenceName.nextval AS ID FROM DUAL
+    DB2:		type="pre"	values nextval for sequenceName
+    -->
+        
+    </insert>
+	
+	<sql id="Label.findPage.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="types">
+		             TYPES = #types#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="names">
+		             NAMES = #names#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="url">
+		             URL = #url#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeBegin">
+		             CREATE_TIME >= #createTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeEnd">
+		             CREATE_TIME &lt;= #createTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeBegin">
+		             UPDATE_TIME >= #updateTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeEnd">
+		             UPDATE_TIME &lt;= #updateTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="creator">
+		             CREATOR = #creator#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="site">
+		             SITE = #site#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="states">
+		             STATES = #states#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="everySearch">
+		             EVERY_SEARCH = #everySearch#
+		       </isNotEmpty>		       
+	    </dynamic>	
+	</sql>
+	<sql id="Label.findPageLike.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="types">
+		             TYPES = #types#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="names">
+		              NAMES like '%$names$%' 
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="url">
+		             URL = #url#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeBegin">
+		             CREATE_TIME >= #createTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeEnd">
+		             CREATE_TIME &lt;= #createTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeBegin">
+		             UPDATE_TIME >= #updateTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeEnd">
+		             UPDATE_TIME &lt;= #updateTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="creator">
+		             CREATOR = #creator#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="site">
+		             SITE = #site#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="states">
+		             STATES = #states#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="everySearch">
+		             EVERY_SEARCH = #everySearch#
+		       </isNotEmpty>	
+	    </dynamic>	
+	</sql>
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="Label.findPageLike.count" resultClass="long">
+        SELECT count(1) FROM t_label_art <include refid="Label.findPageLike.where"/>    
+    </select>
+    
+    <select id="Label.findPage" resultMap="RM.Label">
+    	SELECT <include refid="Label.columns"/> FROM t_label_art 
+		<include refid="Label.findPage.where"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    <select id="Label.findPageLike" resultMap="RM.Label">
+    	SELECT <include refid="Label.columns"/> FROM t_label_art 
+		 <include refid="Label.findPageLike.where"/> 
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    
+    <delete id="Label.delete">
+    <![CDATA[
+        DELETE FROM t_label_art WHERE
+        ID = #id# 
+    ]]>
+    </delete>
+    
+    <select id="Label.getById" resultMap="RM.Label">
+	    SELECT <include refid="Label.columns"/>
+	    <![CDATA[
+	        FROM t_label_art 
+	        WHERE 
+		        ID = #id# 
+	    ]]>
+    </select>
+    
+    <update id="LabelIndex.index.update"  parameterClass="com.coo8.topic.labelart.modal.LabelIndex">
+   		UPDATE t_label_index SET CINDEX=#cindex#,PRIORITY=#priority#,STATUS=#status#,OPERATOR=#operator#,UPDATETIME=CURRENT_TIMESTAMP
+   		WHERE ID=#id#
+   	</update>
+    
+    <update id="Label.update" >
+    <![CDATA[
+        UPDATE t_label_art SET
+	        TYPES = #types# ,
+	        NAMES = #names# ,
+	        URL = #url# ,
+	        UPDATE_TIME = #updateTime# ,
+	        MODIFIER = #modifier# ,
+	        EVERY_SEARCH = #everySearch#,
+	        STATES = #states#
+        WHERE 
+	        ID = #id# 
+    ]]>
+    </update>
+    
+    <insert id="Label.test">
+    	insert into btoc_product_queue
+    	(rfid,priority,type,input_date,status,rtype,suffix,templateid,SITE)
+        values('75803','0','0','2017-05-1 15:52:35','0','35',null,'92','gome')
+    </insert>
+    
+    <insert id="Label.publicLabelHomePage">
+    	insert into btoc_product_queue
+    	(rfid,priority,type,input_date,status,rtype,suffix,templateid,SITE)
+        values(#rfid#,'0','0',#input_date#,'0','36',null,'93',#site#)
+    </insert>
+    
+    <insert id="Label.publicLabelListPage">
+    	insert into btoc_product_queue
+    	(rfid,priority,type,input_date,status,rtype,suffix,templateid,SITE)
+        values(#rfid#,'0','0',#input_date#,'0','37',null,'94',#site#)
+    </insert>
+    
+    <insert id="Label.publicLabelPage">
+    	insert into btoc_product_queue
+    	(rfid,priority,type,input_date,status,rtype,suffix,templateid,SITE)
+        values(#rfid#,'0','0',#input_date#,'0','39',null,#templateid#,#site#)
+    </insert>
+    
+    <select id="Label.getbyNewsId" resultMap="RM.Label">
+	    SELECT <include refid="Label.columns"/>
+	    <![CDATA[
+	        FROM t_label_art 
+	        WHERE 
+		        ID in (
+		        	select keywords from t_label_art_rel where article_id=#id#
+		        )
+	    ]]>
+    </select>
+    
+    <insert id="Label.index.insert" parameterClass="com.coo8.topic.labelart.modal.LabelIndex">
+   		INSERT INTO t_label_index(LABELID,PINYIN,CINDEX,PRIORITY,STATUS,OPERATOR)
+   		VALUES(#labelId#,#pinyin#,#cindex#,#priority#,#status#,#operator#)
+   	</insert>
+   	
+   	<select id="Label.index.isAddRepeat" resultClass="int" parameterClass="map">
+   		SELECT COUNT(1) FROM t_label_index t WHERE t.LABELID = #labelId#
+   	</select>
+   	
+   	<select id="LabelIndex.index.getById" parameterClass="int"  resultMap="RM.LabelIndex">
+   		SELECT <include refid="LabelIndex.index.columns"/>
+   		FROM t_label_index t1 JOIN t_label_art t2 ON t1.LABELID = t2.ID WHERE t1.ID = #id#
+   	</select>
+   	
+   	<select id="LabelIndex.index.count" resultClass="long">
+   		SELECT COUNT(0) FROM t_label_index t1 JOIN t_label_art t2 ON t1.LABELID = t2.ID WHERE t1.STATUS=1
+   		<include refid="LabelIndex.index.where" />
+   	</select>
+   	
+  	<select id="LabelIndex.index.list"  resultMap="RM.LabelIndex">
+  		SELECT <include refid="LabelIndex.index.columns"/>
+  		FROM t_label_index t1 JOIN t_label_art t2 ON t1.LABELID = t2.ID WHERE t1.STATUS=1
+  		<include refid="LabelIndex.index.where" />
+   	</select>
+    
+</sqlMap>
+

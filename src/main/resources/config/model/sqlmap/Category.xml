@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Category">
+	
+	<typeAlias alias="category" type="com.coo8.btoc.model.rank.Category"/>
+	
+	<!-- the selected fields of t_category table -->
+	<sql id="selectCategorySql">
+		b.cid, b.id, b.name as categoryName, b.parent_id parentId, b.sort, b.is_show isShow, b.create_time createTime, 
+		b.creator, b.updator, b.update_time updateTime, b.level, b.is_publish ispublish
+	</sql>
+	
+	<!-- category table name -->
+	<sql id="categoryTable">
+		t_category b
+	</sql>
+	
+	<!-- create category -->
+	<insert id="add" parameterClass="category">
+		INSERT INTO t_category 
+				(	id, name, parent_id, sort, is_show, create_time, update_time, 
+   					creator, updator, level
+   				)
+   		  VALUES(	#id#, #categoryName#, #parentId#, #sort#, #isShow#, now(), now(),
+   					 #creator#, #updator#, #level#
+   				)
+	</insert>
+	
+	<!-- update category -->
+	<update id="update" parameterClass="category">
+		update t_category set
+			updator = #updator#,
+			update_time = now()
+			<isNotNull property="id" prepend=",">
+				id = #id#
+			</isNotNull>
+			<isNotNull property="categoryName" prepend=",">
+				name = #categoryName#
+			</isNotNull>
+			<isNotEmpty property="parentId" prepend=",">
+				parent_id = #parentId#
+			</isNotEmpty>
+			<isNotEmpty property="sort" prepend=",">
+				sort = #sort#
+			</isNotEmpty>
+			<isNotEmpty property="isShow" prepend=",">
+				is_show = #isShow#
+			</isNotEmpty>
+			<isNotEmpty property="ispublish" prepend=",">
+				is_publish = #ispublish#
+			</isNotEmpty>
+		where cid = #cid#
+	</update>
+	
+	<!-- category delete -->
+	<delete id="delete" parameterClass="string">
+		DELETE FROM t_category WHERE id = #id#
+	</delete>
+	
+	<!-- category update isShow status -->
+	<update id="updateIsShow" parameterClass="string">
+		UPDATE t_category SET is_show = 0 WHERE id = #id#
+	</update>
+	
+	<!-- category update status -->
+	<update id="updateBlockQueue">
+		UPDATE btoc_block_queue SET status = 0 WHERE status = 1
+	</update>
+	<select id="getUnhandleNumberOfBlockQueue" resultClass="int">
+	    SELECT COUNT(t.id) FROM btoc_block_queue t WHERE t.status = 1
+	</select>
+	
+	<!-- category update status -->
+	<update id="updateProductQueue">
+		UPDATE btoc_product_queue SET status = 0 WHERE status = 1
+	</update>
+	<select id="getUnhandleNumberOfProductQueue" resultClass="int">
+        SELECT COUNT(t.id) FROM btoc_product_queue t WHERE t.status = 1
+    </select>
+	
+	<!-- query category by parent_id -->
+	<select id="getByParentId" parameterClass="string" resultClass="int">
+		SELECT count(1) FROM <include refid="categoryTable"/>
+		WHERE b.parent_id = #parentId#
+	</select>
+	
+	<!-- query category by id -->
+	<select id="getById" parameterClass="string" resultClass="category">
+		SELECT
+			<include refid="selectCategorySql"/>
+		FROM
+			<include refid="categoryTable"/>
+		WHERE b.id = #id#
+	</select>
+	
+	<select id="getByCid" parameterClass="int" resultClass="category">
+        SELECT
+            <include refid="selectCategorySql"/>
+        FROM
+            <include refid="categoryTable"/>
+        WHERE b.cid = #cid#
+    </select>
+	
+	<!-- query category by category_name -->
+	<select id="getByName" parameterClass="string" resultClass="category">
+		SELECT
+			<include refid="selectCategorySql"/>
+		FROM
+			<include refid="categoryTable"/>
+		WHERE b.name = #categoryName#
+	</select>
+	
+	<!-- 符合条件块的个数 -->
+	<select id="count" parameterClass="map" resultClass="int">
+		SELECT count(b.cid) FROM <include refid="categoryTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="qcid" prepend="and">
+				b.cid = #qcid#			
+			</isNotNull>
+			<isNotNull property="qid" prepend="and">
+				b.id = #qid#			
+			</isNotNull>
+			<isNotNull property="qcreator" prepend="and">
+				b.creator = #qcreator#			
+			</isNotNull>
+			<isNotNull property="qparent_id" prepend="and">
+				b.parent_id = #qparent_id#		
+			</isNotNull>
+			<isNotNull property="qnon_parent_id" prepend="and">
+				b.parent_id  <![CDATA[ <> ]]> #qnon_parent_id#		
+			</isNotNull>
+			<isNotNull property="qispublish" prepend="and">
+				b.is_publish = #qispublish#		
+			</isNotNull>
+			<isNotNull property="qis_show" prepend="and">
+				b.is_show = #qis_show#			
+			</isNotNull>
+			<isNotNull property="qsort" prepend="and">
+				b.sort = #qsort#
+			</isNotNull>
+			<isNotEmpty property="qname" prepend="and">
+				upper(b.name) like CONCAT('%',upper(trim(#qname#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="qcreate_time" prepend="and">
+				DATE_FORMAT(b.create_time,'%Y-%m-%d') = #qcreate_time#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- 查询热词列表 -->
+	<select id="list" parameterClass="map" resultClass="category">
+		SELECT 
+			<include refid="selectCategorySql"/>
+		FROM
+			<include refid="categoryTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="qcid" prepend="and">
+				b.cid = #qcid#			
+			</isNotNull>
+			<isNotNull property="qid" prepend="and">
+				b.id = #qid#			
+			</isNotNull>
+			<isNotNull property="qcreator" prepend="and">
+				b.creator = #qcreator#			
+			</isNotNull>
+			<isNotNull property="qparent_id" prepend="and">
+				b.parent_id = #qparent_id#		
+			</isNotNull>
+			<isNotNull property="qnon_parent_id" prepend="and">
+				b.parent_id  <![CDATA[ <> ]]> #qnon_parent_id#		
+			</isNotNull>
+			<isNotNull property="qispublish" prepend="and">
+				b.is_publish = #qispublish#		
+			</isNotNull>
+			<isNotNull property="qis_show" prepend="and">
+				b.is_show = #qis_show#			
+			</isNotNull>
+			<isNotNull property="qsort" prepend="and">
+				b.sort = #qsort#			
+			</isNotNull>
+			<isNotEmpty property="qname" prepend="and">
+			    upper(b.name) like CONCAT('%',upper(trim(#qname#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="qcreate_time" prepend="and">
+			    DATE_FORMAT(b.create_time,'%Y-%m-%d') = #qcreate_time#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY sort ASC, update_time DESC
+	</select>
+    
+    <update id="changeFirstCatShowState" parameterClass="map">
+	    update t_category set is_show=#isShow#
+	    where id in($catIds$)
+    </update>
+</sqlMap>

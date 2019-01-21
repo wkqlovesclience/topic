@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="lazyLoadingEnabled" value="false"/>
+		<setting name="defaultStatementTimeout" value="60"/>
+		<setting name="logPrefix" value="polaris.mybatis."/>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+		<setting name="logImpl" value="STDOUT_LOGGING"/>
+	</settings>
+
+	<typeAliases>
+		<typeAlias alias="Expenditure" type="com.coo8.topic.expenditure.pojo.Expenditure"/>
+		<typeAlias alias="ChannelStair" type="com.coo8.topic.expenditure.pojo.ChannelDetailStair"/>
+		<typeAlias alias="ChannelSecond" type="com.coo8.topic.expenditure.pojo.ChannelDetailSecond"/>
+		<typeAlias alias="ChannelThird" type="com.coo8.topic.expenditure.pojo.ChannelDetailThird"/>
+		<typeAlias alias="PortType" type="com.coo8.topic.expenditure.pojo.PortType"/>
+		<typeAlias alias="ExpendAnalyseBase" type="com.coo8.topic.expenditure.pojo.ExpendAnalyseBase" />
+		<typeAlias alias="DataContains" type="com.coo8.topic.expenditure.pojo.DataContains" />
+		<typeAlias alias="ExpendAnalyseCharge" type="com.coo8.topic.expenditure.pojo.ExpendAnalyseCharge" />
+		<typeAlias alias="ExpendPortAnalyseCharge" type="com.coo8.topic.expenditure.pojo.ExpendPortAnalyseCharge" />
+		<typeAlias alias="WholeExpendAnalyseCharge" type="com.coo8.topic.expenditure.pojo.WholeExpendAnalyseCharge" />
+	</typeAliases>
+
+	<plugins>
+<!-- PageHelper4.1.1 -->
+<plugin interceptor="com.github.pagehelper.PageHelper">
+<property name="dialect" value="mysql"/>
+<property name="offsetAsPageNum" value="false"/>
+<property name="rowBoundsWithCount" value="false"/>
+<property name="pageSizeZero" value="true"/>
+<property name="reasonable" value="false"/>
+<property name="supportMethodsArguments" value="false"/>
+<property name="returnPageInfo" value="none"/>
+</plugin>
+</plugins>
+</configuration>

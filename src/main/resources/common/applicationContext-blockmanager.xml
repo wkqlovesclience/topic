@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans default-autowire="byName">
+	<bean id="resourceManager" class="com.coo8.btoc.business.impl.resource.ResourceManagerImpl">
+		<property name="resourceDao">
+			<ref bean="resourceDao"/>
+		</property>
+		<property name="itemsDao">
+			<ref bean="itemsDao"/>
+		</property>
+		<!-- <property name="jedisPool">
+			<ref bean="jedisPool"/>
+		</property> -->
+	</bean>
+	<bean id="staticHtmlManager" class="com.coo8.btoc.business.impl.html.StaticHtmlManagerImpl">
+		<property name="staticHtmlDao">
+			<ref bean="staticHtmlDao"/>
+		</property>
+	</bean>
+	<bean id="blockManager" class="com.coo8.btoc.business.impl.block.BlockManagerImpl">
+		<property name="blockDao">
+			<ref bean="blockDao"/>
+		</property>
+		<property name="templateDao" ref="templateDao" />
+	</bean>
+	<bean id="templateManager" class="com.coo8.btoc.business.impl.template.TemplateManagerImpl">
+		<property name="templateDao">
+			<ref bean="templateDao"/>
+		</property>
+		<property name="blockDao">
+			<ref bean="blockDao"/>
+		</property>
+	</bean>
+</beans>

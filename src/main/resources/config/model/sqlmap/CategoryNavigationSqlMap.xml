@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+ 
+<sqlMap namespace="CategoryNavigation" >
+	<!-- 返回 结果 -->
+    <resultMap id="RM.CategoryNavigation" class="com.coo8.topic.model.CategoryNavigation">
+        <result property="id" column="ID"/>
+        <result property="sorts" column="SORTS"/>
+        <result property="names" column="NAMES"/>
+        <result property="status" column="STATUS"/>
+        <result property="createdName" column="CREATED_NAME"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+        <result property="defaultImg" column="DEFAULT_IMG"/>
+        <result property="hoverImg" column="HOVER_IMG"/>
+    </resultMap>
+    <resultMap id="RM.CategoryNavigationFirst" class="com.coo8.topic.model.CategoryNavigationFirst">
+        <result property="id" column="ID"/>
+        <result property="groupId" column="GROUP_ID"/>
+        <result property="sorts" column="SORTS"/>
+        <result property="catId" column="CAT_ID"/>
+        <result property="status" column="STATUS"/>
+        <result property="createdName" column="CREATED_NAME"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+    </resultMap>
+    <resultMap id="RM.CategoryNavigationThird" class="com.coo8.topic.model.CategoryNavigationThird">
+        <result property="id" column="ID"/>
+        <result property="groupId" column="GROUP_ID"/>
+        <result property="firstId" column="FIRST_ID"/>
+        <result property="secondId" column="SECOND_ID"/>
+        <result property="sorts" column="SORTS"/>
+        <result property="markRed" column="MARK_RED"/>
+        <result property="extendName" column="EXTEND_NAME"/>
+        <result property="extendLink" column="EXTEND_LINK"/>
+        <result property="status" column="STATUS"/>
+        <result property="createdName" column="CREATED_NAME"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+    </resultMap>
+	<typeAlias alias="categoryNavigation" type="com.coo8.topic.model.CategoryNavigation"/>
+	<typeAlias alias="categoryNavigationFirst" type="com.coo8.topic.model.CategoryNavigationFirst"/>
+	<typeAlias alias="categoryNavigationThird" type="com.coo8.topic.model.CategoryNavigationThird"/>
+	<sql id="CategoryNavigation.findLikeByMap.where">
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="id">
+				ID = #id#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="names">
+				NAMES LIKE '%$names$%'
+			</isNotEmpty>
+		</dynamic>	
+	</sql>
+	<sql id="CategoryNavigation.findLikeFirstByMap.where">
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="id">
+				ID = #id#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="groupId">
+				GROUP_ID = #groupId#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="catId">
+				CAT_ID = #catId#
+			</isNotEmpty>
+		</dynamic>	
+	</sql>
+	<sql id="CategoryNavigation.findLikeThirdByMap.where">
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="id">
+				ID = #id#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="groupId">
+				GROUP_ID = #groupId#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="extendName">
+				EXTEND_NAME LIKE '%$extendName$%'
+			</isNotEmpty>
+		</dynamic>	
+	</sql>
+	<select id="CategoryNavigation.getById" resultMap="RM.CategoryNavigation">
+		SELECT `ID`,`SORTS`,`NAMES`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME`,`DEFAULT_IMG`,`HOVER_IMG`
+		FROM t_category_navigation 
+		<include refid="CategoryNavigation.findLikeByMap.where"/>
+		ORDER BY SORTS ASC
+	</select>
+	<select id="CategoryNavigation.getByName" resultMap="RM.CategoryNavigation">
+		SELECT `ID`,`SORTS`,`NAMES`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME`,`DEFAULT_IMG`,`HOVER_IMG`
+		FROM t_category_navigation 
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="id">
+				ID != #id# 
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="names">
+				NAMES like '%$names$%'
+			</isNotEmpty>
+		</dynamic> 
+		ORDER BY SORTS ASC
+	</select>
+	<select id="CategoryNavigation.findLikeByMap.count" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM t_category_navigation
+		<include refid="CategoryNavigation.findLikeByMap.where"/>
+	</select>
+	<select id="CategoryNavigation.findLikeByMap" resultMap="RM.CategoryNavigation">
+		SELECT `ID`,`SORTS`,`NAMES`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME`,`DEFAULT_IMG`,`HOVER_IMG`
+		FROM t_category_navigation 
+		<include refid="CategoryNavigation.findLikeByMap.where"/>
+		ORDER BY SORTS ASC
+	</select>
+	<delete id="CategoryNavigation.deleteById" parameterClass="java.lang.Integer">
+		DELETE FROM t_category_navigation WHERE ID = #id#
+	</delete>
+	<delete id="CategoryNavigation.deleteFirstByGroupId" parameterClass="java.lang.Integer">
+		DELETE FROM t_category_navigation_first WHERE GROUP_ID = #id#
+	</delete>
+	<delete id="CategoryNavigation.deleteThirdByGroupId" parameterClass="java.lang.Integer">
+		DELETE FROM t_category_navigation_third WHERE GROUP_ID = #id#
+	</delete>
+	<insert id="CategoryNavigation.save" parameterClass="categoryNavigation">
+		<![CDATA[
+		INSERT INTO t_category_navigation(SORTS,NAMES,STATUS,CREATED_NAME,CREATED_TIME,UPDATED_TIME,DEFAULT_IMG,HOVER_IMG) 
+		VALUES(#sorts#,#names#,#status#,#createdName#,now(),now(),#defaultImg#,#hoverImg#)
+		]]>
+		<selectKey resultClass="int" keyProperty="id" type="post" >  
+        	<![CDATA[ select last_insert_id() as id ]]>
+    	</selectKey>
+	</insert>
+	<update id="CategoryNavigation.update" parameterClass="categoryNavigation">
+		UPDATE t_category_navigation 
+		SET SORTS=#sorts#,NAMES=#names#,STATUS=#status#,UPDATED_TIME=now(),DEFAULT_IMG=#defaultImg#,HOVER_IMG=#hoverImg#
+		WHERE ID = #id#
+	</update>
+	
+	<select id="CategoryNavigation.findLikeFirstByMap.count" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM t_category_navigation_first
+		<include refid="CategoryNavigation.findLikeFirstByMap.where"/>
+	</select>
+	<select id="CategoryNavigation.findLikeFirstByMap" resultMap="RM.CategoryNavigationFirst">
+		SELECT `ID`,`GROUP_ID`,`SORTS`,`CAT_ID`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME` 
+		FROM t_category_navigation_first 
+		<include refid="CategoryNavigation.findLikeFirstByMap.where"/>
+		ORDER BY SORTS ASC
+	</select>
+	<select id="CategoryNavigation.getFirstById" resultMap="RM.CategoryNavigationFirst">
+		SELECT `ID`,`GROUP_ID`,`SORTS`,`CAT_ID`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME` 
+		FROM t_category_navigation_first 
+		<include refid="CategoryNavigation.findLikeFirstByMap.where"/>
+		ORDER BY SORTS ASC
+	</select>
+	<select id="CategoryNavigation.getFirstCategoryByGroupId" resultMap="RM.CategoryNavigationFirst">
+		SELECT `ID`,`GROUP_ID`,`SORTS`,`CAT_ID`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME` 
+		FROM t_category_navigation_first 
+		<include refid="CategoryNavigation.findLikeFirstByMap.where"/>
+		ORDER BY SORTS ASC
+	</select>
+	<select id="CategoryNavigation.getByFirstCatId" resultMap="RM.CategoryNavigationFirst">
+		SELECT `ID`,`GROUP_ID`,`SORTS`,`CAT_ID`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME` 
+		FROM t_category_navigation_first 
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="id">
+				ID != #id# 
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="groupId">
+				GROUP_ID = #groupId#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="catId">
+				CAT_ID = #catId# 
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY SORTS ASC
+	</select>
+	<delete id="CategoryNavigation.deleteFirstById" parameterClass="java.lang.Integer">
+		DELETE FROM t_category_navigation_first WHERE ID = #id#
+	</delete>
+	<delete id="CategoryNavigation.deleteThirdByFirstId">
+		DELETE FROM t_category_navigation_third WHERE GROUP_ID = #groupId# and FIRST_ID = #firstId#
+	</delete>
+	<insert id="CategoryNavigation.saveFirst" parameterClass="categoryNavigationFirst">
+		<![CDATA[
+		INSERT INTO t_category_navigation_first(`GROUP_ID`,`SORTS`,`CAT_ID`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME`) 
+		VALUES(#groupId#,#sorts#,#catId#,#status#,#createdName#,now(),now())
+		]]>
+		<selectKey resultClass="int" keyProperty="id" type="post" >  
+        	<![CDATA[ select last_insert_id() as id ]]>
+    	</selectKey>
+	</insert>
+	<update id="CategoryNavigation.updateFirst" parameterClass="categoryNavigationFirst">
+		UPDATE t_category_navigation_first 
+		SET GROUP_ID=#groupId#,SORTS=#sorts#,CAT_ID=#catId#,STATUS=#status#,UPDATED_TIME=now() 
+		WHERE ID = #id#
+	</update>
+	
+	<select id="CategoryNavigation.findLikeThirdByMap.count" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM t_category_navigation_third
+		<include refid="CategoryNavigation.findLikeThirdByMap.where"/>
+	</select>
+	<select id="CategoryNavigation.findLikeThirdByMap" resultMap="RM.CategoryNavigationThird">
+		SELECT `ID`,`GROUP_ID`,`FIRST_ID`,`SECOND_ID`,`SORTS`,`MARK_RED`,`EXTEND_NAME`,`EXTEND_LINK`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME` 
+		FROM t_category_navigation_third 
+		<include refid="CategoryNavigation.findLikeThirdByMap.where"/>
+		ORDER BY SORTS ASC
+	</select>
+	<select id="CategoryNavigation.getThirdById" resultMap="RM.CategoryNavigationThird">
+		SELECT `ID`,`GROUP_ID`,`FIRST_ID`,`SECOND_ID`,`SORTS`,`MARK_RED`,`EXTEND_NAME`,`EXTEND_LINK`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME` 
+		FROM t_category_navigation_third 
+		<include refid="CategoryNavigation.findLikeThirdByMap.where"/>
+		ORDER BY SORTS ASC
+	</select>
+	<select id="CategoryNavigation.getByThirdCatId" resultMap="RM.CategoryNavigationThird">
+		SELECT `ID`,`GROUP_ID`,`FIRST_ID`,`SECOND_ID`,`SORTS`,`MARK_RED`,`EXTEND_NAME`,`EXTEND_LINK`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME` 
+		FROM t_category_navigation_third 
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="id">
+				ID != #id# 
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="groupId">
+				GROUP_ID = #groupId#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="firstId">
+				FIRST_ID = #firstId# 
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="secondId">
+				SECOND_ID = #secondId# 
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="extendName">
+				EXTEND_NAME = #extendName#
+			</isNotEmpty>
+		</dynamic> 
+		ORDER BY SORTS ASC
+	</select>
+	<delete id="CategoryNavigation.deleteThirdById" parameterClass="java.lang.Integer">
+		DELETE FROM t_category_navigation_third WHERE ID = #id#
+	</delete>
+	<insert id="CategoryNavigation.saveThird" parameterClass="categoryNavigationThird">
+		<![CDATA[
+		INSERT INTO t_category_navigation_third(`GROUP_ID`,`FIRST_ID`,`SECOND_ID`,`SORTS`,`MARK_RED`,`EXTEND_NAME`,`EXTEND_LINK`,`STATUS`,`CREATED_NAME`,`CREATED_TIME`,`UPDATED_TIME`) 
+		VALUES(#groupId#,#firstId#,#secondId#,#sorts#,#markRed#,#extendName#,#extendLink#,#status#,#createdName#,now(),now())
+		]]>
+		<selectKey resultClass="int" keyProperty="id" type="post" >  
+        	<![CDATA[ select last_insert_id() as id ]]>
+    	</selectKey>
+	</insert>
+	<update id="CategoryNavigation.updateThird" parameterClass="categoryNavigationThird">
+		UPDATE t_category_navigation_third 
+		SET GROUP_ID=#groupId#,FIRST_ID=#firstId#,SECOND_ID=#secondId#,SORTS=#sorts#,MARK_RED=#markRed#,EXTEND_NAME=#extendName#,EXTEND_LINK=#extendLink#,STATUS=#status#,UPDATED_TIME=now() 
+		WHERE ID = #id#
+	</update>
+</sqlMap>

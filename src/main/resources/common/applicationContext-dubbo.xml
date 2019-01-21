@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:context="http://www.springframework.org/schema/context" xmlns:util="http://www.springframework.org/schema/util" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="
+     http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+	default-autowire="byName">
+
+	<!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 -->
+	<dubbo:application id="topic" name="topic" />
+	
+	<!-- 测试环境 -->
+
+	<!-- 
+	<dubbo:registry id="gomeZookeeperAddress" protocol="zookeeper" address="10.126.53.168:2181" />
+	-->
+
+
+	<!-- <dubbo:registry id="gomeZookeeperAddress" protocol="zookeeper" address="10.58.57.58:2181,10.58.57.54:2181,10.58.57.48:2181" /> -->
+	
+ 
+	
+
+	<!-- 生产环境 -->
+
+	<dubbo:registry id="gomeZookeeperAddress" protocol="zookeeper" address="${dubbo.zookeeper.address}" />
+	<dubbo:registry id="dubboServiceAddress" protocol="zookeeper" address="${dubbo.dubboServiceZookeeper.address}" />
+	
+	<!--erm系统 -->
+	<dubbo:reference id="ermUserService" interface="com.gome.erm.api.ErmUserService" registry="gomeZookeeperAddress" check="false" />
+	<dubbo:reference id="ermLoginService" interface="com.gome.erm.api.ErmLoginService" registry="gomeZookeeperAddress" check="false" />
+	<dubbo:reference id="ermPermissionService" interface="com.gome.erm.api.ErmPermissionService" registry="gomeZookeeperAddress" check="false"/>
+	
+	<dubbo:protocol name="dubbo" port="-1" />
+	<dubbo:reference id="productInfoServiceItem" interface="com.gome.stage.interfaces.item.IProductInfoService" registry="gomeZookeeperAddress" group="homepage"/>
+    <dubbo:reference id="productInfoService" interface="com.gome.stage.interfaces.whale.IProductInfoService" timeout="50000" retries="2" registry="gomeZookeeperAddress" check="false" />
+    <dubbo:reference id="categoryDBService" interface="com.gome.stage.interfaces.whale.ICategoryDBService" timeout="50000" retries="2" registry="gomeZookeeperAddress" check="false" />
+    <dubbo:reference id="prodSpecService" interface="com.gome.tapho.interfaces.spec.IProdSpecService" timeout="50000" retries="2" registry="gomeZookeeperAddress" group="tapho" check="false" />
+    <dubbo:reference id="gomeAreaSearch" interface="com.gome.dragon.mds.client.area.GomeAreaSearch" registry="gomeZookeeperAddress" timeout="120000" check="false"/>
+	<dubbo:reference id="prodDetailService" interface="com.gome.frontSe.interfaces.IProdDetailService" timeout="50000" retries="2" registry="gomeZookeeperAddress"  check="false" />
+     <!--百度优惠卡 数据接口  -->
+      <dubbo:reference id="seoPromotionCardDubboService" interface="com.gome.bg.interfaces.system.service.SeoPromotionCardDubboService" registry="gomeZookeeperAddress"  timeout="50000" check="false" />
+     <!--百度黑五 数据接口  --> 
+      <dubbo:reference id="gomeProcessService" interface="com.gome.stage.interfaces.item.IGomeProcessService" registry="gomeZookeeperAddress" timeout="50000" check="false" />
+		<!--商品词  数据接口-->
+	  <dubbo:reference id="productDubboService" interface="org.gome.search.dubbo.idl.DubboService" registry="dubboServiceAddress" timeout="10000" check="false" version="1.0.0" />
+</beans>

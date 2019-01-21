@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+ 
+<sqlMap namespace="News" >
+
+    <resultMap id="RM.News" class="com.coo8.topic.model.News">
+        <result property="id" column="ID"/>
+        <result property="titleId" column="TITLE_ID"/>
+        <result property="topic" column="TOPIC"/>
+        <result property="isTop" column="IS_TOP"/>
+        <result property="keywords" column="KEYWORDS"/>
+        <result property="remark" column="REMARK"/>
+        <result property="contents" column="CONTENTS"/>
+        <result property="publicTime" column="PUBLIC_TIME"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="modifier" column="MODIFIER"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+        <result property="states" column="STATES"/>
+        <result property="sourceUrl" column="SOURCEURL"/>
+         <result property="picUrl" column="PICURL"/>
+        <result property="site" column="SITE"/>
+    </resultMap>
+    
+    <resultMap  id="RM.NewsAssess" class="com.coo8.topic.model.NewsAssess">
+    	<result property="id" column="ID"/>
+    	<result property="news_id" column="NEWS_ID"/>
+    	<result property="good" column="GOOD"/>
+    	<result property="bad" column="BAD"/>
+    	<result property="insert_time" column="INSERT_TIME"/>
+        <result property="update_time" column="UPDATE_TIME"/>
+    </resultMap>
+    
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="News.columns">
+	    <![CDATA[
+        ID ,TITLE_ID ,TOPIC ,IS_TOP ,KEYWORDS ,REMARK ,CONTENTS ,PUBLIC_TIME ,CREATOR ,MODIFIER ,CREATE_TIME ,UPDATE_TIME,STATES,SOURCEURL,PICURL,SITE
+	    ]]>
+	</sql>
+	
+    <insert id="News.insert" >
+    <![CDATA[
+        INSERT INTO t_news ( 
+	        TITLE_ID  ,
+	        TOPIC  ,
+	        IS_TOP  ,
+	        KEYWORDS  ,
+	        REMARK  ,
+	        CONTENTS  ,
+	        PUBLIC_TIME  ,
+	        CREATOR  ,
+	        CREATE_TIME  ,
+	        UPDATE_TIME ,
+	        STATES,
+	        SOURCEURL,
+	        PICURL,
+	        SITE
+        ) VALUES ( 
+        	#titleId# ,
+        	#topic# ,
+        	#isTop# ,
+        	#keywords# ,
+        	#remark# ,
+        	#contents# ,
+        	#publicTime# ,
+        	#creator# ,
+        	#createTime# ,
+        	#updateTime# ,
+        	#states#,
+        	#sourceUrl#,
+        	#picUrl#,
+        	#site#
+        )
+    ]]>
+    <selectKey resultClass="int" keyProperty="id" >  
+          SELECT @@IDENTITY AS id  
+    </selectKey>  
+    <!--
+    mysql:		type="post" SELECT  select last_insert_id()
+    sqlserver:	type="post" SELECT  @@identity  AS  ID
+    sybase:		type="post" SELECT  @@identity  AS  ID
+    oracle:		type="pre" 	SELECT  sequenceName.nextval AS ID FROM DUAL
+    DB2:		type="pre"	values nextval for sequenceName
+    -->
+        
+    </insert>
+
+    <update id="News.update" >
+    <![CDATA[
+        UPDATE t_news SET
+	        TITLE_ID = #titleId# ,
+	        TOPIC = #topic# ,
+	        IS_TOP = #isTop# ,
+	        KEYWORDS = #keywords# ,
+	        REMARK = #remark# ,
+	        CONTENTS = #contents# ,
+	        PUBLIC_TIME = #publicTime# ,
+	        CREATOR = #creator# ,
+	        MODIFIER = #modifier# ,
+	        UPDATE_TIME = #updateTime#,
+	        STATES = #states#,
+	        SOURCEURL = #sourceUrl#,
+	        PICURL = #picUrl#
+        WHERE 
+	        ID = #id# 
+    ]]>
+    </update>
+
+    <delete id="News.delete">
+    <![CDATA[
+        DELETE FROM t_news WHERE
+        ID = #id# 
+    ]]>
+    </delete>
+    
+    <select id="News.getById" resultMap="RM.News">
+	    SELECT <include refid="News.columns"/>
+	    <![CDATA[
+	        FROM t_news 
+	        WHERE 
+		        ID = #id# 
+	    ]]>
+    </select>
+
+	<sql id="News.findPage.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="titleId">
+		             TITLE_ID = #titleId#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="topic">
+		             TOPIC like  '%$topic$%'  
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="isTop">
+		             IS_TOP = #isTop#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="keywords">
+		             KEYWORDS = #keywords#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="remark">
+		             REMARK = #remark#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="contents">
+		             CONTENTS = #contents#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="publicTimeBegin">
+		             PUBLIC_TIME >= #publicTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="publicTimeEnd">
+		             PUBLIC_TIME &lt;= #publicTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="creator">
+		             CREATOR = #creator#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeBegin">
+		             CREATE_TIME >= #createTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeEnd">
+		             CREATE_TIME &lt;= #createTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeBegin">
+		             UPDATE_TIME >= #updateTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeEnd">
+		             UPDATE_TIME &lt;= #updateTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="states">
+		             STATES = #states#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="sourceUrl">
+		             SOURCEURL = #sourceUrl#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTime">
+		             DATE_FORMAT(CREATE_TIME,'%Y-%m-%d') =  DATE_FORMAT(#createTime#,'%Y-%m-%d')
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="idBegin">
+		             ID >= #idBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="idEnd">
+		             <![CDATA[ ID <= #idEnd#  ]]>
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="site">
+		             SITE = #site#
+		       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	 
+    <select id="News.findPage.count" resultClass="long">
+        SELECT count(1) FROM t_news <include refid="News.findPage.where"/>    
+    </select>
+    
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="News.findPage" resultMap="RM.News">
+    	SELECT <include refid="News.columns"/> FROM t_news 
+		<include refid="News.findPage.where"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    
+    <parameterMap id="NewsMap" class="map">
+		<parameter property="newsId"  javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN"></parameter>
+		<parameter property="type"  javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN"></parameter>
+		<parameter property="site"  javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"></parameter>
+    </parameterMap> 
+    <!-- 文章发布 zhangwujie 2013-4-11 start -->
+    <procedure id="NewsMap.publishCoo8GomeNews" parameterMap="NewsMap">
+        {call put_cgnews_to_queue(?,?,?)}
+    </procedure>
+    <!-- 文章发布 zhangwujie 2013-4-11 end -->
+	<!--  文章评价添加 zhangwujie 20120904 start-->
+	<insert id="NewsMap.newsAssessCreate" parameterClass="int">
+		INSERT INTO t_newsassess(news_id,good,insert_time) VALUES(#newsId#,5+ceil(rand()*95),CURRENT_TIMESTAMP)
+	</insert>
+	<update id="NewsMap.newsAssessGood" parameterClass="int" >
+		UPDATE t_newsassess SET good=good+1,update_time = CURRENT_TIMESTAMP WHERE news_id = #newsId#
+	</update>
+	<update id="NewsMap.newsAssessBad" parameterClass="int">
+		UPDATE t_newsassess SET bad=bad+1 ,update_time = CURRENT_TIMESTAMP WHERE news_id = #newsId#
+	</update>
+	<select id="NewsMap.listNewsAssess" parameterClass="int" resultMap="RM.NewsAssess">
+		SELECT * FROM t_newsassess WHERE NEWS_ID = #newsId# LIMIT 1 
+	</select>
+	<delete id="NewsMap.deleteAssessById" parameterClass="java.lang.Integer">
+		DELETE FROM t_newsassess WHERE NEWS_ID = #newsId#
+	</delete>
+	<!--  文章评价添加 zhangwujie 20120904 end-->
+</sqlMap>
+

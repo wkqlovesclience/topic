@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="HotSearchword">
+	
+	<typeAlias alias="hotSearchword" type="com.coo8.topic.model.HotSearchword"/>
+	<typeAlias alias="importSearchLog" type="com.coo8.topic.model.ImportSearchLog"/>
+	<typeAlias alias="errorHotSearchword" type="com.coo8.topic.model.ErrorHotSearchword"/>
+	
+	<!-- the selected fields of t_hotsearchword table -->
+	<sql id="selectHotSearchWordSql">
+		b.id, b.title, b.tag, b.create_time createTime, b.site, b.is_searched isSearched,
+		b.creator, b.modifier, b.update_time updateTime, b.ischeck as checked, server_url as serverUrl, online_url as onlineUrl
+	</sql>
+	
+	<!-- the selected fields of t_error_hotsearchword table -->
+	<sql id="selectErrorHotSearchWordSql">
+		b.id, b.title, b.tag, b.create_time createTime, b.site, b.creator,b.type
+	</sql>
+	
+	<sql id="selectLogSql">
+		id, creator, create_time as createTime, file_url as fileUrl, site, 
+		total_count as totalCount, fail_count as failCount, down_status as downStatus, file_name as fileName
+	</sql>
+	
+	<!-- block table name -->
+	<sql id="hotSearchTable">
+		t_hotsearchword b
+	</sql>
+	
+	<!-- create errorHotSearchword log -->
+	<insert id="addLog" parameterClass="importSearchLog">
+		INSERT INTO t_hotsearchword_log
+				(	creator, create_time, file_url, total_count, fail_count, file_name )
+   		  VALUES(	#creator#, #createTime#, #fileUrl#, #totalCount#, #failCount#, #fileName# )
+   		<selectKey resultClass="int" keyProperty="id">
+			select last_insert_id() as ID from t_hotsearchword_log limit 1
+		</selectKey>
+	</insert>
+	
+	<!-- create hotSearchword -->
+	<insert id="add" parameterClass="hotSearchword">
+		INSERT INTO t_hotsearchword 
+				(	title, create_time, update_time, 
+   					creator, modifier, ischeck, tag, is_searched
+   				)
+   		  VALUES(	#title#, #createTime#, #createTime#,
+   					 #creator#, #modifier#, 0, #tag#, #isSearched#
+   				)
+   		<selectKey resultClass="int" keyProperty="id">
+			select last_insert_id() as ID from t_hotsearchword limit 1
+		</selectKey>
+	</insert>
+	
+	<!-- create errorHotSearchword  -->
+	<insert id="addError" parameterClass="errorHotSearchword">
+		INSERT INTO t_error_hotsearchword 
+				(	title,  create_time, creator,  type, tag)
+   		  VALUES(	#title#,  #createTime#, #creator#, #type#, #tag#)
+   		<selectKey resultClass="int" keyProperty="id">
+			select last_insert_id() as ID from t_error_hotsearchword limit 1
+		</selectKey>
+	</insert>
+	
+	<!-- update hotSearchword -->
+	<update id="update" parameterClass="hotSearchword">
+		update t_hotsearchword set
+			modifier = #modifier#,
+			update_time = now(),
+			tag = #tag#
+			<isNotNull property="title" prepend=",">
+				title = #title#
+			</isNotNull>
+			<isNotEmpty property="indexState" prepend=",">
+                index_state = #indexState#
+            </isNotEmpty>
+			<isNotEmpty property="isSearched" prepend=",">
+                is_searched = #isSearched#
+            </isNotEmpty>
+		where id = #id#
+	</update>
+	
+	<!-- publish hotSearchword -->
+	<update id="publish" parameterClass="hotSearchword">
+		update t_hotsearchword set ischeck = 1 where id = #id#
+	</update>
+	
+	<!-- DownLogStatus -->
+	<update id="downLogStatus" parameterClass="java.lang.String">
+		update t_hotsearchword_log set down_status = 1 where id = #id#
+	</update>
+	
+	<!-- hotSearchword delete -->
+	<delete id="delete" parameterClass="int">
+		DELETE FROM t_hotsearchword WHERE id = #id#
+	</delete>
+	
+	<!-- query hotSearchword by id -->
+	<select id="getById" parameterClass="int" resultClass="hotSearchword">
+		SELECT
+			<include refid="selectHotSearchWordSql"/>
+		FROM
+			<include refid="hotSearchTable"/>
+		WHERE id = #id#
+	</select>
+	
+	<!-- 符合条件块的个数 -->
+	<select id="count" parameterClass="map" resultClass="int">
+		SELECT count(1) FROM <include refid="hotSearchTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="qid" prepend="and">
+				b.id = #qid#			
+			</isNotNull>
+			<isNotNull property="qcreator" prepend="and">
+				b.creator = #qcreator#			
+			</isNotNull>
+			<isNotNull property="qsite" prepend="and">
+				b.site = #qsite#
+			</isNotNull>
+			<isNotNull property="qchecked" prepend="and">
+				b.ischeck = #qchecked#			
+			</isNotNull>
+			<isNotNull property="isSearched" prepend="and">
+				b.is_searched = #isSearched#			
+			</isNotNull>
+			<isNotEmpty property="qtitle" prepend="and">
+				upper(b.title) like CONCAT('%',upper(trim(#qtitle#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="qcreateTime" prepend="and">
+				upper(b.create_time) BETWEEN upper(trim(#qcreateTime#)) and upper(trim(#qcreateEndTime#))
+			</isNotEmpty>
+			
+			
+		</dynamic>
+		
+	</select>
+	
+	<!-- 查看日志总数据 -->
+	<select id="logcount" parameterClass="map" resultClass="int">
+		SELECT count(1) FROM t_hotsearchword_log WHERE site = #qsite#
+	</select>
+	
+	<select id="listlog" parameterClass="map" resultClass="importSearchLog">
+		SELECT <include refid="selectLogSql"/>
+		FROM t_hotsearchword_log
+		WHERE site = #qsite#
+		ORDER BY id DESC
+	</select>
+	
+	<select id="listDownLog" parameterClass="map" resultClass="errorHotSearchword">
+		SELECT 
+			<include refid="selectErrorHotSearchWordSql"/>
+		FROM t_error_hotsearchword b
+		WHERE b.create_time = #createTime#
+	</select>
+	
+	<!-- 查询热词列表 -->
+	<select id="list" parameterClass="map" resultClass="hotSearchword">
+		SELECT 
+			<include refid="selectHotSearchWordSql"/>
+		FROM
+			<include refid="hotSearchTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="qid" prepend="and">
+				b.id = #qid#			
+			</isNotNull>
+			<isNotNull property="qcreator" prepend="and">
+				b.creator = #qcreator#			
+			</isNotNull>
+			<isNotNull property="qsite" prepend="and">
+				b.site = #qsite#
+			</isNotNull>
+			<isNotNull property="qchecked" prepend="and">
+				b.ischeck = #qchecked#			
+			</isNotNull>
+			<isNotNull property="isSearched" prepend="and">
+				b.is_searched = #isSearched#			
+			</isNotNull>
+			<isNotEmpty property="qtitle" prepend="and">
+				upper(b.title) like CONCAT('%',upper(trim(#qtitle#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="qcreateTime" prepend="and">
+				upper(b.create_time) BETWEEN upper(trim(#qcreateTime#)) and upper(trim(#qcreateEndTime#))
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY id DESC
+	</select>
+	
+	<!-- 按需查询热词列表 -->
+	<select id="listLimit"  parameterClass="map" resultClass="int">
+		SELECT 
+			id
+		FROM
+			<include refid="hotSearchTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="qid" prepend="and">
+				b.id = #qid#			
+			</isNotNull>
+			<isNotNull property="qsite" prepend="and">
+				b.site = #qsite#
+			</isNotNull>
+			<isNotNull property="qchecked" prepend="and">
+				b.ischeck = #qchecked#			
+			</isNotNull>
+			<isNotNull property="isSearched" prepend="and">
+				b.is_searched = #isSearched#			
+			</isNotNull>
+		</dynamic>
+		ORDER BY id
+			<dynamic prepend = "limit " > 
+				<isNotNull property="numLimitStart" >
+					$numLimitStart$,
+				</isNotNull>
+				<isNotNull property="numLimitStart" >
+					$numLimitEnd$
+				</isNotNull>
+			</dynamic> 
+	</select>
+	
+	
+	<!-- 查询热词列表 -->
+	<select id="listHotSearch" parameterClass="map" resultClass="hotSearchword">
+		SELECT 
+			<include refid="selectHotSearchWordSql"/>
+		FROM
+			<include refid="hotSearchTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="qid" prepend="and">
+				b.id = #qid#			
+			</isNotNull>
+			<isNotNull property="qcreator" prepend="and">
+				b.creator = #qcreator#			
+			</isNotNull>
+			<isNotNull property="qsite" prepend="and">
+				b.site = #qsite#
+			</isNotNull>
+			<isNotNull property="qchecked" prepend="and">
+				b.ischeck = #qchecked#			
+			</isNotNull>
+			<isNotEmpty property="qtitle" prepend="and">
+				b.title = #qtitle#
+			</isNotEmpty>
+			<isNotEmpty property="qcreateTime" prepend="and">
+				b.create_time = #qcreateTime#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- range hotSearchword -->
+	<select id="range" parameterClass="map" resultClass="hotSearchword">
+		SELECT 
+			<include refid="selectHotSearchWordSql"/>
+		FROM
+			<include refid="hotSearchTable"/>
+		WHERE
+			id <![CDATA[ >= ]]> #minId# and id <![CDATA[ <= ]]> #maxId#
+	</select>
+	
+	
+    <select id="getLastedInsertId" resultClass="int">
+        SELECT auto_increment FROM information_schema.`TABLES` WHERE TABLE_SCHEMA='kubatopic' AND TABLE_NAME='t_hotsearchword'
+    </select>
+    
+    <!-- fanqx 20160823 查询相关搜索词 -->
+	<select id="getHotkeyRelatedKeywords" parameterClass="map" resultClass="hotSearchword">
+		select 
+		DISTINCT (b.id), b.title, b.tag, DATE_FORMAT(b.create_time,'%Y%m%d') createTime, b.site,
+		b.creator, b.modifier, b.update_time updateTime, b.ischeck as checked, server_url as serverUrl, online_url as onlineUrl
+		from <include refid="hotSearchTable"/>
+		where
+		b.site=#site# and b.ischeck=1 and
+		(locate(#title#,b.title)>0
+		
+			<isNotNull property="tag0" prepend="or">
+				locate(#tag0#,b.title)>0			
+			</isNotNull>
+			<isNotNull property="tag1" prepend="or">
+				locate(#tag1#,b.title)>0			
+			</isNotNull>
+			<isNotNull property="tag2" prepend="or">
+				locate(#tag2#,b.title)>0			
+			</isNotNull>)
+	</select>
+</sqlMap>

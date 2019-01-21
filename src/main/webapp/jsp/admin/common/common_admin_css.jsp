@@ -1,0 +1,1 @@
+<style>html{*overflow-y:scroll;*overflow-x:hidden}</style>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+    
+    <sqlMap namespace="AllHotKeyword">
+	    <typeAlias alias="allHotKeyword" type="com.coo8.topic.model.AllHotKeyword"/>
+		<typeAlias alias="importAllKeywordLog" type="com.coo8.topic.model.ImportAllKeywordLog"/>
+		<typeAlias alias="errorAllHotkeyword" type="com.coo8.topic.model.ErrorAllHotkeyword"/>
+		
+		<sql id="selectAllHotKeySql">
+			id, title, url, source_type sourceType, source_id sourceId, creator, create_time createTime, updater, update_time updateTime, site
+		</sql>
+		<sql id="selectAllHotKeyLog">
+			id, creator, create_time createTime, file_url fileUrl, total_count totalCount, fail_count failCount, site, down_status downStatus
+		</sql>
+		<sql id="selectAllErrorHotKey">
+			id, title, type, creator, create_time createTime
+		</sql>
+		
+		<insert id="addAllHotKey" parameterClass="allHotKeyword">
+			INSERT INTO t_all_hotkeyword 
+					(	title, url, source_type, source_id, 
+	   					creator, create_time, updater, update_time, site
+	   				)
+	   		  VALUES(	#title#, #url#, #sourceType#, #sourceId#,
+	   					 #creator#, #createTime#, #updater#, #updateTime#, #site#
+	   				)
+	   		<selectKey resultClass="int" keyProperty="id">
+				select last_insert_id() as ID from t_all_hotkeyword limit 1
+			</selectKey>
+		</insert>
+		
+		<insert id="addAllHotKeyLog" parameterClass="importAllKeywordLog">
+			INSERT INTO t_all_hotkeyword_log 
+					(	creator, create_time, file_url, 
+	   					total_count, fail_count, site, down_status
+	   				)
+	   		  VALUES(	#creator#, #createTime#, #fileUrl#,
+	   					 #totalCount#, #failCount#, #site#, #downStatus#
+	   				)
+	   		<selectKey resultClass="int" keyProperty="id">
+				select last_insert_id() as ID from t_all_hotkeyword_log limit 1
+			</selectKey>
+		</insert>
+		<insert id="addAllErrorHotKey" parameterClass="errorAllHotkeyword">
+			INSERT INTO t_all_hotkeyword_error 
+					(	title, type, creator, 
+	   					create_time
+	   				)
+	   		  VALUES(	#title#, #type#, #creator#,
+	   					#createTime#
+	   				)
+	   		<selectKey resultClass="int" keyProperty="id">
+				select last_insert_id() as ID from t_all_hotkeyword_error limit 1
+			</selectKey>
+		</insert>
+		
+		<select id="selectAllHotKeyword" parameterClass="map" resultClass="allHotKeyword">
+			SELECT 
+				<include refid="selectAllHotKeySql"/>
+			FROM
+				t_all_hotkeyword t
+			<dynamic prepend="WHERE">
+				<isNotNull property="id" prepend="and">
+					t.id = #id#			
+				</isNotNull>
+				<isNotNull property="title" prepend="and">
+					t.title = #title#			
+				</isNotNull>
+				<isNotNull property="url" prepend="and">
+					t.url = #url#
+				</isNotNull>
+				<isNotNull property="sourceType" prepend="and">
+					t.source_type = #sourceType#			
+				</isNotNull>
+				<isNotNull property="sourceId" prepend="and">
+					t.source_id = #sourceId#			
+				</isNotNull>
+				<isNotEmpty property="createTime" prepend="and">
+					t.create_time = #createTime#
+				</isNotEmpty>
+				<isNotEmpty property="updater" prepend="and">
+					t.updater = #updater#
+				</isNotEmpty>
+				<isNotEmpty property="updateTime" prepend="and">
+					t.update_time = #updateTime#
+				</isNotEmpty>
+				<isNotEmpty property="site" prepend="and">
+					t.site = #site#
+				</isNotEmpty>
+			</dynamic>
+		
+		</select>
+		
+		<!-- 查询热词列表 -->
+		<select id="list" parameterClass="map" resultClass="allHotKeyword">
+			SELECT 
+				<include refid="selectAllHotKeySql"/>
+			FROM
+				t_all_hotkeyword t
+			<dynamic prepend="WHERE">
+				<isNotNull property="id" prepend="and">
+					t.id = #id#			
+				</isNotNull>
+				<isNotEmpty property="title" prepend="and">
+					upper(t.title) like CONCAT('%',upper(trim(#title#)),'%')
+				</isNotEmpty>
+				<isNotNull property="url" prepend="and">
+					t.url = #url#
+				</isNotNull>
+				<isNotNull property="sourceType" prepend="and">
+					t.source_type = #sourceType#			
+				</isNotNull>
+				<isNotNull property="sourceId" prepend="and">
+					t.source_id = #sourceId#			
+				</isNotNull>
+				<isNotEmpty property="createTime" prepend="and">
+					upper(t.create_time) like CONCAT('%',upper(trim(#createTime#)),'%')
+				</isNotEmpty>
+				<isNotEmpty property="updater" prepend="and">
+					t.updater = #updater#
+				</isNotEmpty>
+				<isNotEmpty property="updateTime" prepend="and">
+					t.update_time = #updateTime#
+				</isNotEmpty>
+				<isNotEmpty property="site" prepend="and">
+					t.site = #site#
+				</isNotEmpty>
+			</dynamic>
+			ORDER BY id DESC
+		</select>
+		
+		<select id="count" parameterClass="map" resultClass="int">
+			SELECT count(1)
+			FROM
+				t_all_hotkeyword t
+			<dynamic prepend="WHERE">
+				<isNotNull property="id" prepend="and">
+					t.id = #id#			
+				</isNotNull>
+				<isNotEmpty property="title" prepend="and">
+					upper(t.title) like CONCAT('%',upper(trim(#title#)),'%')
+				</isNotEmpty>
+				<isNotNull property="url" prepend="and">
+					t.url = #url#
+				</isNotNull>
+				<isNotNull property="sourceType" prepend="and">
+					t.source_type = #sourceType#			
+				</isNotNull>
+				<isNotNull property="sourceId" prepend="and">
+					t.source_id = #sourceId#			
+				</isNotNull>
+				<isNotEmpty property="createTime" prepend="and">
+					upper(t.create_time) like CONCAT('%',upper(trim(#createTime#)),'%')
+				</isNotEmpty>
+				<isNotEmpty property="updater" prepend="and">
+					t.updater = #updater#
+				</isNotEmpty>
+				<isNotEmpty property="updateTime" prepend="and">
+					t.update_time = #updateTime#
+				</isNotEmpty>
+				<isNotEmpty property="site" prepend="and">
+					t.site = #site#
+				</isNotEmpty>
+			</dynamic>
+			
+		
+		</select>
+		
+    </sqlMap>
+    
+	

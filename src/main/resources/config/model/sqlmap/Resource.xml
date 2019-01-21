@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Resource">
+	
+	<typeAlias alias="resource" type="com.coo8.btoc.model.resource.Resource"/>
+	
+	<!-- the selected fields of resource table -->
+	<sql id="selectResourceSql">
+		r.id, r.code, r.priority, r.name, r.resource, r.test_code testCode, r.status, 
+		r.description, r.type, r.doc ,r.creator, r.updator, r.created_time createdTime, 
+		r.updated_time updatedTime
+	</sql>
+	
+	<!-- resource table name -->
+	<sql id="resourceTable">
+		btoc_resource r
+	</sql>
+	
+	<!-- create resource -->
+	<insert id="insertResource" parameterClass="resource">
+		INSERT INTO btoc_resource
+				(	code, priority, name, resource, creator, created_time,updated_time,
+   					test_code, status, description, type, doc 
+   				)
+   		  VALUES(	#code#, #priority#, #name#, #resource#, #creator#, CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,
+   					#testCode#, #status#, #description#, #type#, #doc#
+   				)
+   		<selectKey resultClass="int" keyProperty="id">
+			select last_insert_id() as ID from btoc_resource limit 1
+		</selectKey>
+	</insert>
+	
+	<!-- update resource -->
+	<update id="updateResource" parameterClass="resource">
+		update btoc_resource set
+			updator = #updator#,
+			updated_time = CURRENT_TIMESTAMP
+			<isNotEmpty property="name" prepend=",">
+				name = #name#
+			</isNotEmpty>
+			<isNotEmpty property="resource" prepend=",">
+				resource = #resource#
+			</isNotEmpty>
+			<isNotEmpty property="testCode" prepend=",">
+				test_code = #testCode#
+			</isNotEmpty>
+			<isNotEmpty property="description" prepend=",">
+				description = #description#
+			</isNotEmpty>
+			<isNotEmpty property="doc" prepend=",">
+				doc = #doc#
+			</isNotEmpty>
+			<isNotEmpty property="status" prepend=",">
+				status = #status#
+			</isNotEmpty>
+		where
+			id = #id#
+	</update>
+	<!-- delete resource -->
+	<delete id="deleteResource" parameterClass="int">
+		DELETE FROM btoc_resource WHERE `ID` = #id# 
+	</delete>
+	
+	<!-- query resource by id -->
+	<select id="getResourceById" parameterClass="int" resultClass="resource">
+		SELECT
+			<include refid="selectResourceSql"/>
+		FROM
+			<include refid="resourceTable"/>
+		WHERE
+			id = #id#	
+	</select>
+	
+	<!-- 符合条件 数据源 的个数 -->
+	<select id="queryResourceCount" parameterClass="resource" resultClass="int">
+		SELECT 
+			count(1)
+		FROM
+			<include refid="resourceTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="code" prepend="and">
+				r.code = #code#			
+			</isNotNull>
+			<isNotNull property="type" prepend="and">
+				r.type = #type#			
+			</isNotNull>
+			<isNotNull property="status" prepend="and">
+				r.status = #status#			
+			</isNotNull>
+			<isNotEmpty property="name" prepend="and">
+				upper(r.name) like CONCAT('%',upper(trim(#name#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="description" prepend="and">
+				upper(r.description) like CONCAT('%',upper(trim(#description#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="creator" prepend="and">
+				upper(r.creator) like CONCAT('%',upper(trim(#creator#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="updator" prepend="and">
+				upper(r.updator) like CONCAT('%',upper(trim(#updator#)),'%')
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- 符合条数据源的块 -->
+	<select id="queryResources" parameterClass="resource" resultClass="resource">
+		SELECT 
+			<include refid="selectResourceSql"/>
+		FROM
+			<include refid="resourceTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="code" prepend="and">
+				r.code = #code#			
+			</isNotNull>
+			<isNotNull property="type" prepend="and">
+				r.type = #type#			
+			</isNotNull>
+			<isNotNull property="status" prepend="and">
+				r.status = #status#			
+			</isNotNull>
+			<isNotEmpty property="name" prepend="and">
+				upper(r.name) like CONCAT('%',upper(trim(#name#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="description" prepend="and">
+				upper(r.description) like CONCAT('%',upper(trim(#description#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="creator" prepend="and">
+				upper(r.creator) like CONCAT('%',upper(trim(#creator#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="updator" prepend="and">
+				upper(r.updator) like CONCAT('%',upper(trim(#updator#)),'%')
+			</isNotEmpty>
+		</dynamic>
+		order by
+			r.updated_time desc, r.created_time desc
+	</select>
+	
+	<!-- resource catalog related operation -->
+	
+	<typeAlias alias="resourceCatalog" type="com.coo8.btoc.model.resource.ResourceCatalog"/>
+	
+	<sql id="selectResourceCatalogField">
+		id, resource_id resourceId, html_id htmlId, 
+		product_id productId, creator, created_time createdTime,
+		updator, updated_time updatedTime, type, status, open, 
+		position, comp_id compId, city_ids cityIds 
+	</sql>
+	
+	<sql id="resourceCatalogTable">
+		btoc_resource_catalog
+	</sql>
+	
+	<insert id="insertResourceCatalog" parameterClass="resourceCatalog">
+		insert into btoc_resource_catalog 
+			(resource_id, html_id, product_id, creator, created_time,
+			 type, status, open, position, comp_id, city_ids)
+		values
+			(#resourceId#, #htmlId#, #productId#, #creator#, CURRENT_TIMESTAMP, 
+			#type#, #status#, #open#, #position#, #compId#, #cityIds#)
+	</insert>
+	
+	<update id="updateResourceCatalog" parameterClass="resourceCatalog">
+		update btoc_resource_catalog set 
+		updator = #updator#,
+		updated_time = CURRENT_TIMESTAMP
+		<isNotEmpty prepend="," property="productId">
+			product_id = #productId#
+		</isNotEmpty>
+		<isNotEmpty prepend="," property="open">
+			open = #open#
+		</isNotEmpty>
+		<isNotEmpty prepend="," property="status">
+			status = #status#
+		</isNotEmpty>
+		<isNotEmpty prepend="," property="positionChange">
+			position = #positionChange#
+		</isNotEmpty>
+		
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="id">
+				id = #id#
+			</isNotEmpty>
+			<isNotNull property="resourceId" prepend="and">
+				resource_id = #resourceId#
+			</isNotNull>
+			<isNotNull property="htmlId" prepend="and">
+				html_id = #htmlId#
+			</isNotNull>
+			<isNotNull property="type" prepend="and">
+				type = #type#
+			</isNotNull>
+			<isNotNull property="status" prepend="and">
+				status = #status#
+			</isNotNull>
+			<isNotNull property="position" prepend="and">
+				position = #position#
+			</isNotNull>
+			<isNotEmpty property="compId" prepend="and">
+				comp_id = #compId#
+			</isNotEmpty>
+		</dynamic>
+			
+	</update>
+	
+	<update id="directAddProductIds" parameterClass="resourceCatalog">
+		update btoc_resource_catalog
+			set updated_time = CURRENT_TIMESTAMP,
+				updator = #updator#
+				<isNotEmpty property="productId" prepend=",">
+					product_id = #productId#
+				</isNotEmpty>
+				<isNotEmpty property="status" prepend=",">
+					status = #status#
+				</isNotEmpty>
+			where resource_id = #resourceId#
+				and html_id = #htmlId#
+	</update>
+	
+	<delete id="deleteResourceCatalog" parameterClass="resourceCatalog">
+		delete from btoc_resource_catalog
+		<dynamic prepend="where">
+			<isNotNull property="id" prepend="and">
+				id = #id#
+			</isNotNull>
+			<isNotNull property="resourceId" prepend="and">
+				resource_id = #resourceId#
+			</isNotNull>
+			<isNotNull property="htmlId" prepend="and">
+				html_id = #htmlId#
+			</isNotNull>
+			<isNotNull property="type" prepend="and">
+				type = #type#
+			</isNotNull>
+			<isNotNull property="status" prepend="and">
+				status = #status#
+			</isNotNull>
+			<isNotNull property="position" prepend="and">
+				position = #position#
+			</isNotNull>
+			<isNotEmpty property="compId" prepend="and">
+				comp_id = #compId#
+			</isNotEmpty>
+		</dynamic>
+	</delete>
+	
+	<select id="queryResourceCatalog" parameterClass="resourceCatalog" resultClass="resourceCatalog">
+		select 
+			<include refid="selectResourceCatalogField"/>
+		from
+			<include refid="resourceCatalogTable"/>
+		<dynamic prepend="where">
+			<isNotNull property="resourceId" prepend="and">
+				resource_id = #resourceId#
+			</isNotNull>
+			<isNotNull property="htmlId" prepend="and">
+				html_id = #htmlId#
+			</isNotNull>
+			<isNotNull property="type" prepend="and">
+				type = #type#
+			</isNotNull>
+			<isNotNull property="status" prepend="and">
+				status = #status#
+			</isNotNull>
+			<isNotNull property="position" prepend="and">
+				position = #position#
+			</isNotNull>
+			<isNotEmpty property="compId" prepend="and">
+				comp_id = #compId#
+			</isNotEmpty>
+			<isNotNull property="productId" prepend="and">
+				product_id = #productId#
+			</isNotNull>
+		</dynamic>
+		order by position
+	</select>
+	<select id="queryResourceCatalogCount" parameterClass="resourceCatalog" resultClass="int">
+		select 
+			count(1)
+		from
+			<include refid="resourceCatalogTable"/>
+		<dynamic prepend="where">
+			<isNotNull property="resourceId" prepend="and">
+				resource_id = #resourceId#
+			</isNotNull>
+			<isNotNull property="htmlId" prepend="and">
+				html_id = #htmlId#
+			</isNotNull>
+			<isNotNull property="type" prepend="and">
+				type = #type#
+			</isNotNull>
+			<isNotNull property="status" prepend="and">
+				status = #status#
+			</isNotNull>
+			<isNotNull property="position" prepend="and">
+				position = #position#
+			</isNotNull>
+			<isNotEmpty property="compId" prepend="and">
+				comp_id = #compId#
+			</isNotEmpty>
+			<isNotNull property="productId" prepend="and">
+				product_id = #productId#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+</sqlMap>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+ 
+<sqlMap namespace="ErrorTitles" >
+
+	 <typeAlias alias="importLog" type="com.coo8.topic.model.ImportLog"/>
+     <typeAlias alias="errorTitles" type="com.coo8.topic.model.ErrorTitles"/>
+    
+      <resultMap id="RM.ErrorTitles" class="com.coo8.topic.model.ErrorTitles">
+        <result property="id" column="ID"/>
+        <result property="goodsId" column="GOODSID"/>
+        <result property="skuId" column="SKUID"/>
+        <result property="title" column="TITLE"/>
+        <result property="keys" column="KEYSS"/>
+        <result property="tags" column="TAGS"/>
+        <result property="gids" column="GIDS"/>
+        <result property="createDate" column="CREATE_DATE"/>
+        <result property="createUser" column="CREATE_USER"/>
+        <result property="type" column="TYPE"/>
+    </resultMap>
+ 
+	<sql id="ErrorTitles.columns">
+	    <![CDATA[
+	     ID,GOODSID ,SKUID,TITLE,KEYSS,TAGS,GIDS,CREATE_DATE,CREATE_USER,TYPE
+	 ]]>
+	</sql>
+	
+	 <insert id="ErrorTitles.insert" >    
+    <![CDATA[
+        INSERT INTO t_titles ( 
+	        GOODSID ,
+	        SKUID,
+	        TITLE,
+	        KEYSS,
+	        TAGS,
+	        GIDS,
+	        CREATE_DATE,
+	        CREATE_USER,
+	        TYPE
+        ) VALUES ( 
+        	#goodsId#,
+        	#skuId#, 
+        	#title#, 
+        	#keys#, 
+        	#tags#, 
+        	#gids#, 
+        	#createDate#,
+        	#createUser#, 
+        	#type#
+        )
+    ]]>
+    <selectKey resultClass="int" keyProperty="id" type="post" >  
+        select last_insert_id() as id
+    </selectKey> 
+    </insert>
+	  
+    <!-- LOG  -->
+    <!-- 查看日志总数据 -->
+    <sql id="selectLogSql">
+		id, creator, create_time as createTime, file_url as fileUrl,
+			total_count as totalCount, fail_count as failCount, down_status as downStatus
+	</sql>
+	
+	<select id="logcount" parameterClass="map" resultClass="int">
+		SELECT count(1) FROM t_Titles_log 
+	</select>
+	
+	<select id="listlog" parameterClass="map" resultClass="importLog">
+		SELECT <include refid="selectLogSql"/>
+		FROM t_Titles_log
+		ORDER BY id DESC
+	</select>
+	
+	<!-- create errorTitles log -->
+	<insert id="addLog" parameterClass="importLog">
+		INSERT INTO t_Titles_log
+				(	creator, create_time, file_url, total_count, fail_count )
+   		  VALUES(	#creator#, #createTime#, #fileUrl#, #totalCount#, #failCount# )
+	</insert>
+	
+	<update id="downLogStatus" parameterClass="java.lang.String">
+		update t_Titles_log set down_status = 1 where id = #id#
+	</update>
+	
+	<!-- 错误商品专题 -->
+	
+	
+	<sql id="selectErrorTitlesSql">
+	 id,goodsId,skuId,title,keyss,tags,gids,create_date,create_user,type   
+	</sql>
+	<!-- create errorTitles  -->
+	<insert id="addError" parameterClass="errorTitles">
+		INSERT INTO t_error_titles 
+				(	goodsId, skuId, title, keyss, tags, gids, create_date, create_user, type)
+   		  VALUES(	#goodsId#, #skuId#, #title#, #keys#, #tags#, #gids#, #createDate#, #createUser#, #type#)
+	</insert>
+	
+	<select id="listDownLog" parameterClass="map" resultMap="RM.ErrorTitles">
+		SELECT 
+			<include refid="selectErrorTitlesSql"/>
+		FROM t_error_titles b
+	    WHERE  upper(b.create_date) like CONCAT('%',upper(trim(#createTime#)),'%')
+	</select>
+    
+</sqlMap>
+

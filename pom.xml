@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.coo8</groupId>
+	<artifactId>topic</artifactId>
+	<packaging>war</packaging>
+	<version>1.0.40-SNAPSHOT</version>
+	<name>seo-topic</name>
+	<url>http://www.myComp.com</url>
+	<description>Struts 2 Starter</description>
+	<dependencies>
+		<!-- Junit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- Struts 2 -->
+		<!-- <dependency> <groupId>org.apache.struts</groupId> <artifactId>struts2-core</artifactId> 
+			<version>2.2.3</version> </dependency> <dependency> <groupId>org.apache.struts</groupId> 
+			<artifactId>struts2-sitemesh-plugin</artifactId> <version>2.0.11.2</version> 
+			</dependency> <dependency> <groupId>org.apache.struts</groupId> <artifactId>struts2-spring-plugin</artifactId> 
+			<version>2.0.11.2</version> </dependency> -->
+		<dependency>
+			<groupId>com.gome.bas</groupId>
+			<artifactId>gome-security-core</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.gome.bg</groupId>
+			<artifactId>gome-gcc-interface</artifactId>
+			<version>STABLE-2.0.31</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-core</artifactId>
+			<version>2.3.32</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-sitemesh-plugin</artifactId>
+			<version>2.3.32</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-spring-plugin</artifactId>
+			<version>2.3.32</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-json-plugin</artifactId>
+			<version>2.3.32</version>
+		</dependency>
+		<!-- Servlet & Jsp -->
+
+		<!-- Jakarta Commons -->
+		<!-- <dependency> <groupId>commons-fileupload</groupId> <artifactId>commons-fileupload</artifactId> 
+			<version>1.2.2</version> </dependency> -->
+
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-imaging</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.gome.bg</groupId>
+			<artifactId>gome-gcc-gfs</artifactId>
+			<version>[STABLE-2.0.1, STABLE-2.999.999]</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.opensymphony.quartz</groupId>
+			<artifactId>quartz-all</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+
+		<!-- Dwr -->
+		<dependency>
+			<groupId>uk.ltd.getahead</groupId>
+			<artifactId>dwr</artifactId>
+			<version>1.1-beta-3</version>
+		</dependency>
+
+		<!-- Spring-Ibatis -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-ibatis</artifactId>
+			<version>2.0.8</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Struts Annotation -->
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-convention-plugin</artifactId>
+			<version>2.3.32</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>1.6.10</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>asm</groupId>
+			<artifactId>asm-util</artifactId>
+			<version>3.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>3.0.5.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>3.0.5.RELEASE</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>3.0.5.RELEASE</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>3.0.5.RELEASE</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.coo8</groupId>
+			<artifactId>jxl</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<!-- 数据库连接池 -->
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<!-- <dependency> <groupId>org.springframework</groupId> <artifactId>spring</artifactId> 
+			<version>3.0.5.RELEASE</version> <type>jar</type> <scope>compile</scope> 
+			</dependency> -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>3.0.5.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>2.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<!-- Mysql数据库连接 -->
+		<!-- <dependency> <groupId>mysql</groupId> <artifactId>mysql-connector-java</artifactId> 
+			<version>5.1.16</version> <type>jar</type> <scope>compile</scope> </dependency> -->
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.27</version>
+		</dependency>
+
+		<!-- dragon接口 -->
+		<dependency>
+			<groupId>com.gome.dragon</groupId>
+			<artifactId>dragon-mds-client</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.apache.ibatis</groupId>
+			<artifactId>ibatis-sqlmap</artifactId>
+			<version>2.3.4.726</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<!-- 配置文件操作相关的类用到 -->
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+			<version>1.6</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- 数据库连接池 -->
+
+		<!-- <dependency> <groupId>c3p0</groupId> <artifactId>c3p0</artifactId> 
+			<version>0.9.1.1</version> <scope>compile</scope> </dependency> -->
+		<dependency>
+			<groupId>com.mchange</groupId>
+			<artifactId>c3p0</artifactId>
+			<version>0.9.5.2</version>
+		</dependency>
+
+		<!-- StringUtils用到了 -->
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<!-- StringUtil用到了 -->
+		<dependency>
+			<groupId>oro</groupId>
+			<artifactId>oro</artifactId>
+			<version>2.0.8</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.7</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity-tools</artifactId>
+			<version>2.0</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>taglibs</groupId>
+			<artifactId>standard</artifactId>
+			<version>1.1.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.kohsuke.stapler</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>2.1-rev6</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<!-- <dependency> <groupId>coo8_admin</groupId> <artifactId>jedis</artifactId> 
+			<version>1.0</version> </dependency> -->
+
+
+		<dependency>
+			<groupId>coo8_admin</groupId>
+			<artifactId>coo8_admin_comm</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>coo8_admin</groupId>
+			<artifactId>coo8_admin</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis</groupId>
+			<artifactId>axis-jaxrpc</artifactId>
+			<version>1.4</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis</groupId>
+			<artifactId>axis</artifactId>
+			<version>1.4</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.4</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.0</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis</groupId>
+			<artifactId>axis-saaj</artifactId>
+			<version>1.4</version>
+			<type>pom</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>axis</groupId>
+			<artifactId>axis-wsdl4j</artifactId>
+			<version>1.5.1</version>
+			<type>pom</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.pinyin4j</groupId>
+			<artifactId>pinyin4j</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>axis</groupId>
+			<artifactId>axis</artifactId>
+			<version>1.4</version>
+			<type>pom</type>
+			<scope>compile</scope>
+		</dependency>
+		<!-- dubbo使用，根据编号查商品或SKU。2018/2/28升级jar -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>dubbo</artifactId>
+			<version>2.5.5.idc-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.apache.zookeeper</groupId>
+			<artifactId>zookeeper</artifactId>
+			<version>3.4.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.netty</groupId>
+			<artifactId>netty</artifactId>
+			<version>3.2.10.Final</version>
+		</dependency>
+
+		<!-- <dependency> <groupId>com.gome.stage</groupId> <artifactId>stage-model</artifactId> 
+			<version>0.1.85-SNAPSHOT</version> </dependency> -->
+
+		<dependency>
+			<groupId>com.gome.stage</groupId>
+			<artifactId>stage-model</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>redis.gcache</groupId>
+			<artifactId>gedis</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.gome.stage</groupId>
+			<artifactId>gome-tapho-i</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>3.0.0.g-SNAPSHOT</version>
+		</dependency>
+
+
+
+		<dependency>
+			<groupId>wsdl4j</groupId>
+			<artifactId>wsdl4j</artifactId>
+			<version>1.6.3</version>
+		</dependency>
+
+		<!-- <dependency> <groupId>com.github.sgroschupf</groupId> <artifactId>zkclient</artifactId> 
+			<version>0.4</version> </dependency> -->
+		<dependency>
+			<groupId>com.101tec</groupId>
+			<artifactId>zkclient</artifactId>
+			<version>0.4</version>
+		</dependency>
+
+		<!-- datasource -->
+		<dependency>
+			<groupId>com.gome</groupId>
+			<artifactId>gome-datasource</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.gome</groupId>
+			<artifactId>gome-datasource</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<classifier>sources</classifier>
+		</dependency>
+		<!-- erm -->
+		<!--<dependency> <groupId>com.gome.erm</groupId> <artifactId>gome-erm-api</artifactId> 
+			<version>2.0-CMS-SNAPSHOT</version> <exclusions> <exclusion> <groupId>javax.servlet.jsp</groupId> 
+			<artifactId>jsp-api</artifactId> </exclusion> </exclusions> </dependency> -->
+		<dependency>
+			<groupId>com.gome.erm</groupId>
+			<artifactId>gome-erm-api</artifactId>
+			<version>2.0.2-CMS-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet.jsp</groupId>
+					<artifactId>jsp-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>gome-erm-common</artifactId>
+					<groupId>com.gome.erm</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>gome-common-cached</artifactId>
+					<groupId>com.gome.common</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.gome.common</groupId>
+			<artifactId>gome-common-web</artifactId>
+			<version>2.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>net.databinder</groupId>
+			<artifactId>dispatch-jsoup_2.9.2</artifactId>
+			<version>0.8.8</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>httpclient</artifactId>
+					<groupId>org.apache.httpcomponents</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.14</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.14</version>
+		</dependency>
+
+
+		<!-- <dependency> <groupId>org.search.web</groupId> <artifactId>gateway.idl</artifactId> 
+			<version>1.3-SNAPSHOT</version> </dependency> -->
+
+		<dependency>
+			<groupId>com.gome.search</groupId>
+			<artifactId>gateway.idl</artifactId>
+			<version>2.0.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.gome.seo</groupId>
+			<artifactId>seo-productword</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.mybatis/mybatis -->
+		<!-- addDate:2018年10月10日11:08:33 -->
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.4.6</version>
+		</dependency>
+		<!-- pagehelpers -->
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper</artifactId>
+			<version>4.1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.jsqlparser</groupId>
+			<artifactId>jsqlparser</artifactId>
+			<version>0.9.6</version>
+		</dependency>
+		<!-- id自主生成器 -->
+		<dependency>
+			<groupId>com.gome.architect</groupId>
+			<artifactId>idgenerator</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>topic</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+					<encoding>GBK</encoding>
+				</configuration>
+				<version>2.3.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>maven-jetty-plugin</artifactId>
+				<version>6.1.5</version>
+				<configuration>
+					<scanIntervalSeconds>10</scanIntervalSeconds>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<url>http://maven.ds.gome.com.cn/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+		<repository>
+			<id>releases</id>
+			<url>http://maven.ds.gome.com.cn/nexus/content/repositories/releases/</url>
+		</repository>
+	</distributionManagement>
+</project>

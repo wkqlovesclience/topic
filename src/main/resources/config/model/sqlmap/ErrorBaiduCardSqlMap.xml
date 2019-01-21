@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+ 
+<sqlMap namespace="ErrorCard" >
+
+	 <typeAlias alias="importLog" type="com.coo8.topic.model.ImportLog"/>
+     <typeAlias alias="errorCard" type="com.gome.promotioncard.model.ErrorCard"/>
+    
+     <resultMap class="com.gome.promotioncard.model.ErrorCard" id="RM.ErrorCard">
+   		 <result property="id" column="ID"/>
+         <result property="skuId" column="SKU_ID"/>
+         <result property="productId" column="PRODUCT_ID"/>
+         <result property="logId" column="LOG_ID"/>
+         <result property="createTime" column="CREATE_TIME"/>
+         <result property="creator" column="CREATOR"/>
+         <result property="type" column="TYPE"/>      
+   	 </resultMap>
+ 
+	<sql id="ErrorCard.columns">
+	    <![CDATA[
+       ID,SKU_ID,PRODUCT_ID,LOG_ID,CREATE_TIME,CREATOR,TYPE
+	    ]]>
+	</sql>
+	
+	<insert id="ErrorCard.insert" >
+    <![CDATA[
+        INSERT INTO t_error_sku_promotion ( 
+	        ID,
+			SKU_ID,
+			PRODUCT_ID,
+			LOG_ID,
+			CREATE_TIME,			
+			CREATOR	,
+			TYPE		
+        ) VALUES ( 
+        	#id# ,
+        	#skuId# ,
+        	#productId# ,
+        	#logId# ,
+        	#createTime# ,      
+        	#creator# ,
+        	#type#
+        )
+    ]]>
+    <selectKey resultClass="int" keyProperty="id" type="post">  
+          select last_insert_id() as id
+    </selectKey>     
+    </insert>    
+	  	  
+	<select id="ErrorCard.getById" resultMap="RM.ErrorCard">
+	    SELECT <include refid="ErrorCard.columns"/>
+	    <![CDATA[
+	        FROM t_error_sku_promotion 
+	        WHERE 
+		        ID = #id# 
+	    ]]>
+    </select>
+	  
+    <!-- LOG  -->
+    <!-- 查看日志总数据 -->
+    <sql id="selectLogSql">
+		id, creator, create_time as createTime, file_url as fileUrl,
+			total_count as totalCount, fail_count as failCount, down_status as downStatus
+	</sql>
+	
+	<select id="logcount" parameterClass="map" resultClass="int">
+		SELECT count(1) FROM t_sku_promotion_log 
+	</select>
+	
+	<select id="listlog" parameterClass="map" resultClass="importLog">
+		SELECT <include refid="selectLogSql"/>
+		FROM t_sku_promotion_log
+		ORDER BY id DESC
+	</select>
+	
+	<!-- create errorTitles log -->
+	<insert id="addLog" parameterClass="importLog">
+		INSERT INTO t_sku_promotion_log
+				(	creator, create_time, file_url, total_count, fail_count )
+   		  VALUES(	#creator#, #createTime#, #fileUrl#, #totalCount#, #failCount# )
+   		  <selectKey resultClass="int" keyProperty="id" type="post">  
+               select last_insert_id() as id
+          </selectKey>
+	</insert>
+	
+	<update id="downLogStatus" parameterClass="java.lang.String">
+		update t_sku_promotion_log set down_status = 1 where id = #id#
+	</update>
+	
+    <sql id="selectErrorCardSql">
+	 ID,SKU_ID,PRODUCT_ID,LOG_ID,CREATE_TIME,CREATOR,TYPE
+	</sql>
+
+	<!-- create errorCard  -->
+	<insert id="addError" parameterClass="errorCard">
+		INSERT INTO t_error_sku_promotion 
+				(	SKU_ID,PRODUCT_ID,LOG_ID,CREATE_TIME,CREATOR,TYPE)
+   		  VALUES( 	#skuId# ,#productId# ,#logId# ,#createTime# , #creator# ,#type#)
+	</insert>
+	
+	<select id="listDownLog" parameterClass="map" resultMap="RM.ErrorCard">
+		SELECT 
+			<include refid="selectErrorCardSql"/>
+		FROM t_error_sku_promotion
+	    WHERE LOG_ID = #logId#
+	</select>
+    
+</sqlMap>
+

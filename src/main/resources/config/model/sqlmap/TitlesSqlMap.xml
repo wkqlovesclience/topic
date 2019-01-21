@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+ 
+<sqlMap namespace="Titles" >
+ 
+    <resultMap id="RM.Titles" class="com.coo8.topic.model.Titles">
+        <result property="id" column="ID"/>
+        <result property="paths" column="PATHS"/>
+        <result property="title" column="TITLE"/>
+        <result property="sources" column="SOURCES"/>
+        <result property="goodsId" column="GOODS_ID"/>
+        <result property="skuId" column="SKU_ID"/>
+        <result property="goodsName" column="GOODS_NAME"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="modifier" column="MODIFIER"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+        <result property="publicStat" column="PUBLIC_STAT"/>
+        <result property="checkStat" column="CHECK_STAT"/>
+        <result property="editStat" column="EDIT_STAT"/>
+        <result property="newscount" column="ID" select="Titles.findNewsCountById"/>
+         <result property="site" column="SITE"/>
+    </resultMap>
+	<resultMap id="Drops.Titles" class="com.coo8.topic.model.Titles">
+		<result property="id" column="ID"/>
+		<result property="goodsId" column="GOODS_ID"/>
+	</resultMap>
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Titles.columns">
+	    <![CDATA[
+        ID ,PATHS ,TITLE ,SOURCES ,GOODS_ID ,SKU_ID,GOODS_NAME ,CREATOR ,MODIFIER ,CREATE_TIME ,UPDATE_TIME ,PUBLIC_STAT ,CHECK_STAT ,EDIT_STAT ,SITE
+	    ]]>
+	</sql>
+
+    <select id="Titles.getByTitleName" resultMap="RM.Titles" resultClass="com.coo8.topic.model.Titles">
+        SELECT <include refid="Titles.columns"/> FROM t_titles
+        where TITLE = #titleName#
+    </select>
+
+		
+    <insert id="Titles.insert" >
+    
+    <![CDATA[
+        INSERT INTO t_titles ( 
+	        PATHS  ,
+	        TITLE  ,
+	        SOURCES  ,
+	        GOODS_ID  ,
+	        SKU_ID ,
+	        GOODS_NAME  ,
+	        CREATOR  ,
+	        CREATE_TIME  ,
+	        UPDATE_TIME  ,
+	        PUBLIC_STAT  ,
+	        CHECK_STAT ,
+	        EDIT_STAT,
+	        SITE
+        ) VALUES ( 
+        	#paths# ,
+        	#title# ,
+        	#sources# ,
+        	#goodsId# ,
+        	#skuId# ,
+        	#goodsName# ,
+        	#creator# ,
+        	#createTime# ,
+        	#updateTime# ,
+        	#publicStat# ,
+        	#checkStat# ,
+        	#editStat#,
+        	#site#
+        )
+    ]]>
+    <selectKey resultClass="int" keyProperty="id" type="post" >  
+        select last_insert_id() as id
+    </selectKey> 
+   
+    <!--
+    
+    
+    mysql:		type="post" SELECT  select last_insert_id()
+    sqlserver:	type="post" SELECT  @@identity  AS  ID
+    sybase:		type="post" SELECT  @@identity  AS  ID
+    oracle:		type="pre" 	SELECT  sequenceName.nextval AS ID FROM DUAL
+    DB2:		type="pre"	values nextval for sequenceName
+    -->
+        
+    </insert>
+
+    <update id="Titles.update" >
+        UPDATE t_titles SET
+	        PATHS = #paths# ,
+	        TITLE = #title# ,
+	        SOURCES = #sources# ,
+	        GOODS_ID = #goodsId# ,
+	        SKU_ID = #skuId# ,
+	        GOODS_NAME = #goodsName# ,
+	        MODIFIER = #modifier#,
+	        UPDATE_TIME = #updateTime# ,
+	        PUBLIC_STAT = #publicStat# ,
+	        CHECK_STAT = #checkStat# ,
+	        EDIT_STAT = #editStat#
+	        <isNotEmpty prepend="," property="indexStat">
+	           INDEX_STAT = #indexStat#
+	        </isNotEmpty>
+        WHERE 
+	        ID = #id#
+    </update>
+
+	<update id="Titles.updateInForward" >
+		UPDATE t_titles SET INDEX_STAT = 'Y' WHERE site = #site# and ID = #id#
+	</update>
+
+   <!--  <update id="Titles.changePath">
+        update btoc_block  b set b.SITE = 'gome' where  b.NAME = 'index_overseasbuy'
+    </update> -->
+    
+    <update id="Titles.changePath">
+         update btoc_block  b set b.SITE = 'gome' where  b.NAME = 'index_overseasbuy'
+    </update>
+    
+    
+     <update id="Titles.changeTwo">
+         update t_titles set PATHS = concat('topic/',PATHS) where ID in (39747,39749)
+    </update>
+    
+    <delete id="Titles.delete">
+    <![CDATA[
+        DELETE FROM t_titles WHERE
+        ID = #id#
+    ]]>
+    </delete>
+    
+    <delete id="Titles.deleteBlock">
+    <![CDATA[
+        DELETE FROM btoc_block_queue
+    ]]>
+    </delete>
+    
+     
+    <delete id="Titles.deleteProduct">
+    <![CDATA[
+        DELETE FROM btoc_product_queue
+    ]]>
+    </delete>
+    
+    
+    <select id="Titles.getById" resultMap="RM.Titles">
+	    SELECT <include refid="Titles.columns"/>
+	    <![CDATA[
+	        FROM t_titles 
+	        WHERE 
+		        ID = #id#
+	    ]]>
+    </select>
+
+
+     <select id="Titles.getMaxId" parameterClass="java.lang.String" resultClass="int">
+	    SELECT max(ID)
+	    <![CDATA[
+	        FROM t_titles 
+	        WHERE 
+		        SITE = #site#
+	    ]]>
+    </select>
+
+
+	<sql id="Titles.findPage.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="paths">
+		             PATHS = #paths#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="title">
+		             TITLE = '$title$'
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="sources">
+		             SOURCES = #sources#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="goodsId">
+		             GOODS_ID = #goodsId#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="goodsName">
+		             GOODS_NAME = #goodsName#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="creator">
+		             CREATOR = #creator#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeBegin">
+		             CREATE_TIME >= #createTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeEnd">
+		             CREATE_TIME &lt;= #createTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeBegin">
+		             UPDATE_TIME >= #updateTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeEnd">
+		             UPDATE_TIME &lt;= #updateTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="publicStat">
+		             PUBLIC_STAT = #publicStat#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="checkStat">
+		             CHECK_STAT = #checkStat#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="editStat">
+		             EDIT_STAT = #editStat#
+		       </isNotEmpty>
+		       <isNotNull property="tempTime">
+		       		<isNotEmpty property="tempTime" prepend="AND">
+		       			DATE_FORMAT(CREATE_TIME,'%Y-%m-%d') = #tempTime#
+		       		</isNotEmpty>
+		       </isNotNull>
+		       <isNotEmpty prepend="AND" property="site">
+		             SITE = #site#
+		       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	 <sql id="Titles.findPageLike.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="paths">
+		             PATHS = #paths#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="title">
+		             TITLE like '%$title$%'
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="sources">
+		             SOURCES = #sources#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="goodsId">
+		             GOODS_ID = #goodsId#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="goodsName">
+		             GOODS_NAME = #goodsName#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="creator">
+		             CREATOR = #creator#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeBegin">
+		             CREATE_TIME >= #createTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeEnd">
+		             CREATE_TIME &lt;= #createTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeBegin">
+		             UPDATE_TIME >= #updateTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeEnd">
+		             UPDATE_TIME &lt;= #updateTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="publicStat">
+		             PUBLIC_STAT = #publicStat#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="checkStat">
+		             CHECK_STAT = #checkStat#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="editStat">
+		             EDIT_STAT = #editStat#
+		       </isNotEmpty>
+		       <isNotNull property="tempTime">
+		       		<isNotEmpty property="tempTime" prepend="AND">
+		       			DATE_FORMAT(CREATE_TIME,'%Y-%m-%d') = #tempTime#
+		       		</isNotEmpty>
+		       </isNotNull>
+		       <isNotEmpty prepend="AND" property="idBegin">
+		             ID >= #idBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="idEnd">
+		             <![CDATA[ ID <= #idEnd#  ]]>
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="site">
+		             SITE = #site#
+		       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+    <select id="Titles.findPage.count" resultClass="long">
+        SELECT count(*) FROM t_titles <include refid="Titles.findPage.where"/>    
+    </select>
+    <select id="Titles.findPageLike.count" resultClass="long">
+        SELECT count(*) FROM t_titles <include refid="Titles.findPageLike.where"/>    
+    </select>
+    
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="Titles.findPage" resultMap="RM.Titles">
+    	SELECT <include refid="Titles.columns"/> FROM t_titles 
+		<include refid="Titles.findPage.where"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    <select id="Titles.findPageLike" resultMap="RM.Titles">
+    	SELECT <include refid="Titles.columns"/> FROM t_titles 
+		<include refid="Titles.findPageLike.where"/>
+		<![CDATA[ ORDER BY ID DESC ]]>
+    </select>
+    <parameterMap id="TitleMap" class="map">
+		<parameter property="titleId"  javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN"></parameter>
+    </parameterMap>
+    <parameterMap id="TitleMap_" class="map">
+		<parameter property="site"  javaType="java.lang.String" jdbcType="VARCHAR" mode="IN"></parameter>
+    </parameterMap>
+    
+    <!-- zhangwujie 2012.8.13 获得专题文章数量 start -->
+    <select id="Titles.findNewsCountById" parameterClass="int" resultClass="int">
+		SELECT COUNT(1) FROM T_NEWS WHERE TITLE_ID = #ID#
+    </select>
+    <!-- zhangwujie 2012.8.13 获得专题文章数量 end -->
+    <!-- 专题商品下架 列表  2012-09-14 start  -->
+    <sql id="Titles.drops.columns">
+	   <![CDATA[
+	      t1.ID ,t1.PATHS ,t1.TITLE ,t1.SOURCES ,t1.GOODS_ID ,t1.GOODS_NAME ,t1.CREATOR ,t1.MODIFIER ,t1.CREATE_TIME ,t1.UPDATE_TIME 
+	      	,t1.PUBLIC_STAT ,t1.CHECK_STAT ,t1.EDIT_STAT ,t1.SITE
+	   ]]>
+	</sql>
+    <sql id="Titles.findDropsList.where">
+	   	<dynamic prepend="AND">
+		       <isNotEmpty prepend="AND" property="id">
+		             t1.ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="paths">
+		             t1.PATHS = #paths#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="title">
+		             t1.TITLE like '%$title$%'
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="sources">
+		             t1.SOURCES = #sources#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="creator">
+		             t1.CREATOR = #creator#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeBegin">
+		             t1.CREATE_TIME >= #createTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeEnd">
+		             t1.CREATE_TIME &lt;= #createTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeBegin">
+		             t1.UPDATE_TIME >= #updateTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeEnd">
+		             t1.UPDATE_TIME &lt;= #updateTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="publicStat">
+		             t1.PUBLIC_STAT = #publicStat#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="checkStat">
+		             t1.CHECK_STAT = #checkStat#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="editStat">
+		             t1.EDIT_STAT = #editStat#
+		       </isNotEmpty>
+		       <isNotNull property="tempTime">
+		       		<isNotEmpty property="tempTime" prepend="AND">
+		       			DATE_FORMAT(CREATE_TIME,'%Y-%m-%d') = #tempTime#
+		       		</isNotEmpty>
+		       </isNotNull>
+		       <isNotEmpty prepend="AND" property="site">
+		             SITE = #site#
+		       </isNotEmpty>
+	    </dynamic>	
+  	</sql>
+    <select id="Titles.findDropsList" resultMap="RM.Titles">
+   		SELECT <include refid="Titles.drops.columns"/> FROM t_titles t1 JOIN t_goods_drops t2  ON t1.ID = t2.TITLE_ID WHERE t2.GSTATUS = 'Y'
+		<include refid="Titles.findDropsList.where"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    <select id="Titles.dropsList.count" resultClass="long">
+   		SELECT COUNT(1) FROM t_titles t1 JOIN t_goods_drops t2 ON t1.ID = t2.TITLE_ID WHERE t2.GSTATUS = 'Y' <include refid="Titles.findDropsList.where"/>
+    </select>
+    <typeAlias alias="goodsDrops" type="com.coo8.topic.model.GoodsDrops"/>
+    <insert id="Titles.saveDrops" parameterClass="goodsDrops">
+   		INSERT INTO t_goods_drops(TITLE_ID,GOODS_ID,GSTATUS) 
+   		VALUES(#titleId#,#goodsId#,#gstatus#)
+   	</insert>
+   	<select id="Titles.findAllTitlesList" resultMap="Drops.Titles">
+   		SELECT ID,GOODS_ID FROM t_titles ORDER BY ID ASC
+   	</select>
+   	<delete id="Titles.deleteAllDrops">
+   		TRUNCATE TABLE t_goods_drops
+   	</delete>
+   	<delete id="Titles.deleteDropsByObj" parameterClass="goodsDrops">
+   		DELETE FROM t_goods_drops WHERE TITLE_ID = #titleId# and GOODS_ID = #goodsId#
+   	</delete>
+   	<!-- 专题商品下架 列表  2012-09-14 end  -->
+   	
+   	
+   	<select id="Titles.findListByGoodId">
+   		
+   	</select>
+   	
+   	<!-- 专题索引 -->
+   	<resultMap class="com.coo8.topic.model.TitleIndex" id="Titles.index.selectLists">
+   		<result property="id" column="ID"/>
+   		<result property="titleId" column="TITLE_ID"/>
+   		<result property="title" column="TITLE"/>
+   		<result property="cindex" column="CINDEX"/>
+   		<result property="priority" column="PRIORITY"/>
+   		<result property="operator" column="OPERATOR"/>
+   		<result property="status" column="STATUS"/>
+   		<result property="updatetime" column="UPDATETIME"/>
+   		<result property="site" column="SITE"/>
+   	</resultMap>
+   	<sql id="Titles.index.columns">
+   		<![CDATA[
+   		t1.ID,t1.TITLE_ID,t2.TITLE,t1.CINDEX,t1.PRIORITY,t1.OPERATOR,t1.STATUS,t1.UPDATETIME,t1.SITE
+   		]]>
+   	</sql>
+   	<sql id="Titles.index.where">
+   		<dynamic prepend="AND">
+   			<isNotEmpty prepend="AND" property="cindex">
+   				<isEqual property="cindex" compareValue="_" open="(" close=")">
+   					<![CDATA[t1.CINDEX >='0' AND t1.CINDEX <='9']]>
+   				</isEqual>
+   				<isNotEqual property="cindex" compareValue="_">
+   					t1.CINDEX = #cindex#
+   				</isNotEqual>
+   			</isNotEmpty>
+   			<isNotEmpty prepend="AND" property="titleId">
+   				t1.TITLE_ID = #titleId#
+   			</isNotEmpty>
+   			<isNotEmpty prepend="AND" property="site">
+   				t1.SITE = #site#
+   			</isNotEmpty>
+   			<isNotEmpty prepend="ORDER BY" property="sortColumns">
+   				$sortColumns$
+   			</isNotEmpty>
+   		</dynamic>
+   	</sql>
+   	<select id="Titles.index.list" resultMap="Titles.index.selectLists">
+   		SELECT <include refid="Titles.index.columns"/>
+   		FROM t_title_index t1 JOIN t_titles t2 ON t1.TITLE_ID = t2.ID WHERE t1.SOURCE = '0'
+   		<include refid="Titles.index.where" />
+   	</select>
+   	<select id="Titles.index.count" resultClass="long">
+   		SELECT COUNT(0) FROM t_title_index t1 JOIN t_titles t2 ON t1.TITLE_ID = t2.ID WHERE t1.SOURCE = '0'
+   		<include refid="Titles.index.where" />
+   	</select>
+
+   	<select id="Titles.index.getById" parameterClass="int" resultMap="Titles.index.selectLists">
+   		SELECT <include refid="Titles.index.columns"/>
+   		FROM t_title_index t1 JOIN t_titles t2 ON t1.TITLE_ID = t2.ID WHERE t1.ID = #id#
+   	</select>
+
+	<select id="Titles.index.getByTitleId" parameterClass="int" resultMap="Titles.index.selectLists">
+		SELECT <include refid="Titles.index.columns"/>
+		FROM t_title_index t1 JOIN t_titles t2 ON t1.TITLE_ID = t2.ID WHERE t1.TITLE_ID = #titleId#
+	</select>
+
+
+   	<select id="Titles.index.isAddRepeat" resultClass="int" parameterClass="map">
+   		SELECT COUNT(1) FROM t_title_index t WHERE t.TITLE_ID = #titleId# AND t.SITE = #site# 
+   		<isNotNull>
+   			<isNotEmpty prepend="AND" property="source">
+   				t.SOURCE = #source#
+   			</isNotEmpty>
+   		</isNotNull>
+   	</select>
+   	
+   	<resultMap class="com.coo8.topic.model.LabelArtRel" id="Titles.tag.labelArtRel">
+   		<result property="keywords" column="KEYWORDS"/>
+   		<result property="articleId" column="ARTICLE_ID"/>
+   	</resultMap>
+   	<select id="Titles.getTagIds" parameterClass="map" resultMap="Titles.tag.labelArtRel">
+   		select r.KEYWORDS,r.ARTICLE_ID from t_news n INNER JOIN t_label_art_rel r  ON n.id=r.ARTICLE_ID AND n.id=#id#
+   	</select>
+   	
+   	<insert id="Titles.index.insert" parameterClass="com.coo8.topic.model.TitleIndex">
+   		INSERT INTO t_title_index(TITLE_ID,PINYIN,CINDEX,SOURCE,PRIORITY,STATUS,OPERATOR,SITE)
+   		VALUES(#titleId#,#pinyin#,#cindex#,#source#,#priority#,#status#,#operator#,#site#)
+   	</insert>
+   	<update id="Titles.index.update" parameterClass="com.coo8.topic.model.TitleIndex">
+   		UPDATE t_title_index SET CINDEX=#cindex#,PRIORITY=#priority#,STATUS=#status#,OPERATOR=#operator#,UPDATETIME=CURRENT_TIMESTAMP
+   		WHERE ID=#id#
+   	</update>
+   	<delete id="Titles.index.delete" parameterClass="int">
+   		DELETE FROM t_title_index WHERE `ID`=#id#
+   	</delete>
+
+	<!--<select id="Titles.findPage.count" resultClass="int">
+		SELECT count(1) FROM t_titles <include refid="Titles.findPage.where"/>
+	</select>-->
+   	
+   	
+   	<!--  发布存储过程调用  zhangwujie 2013-4-11 start -->
+   	<procedure id="TitleMap.publishCoo8Title" parameterMap="TitleMap">
+        {call put_coo8title_to_queue(?)}
+    </procedure>
+	<procedure id="TitleMap.publishGomeTitle" parameterMap="TitleMap">
+        {call put_gometitle_to_queue(?)}
+    </procedure>
+    <procedure id="TitleMap.publishCoo8TitleTest" parameterMap="TitleMap">
+        {call put_coo8titletest_to_queue(?)}
+    </procedure>
+	<procedure id="TitleMap.publishGomeTitleTest" parameterMap="TitleMap">
+        {call put_gometitletest_to_queue(?)}
+    </procedure>
+    
+    
+	<procedure id="TitleMap.publicTitleHomePage" parameterMap="TitleMap_">
+        {call put_index_to_queue(?)}
+    </procedure>
+	<procedure id="TitleMap.publishAllTitleListPage" parameterMap="TitleMap_">
+        {call put_titlelist_to_queue(?)}
+    </procedure>
+	<procedure id="TitleMap.publishAllNewsListPage" parameterMap="TitleMap_">
+        {call put_newslist_to_queue(?)}
+    </procedure>
+    <!--  发布存储过程调用  zhangwujie 2013-4-11 end -->
+    
+    <procedure id="TitleMap.publicWapTitleHomePage">
+        {call put_wap_zhuanti_index_to_queue()}
+    </procedure>
+    
+    <procedure id="TitleMap.publishWapGomeTitle" parameterMap="TitleMap">
+        {call put_wap_gometitle_to_queue(?)}
+    </procedure>
+
+
+	<resultMap id="RM.TitlesInvalid" class="com.coo8.topic.model.TitleInvalid">
+		<result property="id" column="ID"/>
+		<result property="url" column="URL"/>
+		<result property="titleId" column="TITLEID"/>
+		<result property="titleName" column="TITLENAME"/>
+		<result property="createTime" column="CREATEDATE"/>
+	</resultMap>
+
+	<sql id="TitleInvalid.columns">
+	    <![CDATA[
+        ID ,URL ,TITLEID ,TITLENAME,CREATEDATE
+	    ]]>
+	</sql>
+
+	<select id="TitlesInvalid.count" resultClass="int">
+		SELECT count(1) FROM t_title_invalid where CREATEDATE = #createDate#
+	</select>
+
+	<select id="TitlesInvalid.dataInDate" resultMap="RM.TitlesInvalid" resultClass="com.coo8.topic.model.TitleInvalid">
+		SELECT <include refid="TitleInvalid.columns"/>
+		FROM t_title_invalid where CREATEDATE = #createDate#
+	</select>
+
+	<select id="TitlesInvalid.date" resultClass="java.lang.String">
+		SELECT distinct CREATEDATE
+		FROM t_title_invalid
+	</select>
+</sqlMap>
+

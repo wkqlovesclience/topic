@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="HotKeyword">
+	
+	<typeAlias alias="hotKeyword" type="com.coo8.topic.model.HotKeyword"/>
+	<typeAlias alias="importLog" type="com.coo8.topic.model.ImportLog"/>
+	<typeAlias alias="errorHotKeyword" type="com.coo8.topic.model.ErrorHotKeyword"/>
+	
+	<!-- the selected fields of t_hotkeywords table -->
+	<sql id="selectHotkeyWordSql">
+		b.id, b.title, b.firsttag_id firstTagId, b.secondtag_id secondTagId, b.product_id productId, b.create_time createTime, 
+		(select tagname from t_tag where id=b.firsttag_id) as firstTagName,
+		(select tagname from t_tag where id=b.secondtag_id) as secondTagName, b.site,
+		b.creator, b.modifier, b.update_time updateTime, b.ischeck as checked, server_url as serverUrl, online_url as onlineUrl
+	</sql>
+	
+	<!-- the selected fields of t_error_hotkeywords table -->
+	<sql id="selectErrorHotkeyWordSql">
+		b.id, b.title, b.firsttag_id firstTagId, b.secondtag_id secondTagId, b.product_id productId, b.create_time createTime, b.tagname tagName,
+		(select tagname from t_tag where id=b.firsttag_id) as firstTagName, b.site,
+		(select tagname from t_tag where id=b.secondtag_id) as secondTagName, b.creator,b.type
+	</sql>
+	
+	<sql id="selectLogSql">
+		id, creator, create_time as createTime, file_url as fileUrl, site, 
+			total_count as totalCount, fail_count as failCount, down_status as downStatus
+	</sql>
+	
+	<!-- block table name -->
+	<sql id="hotkeyTable">
+		t_hotkeywords b
+	</sql>
+	
+	<!-- create errorhotkeyword log -->
+	<insert id="addLog" parameterClass="importLog">
+		INSERT INTO t_hotkeyword_log
+				(	creator, create_time, file_url, total_count, fail_count )
+   		  VALUES(	#creator#, #createTime#, #fileUrl#, #totalCount#, #failCount# )
+   		<selectKey resultClass="int" keyProperty="id">
+			select last_insert_id() as ID from t_hotkeyword_log limit 1
+		</selectKey>
+	</insert>
+	
+	<!-- create hotkeyword -->
+	<insert id="add" parameterClass="hotKeyword">
+		INSERT INTO t_hotkeywords 
+				(	title, firsttag_id, secondtag_id, product_id, create_time, update_time, 
+   					creator, modifier, ischeck
+   				)
+   		  VALUES(	#title#, #firstTagId#, #secondTagId#, #productId#, #createTime#, #createTime#,
+   					 #creator#, #modifier#, 0
+   				)
+   		<selectKey resultClass="int" keyProperty="id">
+			select last_insert_id() as ID from t_hotkeywords limit 1
+		</selectKey>
+	</insert>
+	
+	<!-- create errorhotkeyword  -->
+	<insert id="addError" parameterClass="errorHotKeyword">
+		INSERT INTO t_error_hotkeywords 
+				(	title, firsttag_id, secondtag_id, product_id, create_time, creator, tagname , type)
+   		  VALUES(	#title#, #firstTagId#, #secondTagId#, #productId#, #createTime#, #creator#, #tagName#  ,#type#)
+   		<selectKey resultClass="int" keyProperty="id">
+			select last_insert_id() as ID from t_error_hotkeywords limit 1
+		</selectKey>
+	</insert>
+	
+	<!-- update hotkeyword -->
+	<update id="update" parameterClass="hotKeyword">
+		update t_hotkeywords set
+			modifier = #modifier#,
+			update_time = now()
+			<isNotNull property="title" prepend=",">
+				title = #title#
+			</isNotNull>
+			<isNotEmpty property="firstTagId" prepend=",">
+				firsttag_id = #firstTagId#
+			</isNotEmpty>
+			<isNotEmpty property="secondTagId" prepend=",">
+				secondtag_id = #secondTagId#
+			</isNotEmpty>
+			<isNotEmpty property="productId" prepend=",">
+				product_id = #productId#
+			</isNotEmpty>
+			<isNotEmpty property="indexState" prepend=",">
+                index_state = #indexState#
+            </isNotEmpty>
+		where id = #id#
+	</update>
+	
+	<!-- publish hotkeyword -->
+	<update id="publish" parameterClass="hotKeyword">
+		update t_hotkeywords set ischeck = 1 where id = #id#
+	</update>
+	
+	<!-- DownLogStatus -->
+	<update id="downLogStatus" parameterClass="java.lang.String">
+		update t_hotkeyword_log set down_status = 1 where id = #id#
+	</update>
+	
+	<!-- hotkeyword delete -->
+	<delete id="delete" parameterClass="int">
+		DELETE FROM t_hotkeywords WHERE id = #id#
+	</delete>
+	
+	<!-- query hotkeyword by id -->
+	<select id="getById" parameterClass="int" resultClass="hotKeyword">
+		SELECT
+			<include refid="selectHotkeyWordSql"/>
+		FROM
+			<include refid="hotkeyTable"/>
+		WHERE id = #id#
+	</select>
+	
+	<!-- 符合条件块的个数 -->
+	<select id="count" parameterClass="map" resultClass="int">
+		SELECT count(1) FROM <include refid="hotkeyTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="qid" prepend="and">
+				b.id = #qid#			
+			</isNotNull>
+			<isNotNull property="qcreator" prepend="and">
+				b.creator = #qcreator#			
+			</isNotNull>
+			<isNotNull property="qsite" prepend="and">
+				b.site = #qsite#
+			</isNotNull>
+			<isNotNull property="qchecked" prepend="and">
+				b.ischeck = #qchecked#			
+			</isNotNull>
+			<isNotNull property="qfirstTagId" prepend="and">
+				b.firsttag_id = #qfirstTagId#			
+			</isNotNull>
+			<isNotNull property="qsecondTagId" prepend="and">
+				b.secondtag_id = #qsecondTagId#			
+			</isNotNull>
+			<isNotEmpty property="qtitle" prepend="and">
+				upper(b.title) like CONCAT('%',upper(trim(#qtitle#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="qcreateTime" prepend="and">
+				upper(b.create_time) like CONCAT('%',upper(trim(#qcreateTime#)),'%')
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- 查看日志总数据 -->
+	<select id="logcount" parameterClass="map" resultClass="int">
+		SELECT count(1) FROM t_hotkeyword_log WHERE site = #qsite#
+	</select>
+	
+	<select id="listlog" parameterClass="map" resultClass="importLog">
+		SELECT <include refid="selectLogSql"/>
+		FROM t_hotkeyword_log
+		WHERE site = #qsite#
+		ORDER BY id DESC
+	</select>
+	
+	<select id="listDownLog" parameterClass="map" resultClass="errorHotKeyword">
+		SELECT 
+			<include refid="selectErrorHotkeyWordSql"/>
+		FROM t_error_hotkeywords b
+		WHERE b.create_time = #createTime#
+	</select>
+	
+	<!-- 查询热词列表 -->
+	<select id="list" parameterClass="map" resultClass="hotKeyword">
+		SELECT 
+			<include refid="selectHotkeyWordSql"/>
+		FROM
+			<include refid="hotkeyTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="qid" prepend="and">
+				b.id = #qid#			
+			</isNotNull>
+			<isNotNull property="qcreator" prepend="and">
+				b.creator = #qcreator#			
+			</isNotNull>
+			<isNotNull property="qsite" prepend="and">
+				b.site = #qsite#
+			</isNotNull>
+			<isNotNull property="qchecked" prepend="and">
+				b.ischeck = #qchecked#			
+			</isNotNull>
+			<isNotNull property="qfirstTagId" prepend="and">
+				b.firsttag_id = #qfirstTagId#			
+			</isNotNull>
+			<isNotNull property="qsecondTagId" prepend="and">
+				b.secondtag_id = #qsecondTagId#			
+			</isNotNull>
+			<isNotEmpty property="qtitle" prepend="and">
+				upper(b.title) like CONCAT('%',upper(trim(#qtitle#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="qcreateTime" prepend="and">
+				upper(b.create_time) like CONCAT('%',upper(trim(#qcreateTime#)),'%')
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY id DESC
+	</select>
+	
+	<select id="selectHotKeywordlist" parameterClass="map" resultClass="hotKeyword">
+		SELECT 
+			<include refid="selectHotkeyWordSql"/>
+		FROM
+			<include refid="hotkeyTable"/>
+		<dynamic prepend="WHERE">
+			
+			<isNotNull property="qsite" prepend="and">
+				b.site = #qsite#
+			</isNotNull>
+			<isNotNull property="qtitle" prepend="and">
+				b.title = #qtitle#			
+			</isNotNull>
+			</dynamic>
+	</select>
+	
+	<!-- range hotkeyword -->
+	<select id="range" parameterClass="map" resultClass="hotKeyword">
+		SELECT 
+			<include refid="selectHotkeyWordSql"/>
+		FROM
+			<include refid="hotkeyTable"/>
+		WHERE
+			id <![CDATA[ >= ]]> #minId# and id <![CDATA[ <= ]]> #maxId#
+	</select>
+	
+	<!-- 发布程序的调用 -->
+	<parameterMap class="map" id="publishHotWordsMap">
+	   <parameter property="hotkeyId" javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN"/>
+	</parameterMap>
+	<procedure id="publishGomeHotWordsTest" parameterMap="publishHotWordsMap">
+	   {call put_hotwordtest_to_queue(?)}
+	</procedure>
+	<procedure id="publishGomeHotWords" parameterMap="publishHotWordsMap">
+       {call put_hotword_to_queue(?)}
+    </procedure>
+    
+    <procedure id="publishWapGomeHotWords" parameterMap="publishHotWordsMap">
+       {call put_wap_hotword_to_queue(?)}
+    </procedure>
+    
+    <select id="getLastedInsertId" resultClass="int">
+        SELECT auto_increment FROM information_schema.`TABLES` WHERE TABLE_SCHEMA='kubatopic' AND TABLE_NAME='t_hotkeywords'
+    </select>
+</sqlMap>

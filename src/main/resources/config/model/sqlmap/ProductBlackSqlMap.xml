@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ProductBlack">
+
+	<typeAlias alias="productBlack" type="com.coo8.btoc.model.black.ProductBlack" />
+
+	<resultMap id="baseResultMap" class="com.coo8.btoc.model.black.ProductBlack">
+		<result column="id" jdbcType="BIGINT" property="id" />
+		<result column="proid" jdbcType="VARCHAR" property="proId" />
+		<result column="create_user" jdbcType="VARCHAR" property="createUser" />
+		<result column="create_date" jdbcType="DATETIME" property="createDate" />
+		<result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+		<result column="update_date" jdbcType="DATETIME" property="updateDate" />
+	</resultMap>
+
+
+	<sql id="baseColumn1">
+		id,proid,create_user,create_date,update_user,update_date
+	</sql>
+
+	<select id="getByProId" resultMap="baseResultMap"
+		parameterClass="string">
+		select
+		<include refid="baseColumn1" />
+		from Product_blacklist where proid =#proId#
+	</select>
+
+	<select id="count" resultClass="int">
+		SELECT count(id) FROM
+		Product_blacklist
+	</select>
+
+	<select id="getAllList" resultMap="baseResultMap"
+		parameterClass="map">
+		SELECT
+		<include refid="baseColumn1" />
+		from product_blacklist
+
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="proId">
+				proid = #proId#
+			</isNotEmpty>
+		</dynamic>
+
+	</select>
+
+	<insert id="add" parameterClass="productBlack">
+		insert into
+		product_blacklist(proid,create_user,create_date,update_user,update_date)
+		VALUES(
+		#proId#,#createUser#,#createDate#,#updateUser#,#updateDate#
+		)
+	</insert>
+
+	<delete id="delete" parameterClass='string'>
+		delete FROM product_blacklist
+		where proid=#id#
+	</delete>
+
+
+
+</sqlMap>

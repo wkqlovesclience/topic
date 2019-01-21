@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+ 
+<sqlMap namespace="KeywordsRel" >
+
+    <resultMap id="RM.KeywordsRel" class="com.coo8.topic.model.KeywordsRel">
+        <result property="id" column="ID"/>
+        <result property="titleId" column="TITLE_ID"/>
+        <result property="keywords" column="KEYWORDS"/>
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="KeywordsRel.columns">
+	    <![CDATA[
+        ID ,TITLE_ID ,KEYWORDS 
+	    ]]>
+	</sql>
+	
+    <insert id="KeywordsRel.insert" >
+    <![CDATA[
+        INSERT INTO t_keywords_rel ( 
+	        TITLE_ID  ,
+	        KEYWORDS  
+        ) VALUES ( 
+        	#titleId# ,
+        	#keywords# 
+        )
+    ]]>
+    <selectKey resultClass="int" keyProperty="id" >  
+          SELECT @@IDENTITY AS id  
+    </selectKey>  
+    <!--
+    mysql:		type="post" SELECT  select last_insert_id()
+    sqlserver:	type="post" SELECT  @@identity  AS  ID
+    sybase:		type="post" SELECT  @@identity  AS  ID
+    oracle:		type="pre" 	SELECT  sequenceName.nextval AS ID FROM DUAL
+    DB2:		type="pre"	values nextval for sequenceName
+    -->
+        
+    </insert>
+
+    <update id="KeywordsRel.update" >
+    <![CDATA[
+        UPDATE t_keywords_rel SET
+	        TITLE_ID = #titleId# ,
+	        KEYWORDS = #keywords# 
+        WHERE 
+	        ID = #id# 
+    ]]>
+    </update>
+
+    <delete id="KeywordsRel.delete">
+    <![CDATA[
+        DELETE FROM t_keywords_rel WHERE
+        ID = #id# 
+    ]]>
+    </delete>
+    
+    <select id="KeywordsRel.getById" resultMap="RM.KeywordsRel">
+	    SELECT <include refid="KeywordsRel.columns"/>
+	    <![CDATA[
+	        FROM t_keywords_rel 
+	        WHERE 
+		        ID = #id# 
+	    ]]>
+    </select>
+
+	<sql id="KeywordsRel.findPage.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="titleId">
+		             TITLE_ID = #titleId#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="keywords">
+		             KEYWORDS = #keywords#
+		       </isNotEmpty>     
+	    </dynamic>	
+	</sql>
+	 
+    <select id="KeywordsRel.findPage.count" resultClass="long">
+        SELECT count(*) FROM t_keywords_rel <include refid="KeywordsRel.findPage.where"/>    
+    </select>
+    
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="KeywordsRel.findPage" resultMap="RM.KeywordsRel">
+    	SELECT <include refid="KeywordsRel.columns"/> FROM t_keywords_rel 
+		<include refid="KeywordsRel.findPage.where"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+
+	
+</sqlMap>
+

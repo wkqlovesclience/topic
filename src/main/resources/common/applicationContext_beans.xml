@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="GBK"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd"
+	default-init-method="init" default-destroy-method="destroy">
+
+     <bean id="baiDuBlackFridayCardDAO" class="com.gome.baidublackfriday.dao.impl.BaiDuBlackFridayCardDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+
+     </bean>
+
+	<!--商品词-->
+	<bean id="productWordsCardDAO" class="com.gome.productwords.dao.impl.ProductWordsCardDAOImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="productWordsManager" class="com.gome.productwords.manager.impl.ProductWordsManagerImpl">
+		<property name="productWordsCardDAO" ref="productWordsCardDAO"></property>
+		<property name="dubboService" ref="productDubboService" />
+	</bean>
+
+	<!--商品词接口-->
+	<bean id="IProductWordsDubboServiceImpl" class="com.gome.productwords.manager.impl.IProductWordsDubboServiceImpl">
+		<property name="productWordsCardDAO" ref="productWordsCardDAO"></property>
+	</bean>
+
+
+
+
+	<bean id="keywordsDAO" class="com.coo8.topic.persistence.impl.KeywordsDAOImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+    <bean id="categoryNavigationDAO" class="com.coo8.topic.persistence.impl.CategoryNavigationDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+	<bean id="keywordsRelDAO" class="com.coo8.topic.persistence.impl.KeywordsRelDAOImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+
+    <bean id="newsDAO" class="com.coo8.topic.persistence.impl.NewsDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+    <bean id="titleGoodsDAO" class="com.coo8.topic.persistence.impl.TitleGoodsDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+    <bean id="titlesDAO" class="com.coo8.topic.persistence.impl.TitlesDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    <bean id="promotionCardDAO" class="com.gome.promotioncard.dao.impl.PromotionCardDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+    <bean id="toptitleDAO" class="com.coo8.topic.persistence.impl.ToptitleDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+    <bean id="aladdinKeywordsDAO" class="com.coo8.topic.persistence.impl.AladdinKeywordsDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+    <bean id="hotKeywordDAO" class="com.coo8.topic.persistence.impl.HotKeywordDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+    <bean id="categoryDAO" class="com.coo8.btoc.persistence.impl.rank.CategoryDaoImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+    <bean id="tagDAO" class="com.coo8.topic.persistence.impl.TagDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+        
+    <bean id="facetGroupDAO" class="com.coo8.btoc.persistence.impl.rank.FacetGroupDaoImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+    <bean id="facetGroupItemDAO" class="com.coo8.btoc.persistence.impl.rank.FacetGroupItemDaoImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    <bean id="allHotKeywordDAO" class="com.coo8.topic.persistence.impl.AllHotKeywordDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+    <bean id="baiDuBlackFridayManager" class="com.gome.baidublackfriday.manager.impl.BaiDuBlackFridayManagerImpl">
+    	<property name="baiDuBlackFridayCardDAO" ref="baiDuBlackFridayCardDAO"></property>
+    	<property name="prodDetailService" ref="prodDetailService"></property>    	
+    	<property name="seoPromotionCardDubboService" ref="seoPromotionCardDubboService"></property>
+    	<property name="gomeProcessService" ref="gomeProcessService"></property>    
+    </bean>
+    <bean id="toptitleManager" class="com.coo8.topic.business.impl.ToptitleManagerImpl">
+    	<property name="toptitleDAO" ref="toptitleDAO"></property>
+    </bean>
+    <bean id="allHotKeywordManager" class="com.coo8.topic.business.impl.AllHotKeywordManagerImpl">
+    	<property name="allHotKeywordDAO" ref="allHotKeywordDAO"></property>
+    </bean>
+    
+    <bean id="titlesManager" class="com.coo8.topic.business.impl.TitlesManagerImpl">
+    	<property name="titlesDAO" ref="titlesDAO"></property>
+    	<property name="productInfoServiceItem" ref="productInfoServiceItem"></property>
+    	<property name="newsManager" ref="newsManager"></property>
+    	<property name="queueDao" ref="queueDao"></property>
+    	<property name="newsDao" ref="newsDAO"></property>
+		<property name="dubboService" ref="productDubboService" />
+    </bean>
+    <bean id="promotionCardManager" class="com.gome.promotioncard.manager.impl.PromotionCardManagerImpl">
+    	<property name="promotionCardDAO" ref="promotionCardDAO"></property>
+    	<property name="prodDetailService" ref="prodDetailService"></property>    	
+    	<property name="seoPromotionCardDubboService" ref="seoPromotionCardDubboService"></property>    	
+    </bean>
+
+	<bean id="productBlackDao"
+		class="com.coo8.btoc.persistence.impl.black.ProductBlackDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+
+	<bean id="titleGoodsManager" class="com.coo8.topic.business.impl.TitleGoodsManagerImpl">
+		<property name="titleGoodsDAO" ref="titleGoodsDAO"></property>
+	</bean>
+
+	<bean id="newsManager" class="com.coo8.topic.business.impl.NewsManagerImpl">
+		<property name="newsDAO" ref="newsDAO"></property>
+		<property name="anchorKeyManager" ref="anchorKeywordsManager"></property>
+	</bean>
+
+	<bean id="keywordsRelManager" class="com.coo8.topic.business.impl.KeywordsRelManagerImpl">
+		<property name="keywordsRelDAO" ref="keywordsRelDAO"></property>
+	</bean>
+
+	<bean id="keywordsManager" class="com.coo8.topic.business.impl.KeywordsManagerImpl">
+		<property name="keywordsDAO" ref="keywordsDAO"></property>
+	</bean>
+
+	<bean id="baseDaoBean" abstract="true">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="aladdinKeywordsManager" class="com.coo8.topic.business.impl.AladdinKeywordsManagerImpl">
+		<property name="aladdinKeywordsDAO" ref="aladdinKeywordsDAO"></property>
+	</bean>
+
+	<bean id="categoryNavigationManager" class="com.coo8.topic.business.impl.CategoryNavigationManagerImpl">
+		<property name="categoryNavigationDAO" ref="categoryNavigationDAO"></property>
+		<property name="queueDao" ref="queueDao"></property>
+		<property name="categoryDBService" ref="categoryDBService"></property>
+	</bean>
+
+	<bean id="tagManager" class="com.coo8.topic.business.impl.TagManagerImpl">
+		<property name="tagDao" ref="tagDAO"></property>
+	</bean>
+
+	<bean id="hotKeywordManager" class="com.coo8.topic.business.impl.HotKeywordManagerImpl">
+		<property name="hotKeywordDAO" ref="hotKeywordDAO"></property>
+	</bean>
+
+	<bean id="categoryManager" class="com.coo8.btoc.business.impl.rank.CategoryManagerImpl">
+		<property name="categoryDAO" ref="categoryDAO"></property>
+	</bean>
+
+	<bean id="facetGroupManager" class="com.coo8.btoc.business.impl.rank.FacetGroupManagerImpl">
+		<property name="facetGroupDao" ref="facetGroupDAO"></property>
+	</bean>
+
+	<bean id="productBlackManager"
+		class="com.coo8.btoc.business.impl.black.ProductBlackManagerImpl">
+		<property name="productBlackDao" ref="productBlackDao"></property>
+	</bean>
+
+	<bean id="facetGroupItemManager"
+		class="com.coo8.btoc.business.impl.rank.FacetGroupItemManagerImpl">
+		<property name="facetGroupItemDao" ref="facetGroupItemDAO"></property>
+	</bean>
+
+	<bean id="sitemapDao" class="com.coo8.topic.persistence.impl.SitemapDAOImpl"
+		parent="baseDaoBean" />
+	<bean id="sitemapManager" class="com.coo8.topic.business.impl.SitemapManagerImpl">
+		<property name="sitemapDao" ref="sitemapDao"></property>
+	</bean>
+
+	<bean id="hotkeyIndexDao" class="com.coo8.topic.persistence.impl.HotkeyIndexDAOImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="hotkeyIndexManager" class="com.coo8.topic.business.impl.HotkeyIndexManagerImpl">
+		<property name="hotkeyIndexDao" ref="hotkeyIndexDao"></property>
+	</bean>
+
+	<bean id="singleTopRankingDao"
+		class="com.coo8.btoc.persistence.impl.rank.SingleTopRankingDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="singleTopRankingManager"
+		class="com.coo8.btoc.business.impl.rank.SingleTopRasnkingManagerImpl">
+		<property name="singleTopRankingDao" ref="singleTopRankingDao"></property>
+	</bean>
+
+	<bean id="queueDao" class="com.coo8.btoc.persistence.impl.queue.QueueDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="queueManager" class="com.coo8.btoc.business.impl.queue.QueueManagerImpl">
+		<property name="queueDao" ref="queueDao"></property>
+	</bean>
+
+	<bean id="gomeStoresDao" class="com.coo8.topic.persistence.impl.GomeStoresDAOImpl">
+		<property name="sqlMapClient" ref="sqlMapClientGomeSc"></property>
+	</bean>
+
+	<bean id="anchorKeywordsDAO" class="com.coo8.topic.persistence.impl.AnchorKeywordsDAOImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+
+	<bean id="anchorKeywordsManager" class="com.coo8.topic.business.impl.AnchorKeywordsManagerImpl">
+		<property name="anchorKeywordsDAO" ref="anchorKeywordsDAO"></property>
+	</bean>
+
+	<bean id="hotLinkDAO" class="com.coo8.hotlink.persistence.impl.HotLinkDAOImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+
+	<bean id="hotLinkManager" class="com.coo8.hotlink.business.impl.HotLinkManagerImpl">
+		<property name="hotLinkDAO" ref="hotLinkDAO"></property>
+	</bean>
+
+
+	<bean id="hotSearchwordDAO" class="com.coo8.topic.persistence.impl.HotSearchwordDAOImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="hotSearchwordManager" class="com.coo8.topic.business.impl.HotSearchwordManagerImpl">
+		<property name="hotSearchwordDAO" ref="hotSearchwordDAO"></property>
+		<property name="categoryDBService" ref="categoryDBService"></property>
+		<property name="productInfoService" ref="productInfoService"></property>
+	</bean>
+	<bean id="hotSearchIndexDao" class="com.coo8.topic.persistence.impl.HotSearchIndexDAOImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+	<bean id="hotSearchIndexManager" class="com.coo8.topic.business.impl.HotSearchIndexManagerImpl">
+		<property name="hotSearchIndexDao" ref="hotSearchIndexDao"></property>
+	</bean>
+
+	<bean id="itemDAOImpl" class="com.coo8.item.persistence.impl.ItemDAOImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+
+	<bean id="itemManager" class="com.coo8.item.business.impl.ItemManagerImpl">
+		<property name="itemDAO" ref="itemDAOImpl"></property>
+	</bean>
+
+    <bean id="indexFloorDaoImpl" class="com.coo8.btoc.persistence.impl.rank.IndexFloorDaoImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    <bean id="indexFloorManager" class="com.coo8.btoc.business.impl.rank.IndexFloorManagerImpl">
+    	<property name="indexFloorDao" ref="indexFloorDaoImpl"></property>
+    </bean>
+    
+     <bean id="groupHotLinksDaoImpl" class="com.coo8.btoc.persistence.impl.rank.GroupHotLinksDaoImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    <bean id="groupHotlinksManager" class="com.coo8.btoc.business.impl.rank.GroupHotManagerImpl">
+    	<property name="groupHotLinksDAO" ref="groupHotLinksDaoImpl"></property>
+    </bean>
+    <bean id="gomeStoresManager" class="com.coo8.topic.business.impl.GomeStoresManagerImpl">
+        <property name="gomeStoresDao" ref="gomeStoresDao"></property>
+        <property name="gomeAreaSearch" ref="gomeAreaSearch"></property>
+    </bean>
+    <bean id="labelManager" class="com.coo8.topic.labelart.service.impl.LabelManagerImpl">
+    	<property name="labelDao" ref="labelDao"></property>
+    </bean>
+    <bean id="labelDao" class="com.coo8.topic.labelart.dao.impl.LabelDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+    <bean id="labelRelManager" class="com.coo8.topic.labelart.service.impl.LabelRelManagerImpl">
+    	<property name="labelRelDao" ref="labelRelDao"></property>
+    </bean>
+    
+    <bean id="labelRelDao" class="com.coo8.topic.labelart.dao.impl.LabelRelDAOImpl">
+    	<property name="sqlMapClient" ref="sqlMapClient"></property>
+    </bean>
+    
+</beans>

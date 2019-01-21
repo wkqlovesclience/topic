@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="FacetGroup">
+	
+	<typeAlias alias="facetGroup" type="com.coo8.btoc.model.rank.FacetGroup"/>
+	
+	<!-- the selected fields of t_facetgroup table -->
+	<sql id="selectFacetGroupSql">
+		b.id, b.groupid as groupId, b.categoryid categoryId, b.displayname displayName, b.weight, b.type, b.facetid,
+		b.isshow, b.insertdate insertDate, b.creator, b.updator, b.updatedate updateDate
+	</sql>
+	
+	<!-- block table name -->
+	<sql id="facetGroupTable">
+		t_facetgroup b
+	</sql>
+	
+	<!-- create facetGroup -->
+	<insert id="add" parameterClass="facetGroup">
+		INSERT INTO t_facetgroup (groupid, categoryid, displayname, weight, type, facetid, isshow, `insertdate`, creator, updator, updatedate)
+   		VALUES(	#groupId#, #categoryId#, #displayName#, #weight#, #type#, #facetid#, #isshow#, now(),#creator#, #updator#, now())
+	</insert>
+	
+	<!-- update facetGroup -->
+	<update id="update" parameterClass="facetGroup">
+		update <include refid="facetGroupTable"/> set
+			updator = #updator#,
+			updatedate = now()
+			<isNotNull property="groupId" prepend=",">
+				groupid = #groupId#
+			</isNotNull>
+			<isNotEmpty property="categoryId" prepend=",">
+				categoryid = #categoryId#
+			</isNotEmpty>
+			<isNotNull property="displayName" prepend=",">
+				displayname = #displayName#
+			</isNotNull>
+			<isNotEmpty property="weight" prepend=",">
+				weight = #weight#
+			</isNotEmpty>
+			<isNotEmpty property="type" prepend=",">
+				type = #type#
+			</isNotEmpty>
+			<isNotEmpty property="facetid" prepend=",">
+				facetid = #facetid#
+			</isNotEmpty>
+			<isNotEmpty property="isshow" prepend=",">
+				isshow = #isshow#
+			</isNotEmpty>
+		where id = #id#
+	</update>
+	
+	<!-- facetGroup delete -->
+	<delete id="delete" parameterClass="string">
+		DELETE FROM <include refid="facetGroupTable"/> WHERE id = #id#
+	</delete>
+	
+	<!-- facetGroupTable update isShow status -->
+	<update id="updateIsShow" parameterClass="string">
+		UPDATE <include refid="facetGroupTable"/> SET isshow = 0 WHERE id = #id#
+	</update>
+	
+	<!-- query category by id -->
+	<select id="getById" parameterClass="string" resultClass="facetGroup">
+		SELECT
+			<include refid="selectFacetGroupSql"/>
+		FROM
+			<include refid="facetGroupTable"/>
+		WHERE b.id = #id#
+	</select>
+	
+	<!-- 符合条件的个数 -->
+	<select id="count" parameterClass="map" resultClass="int">
+		SELECT count(b.id) FROM <include refid="facetGroupTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="qgroupid" prepend="and">
+				b.groupid = #qgroupid#			
+			</isNotNull>
+			<isNotNull property="qcategoryid" prepend="and">
+				b.categoryid = #qcategoryid#	
+			</isNotNull>
+			<isNotNull property="qis_show" prepend="and">
+				b.isshow = #qis_show#			
+			</isNotNull>
+			<isNotNull property="qdisplayname" prepend="and">
+				upper(b.displayname) like CONCAT('%',upper(trim(#qdisplayname#)),'%')
+			</isNotNull>
+			<isNotEmpty property="qcreate_time" prepend="and">
+				DATE_FORMAT(b.insertdate,'%Y-%m-%d') = #qcreate_time#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- 查询平面组列表 -->
+	<select id="list" parameterClass="map" resultClass="facetGroup">
+		SELECT 
+			<include refid="selectFacetGroupSql"/>
+		FROM
+			<include refid="facetGroupTable"/>
+		<dynamic prepend="WHERE">
+			<isNotNull property="qgroupid" prepend="and">
+				b.groupid = #qgroupid#			
+			</isNotNull>
+			<isNotNull property="qcategoryid" prepend="and">
+				b.categoryid = #qcategoryid#	
+			</isNotNull>
+			<isNotNull property="qis_show" prepend="and">
+				b.isshow = #qis_show#			
+			</isNotNull>
+			<isNotNull property="qdisplayname" prepend="and">
+				upper(b.displayname) like CONCAT('%',upper(trim(#qdisplayname#)),'%')
+			</isNotNull>
+			<isNotEmpty property="qcreate_time" prepend="and">
+				DATE_FORMAT(b.insertdate,'%Y-%m-%d') = #qcreate_time#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY b.categoryid asc,b.type asc,b.weight asc
+	</select>
+    <update id="changeShowState" parameterClass="map">
+        update t_facetgroup
+        set isshow=#isShow#
+        where id in($ids$)
+    </update>
+</sqlMap>

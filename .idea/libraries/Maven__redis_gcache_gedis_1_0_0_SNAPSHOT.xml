@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: redis.gcache:gedis:1.0.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://D:/repository/redis/gcache/gedis/1.0.0-SNAPSHOT/gedis-1.0.0-20160819.062818-3.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/repository/redis/gcache/gedis/1.0.0-SNAPSHOT/gedis-1.0.0-20160819.062818-3-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/repository/redis/gcache/gedis/1.0.0-SNAPSHOT/gedis-1.0.0-20160819.062818-3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

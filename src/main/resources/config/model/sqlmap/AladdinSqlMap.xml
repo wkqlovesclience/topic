@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+ 
+<sqlMap namespace="Aladdin" >
+	<!-- 返回 结果 -->
+    <resultMap id="RM.Aladdin" class="com.coo8.topic.model.AladdinKeywords">
+        <result property="id" column="ID"/>
+        <result property="names" column="NAMES"/>
+        <result property="descr" column="DESCR"/>
+        <result property="status" column="STATUS"/>
+        <result property="catalogId" column="CATALOGID"/>
+    </resultMap>
+    <resultMap id="RM.AladdinRef" class="com.coo8.topic.model.AladdinKeywordsRef" >
+		<result property="id" column="ID"/>
+		<result property="akeywords" column="AKEYWORDS"/>
+        <result property="catalogid" column="CATALOGID"/>
+	</resultMap>
+	<typeAlias alias="aladdinKeywords" type="com.coo8.topic.model.AladdinKeywords"/>
+	<typeAlias alias="aKeywordsRef" type="com.coo8.topic.model.AladdinKeywordsRef"/>
+	<!-- 获得泛需求词列表  -->
+	<sql id="Aladdin.findLikeByMap.column">
+		t1.ID,t1.NAMES,t1.DESCR,t1.STATUS,IFNULL(t2.CATALOGID,0) CATALOGID
+	</sql>
+	<sql id="Aladdin.findLikeByMap.table">
+		t_aladdin_keywords t1 LEFT JOIN t_aladdin_keywords_ref t2 ON t1.ID = t2.AKEYWORDS
+	</sql>
+	<sql id="Aladdin.findLikeByMap.where">
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="id">
+				t1.ID = #id#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="names">
+				t1.NAMES LIKE '%$names$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="status">
+				t1.STATUS = #status#
+			</isNotEmpty>
+			<isNotEmpty property="related">
+				<isEqual prepend="AND" property="related" compareValue="Y">
+					<![CDATA[ CATALOGID IS NOT NULL AND CATALOGID <> '0' ]]>
+				</isEqual>
+				<isEqual prepend="AND" property="related" compareValue="N">
+					<![CDATA[ CATALOGID IS NULL OR CATALOGID = '0' ]]>
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>	
+	</sql>
+	<select id="Aladdin.findLikeByMap" resultMap="RM.Aladdin">
+		SELECT <include refid="Aladdin.findLikeByMap.column"/>
+		FROM <include refid="Aladdin.findLikeByMap.table"/>
+		<include refid="Aladdin.findLikeByMap.where"/>
+		ORDER BY t1.ID ASC
+	</select>
+	<select id="Aladdin.findLikeByMap.count" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM <include refid="Aladdin.findLikeByMap.table"/>
+		<include refid="Aladdin.findLikeByMap.where"/>
+	</select>
+	
+	<select id="findAllKeywordsRef" resultMap="RM.AladdinRef">
+		SELECT ID,AKEYWORDS,CATALOGID FROM t_aladdin_keywords_ref 
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="id">
+				ID = #id#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="akeywords">
+				AKEYWORDS = #akeywords#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="catalogId">
+				CATALOGID = #catalogId#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY ID ASC
+	</select>
+	<delete id="deleteKeywordsRefById" parameterClass="java.lang.Integer">
+		DELETE FROM t_aladdin_keywords_ref WHERE ID = #id#
+	</delete>
+	<delete id="Aladdin.deleteById" parameterClass="java.lang.Integer">
+		DELETE FROM t_aladdin_keywords WHERE ID = #id#
+	</delete>
+	<insert id="Aladdin.save" parameterClass="aladdinKeywords">
+		<![CDATA[
+		INSERT INTO t_aladdin_keywords(NAMES,DESCR,STATUS,CREATED_TIME) 
+		VALUES(#names#
+			,#descr#
+			,#status#
+			,now()
+			)
+		]]>
+		<selectKey resultClass="int" keyProperty="id" type="post" >  
+        	<![CDATA[ select last_insert_id() as id ]]>
+    	</selectKey>
+	</insert>
+
+	<update id="Aladdin.update" parameterClass="aladdinKeywords">
+		UPDATE t_aladdin_keywords 
+		SET NAMES=#names#
+			,DESCR=#descr#
+			,STATUS=#status#
+			,UPDATED_TIME=now()
+		WHERE ID = #id#
+	</update>
+	<insert id="Aladdin.saveKeywordsRef" parameterClass="aKeywordsRef">
+		<![CDATA[
+		INSERT INTO t_aladdin_keywords_ref(AKEYWORDS,CATALOGID) VALUES(#akeywords#,#catalogid#)
+		]]>
+		<selectKey resultClass="int" keyProperty="id" type="post" >  
+        	<![CDATA[ select last_insert_id() as id ]]>
+    	</selectKey>
+	</insert>
+</sqlMap>

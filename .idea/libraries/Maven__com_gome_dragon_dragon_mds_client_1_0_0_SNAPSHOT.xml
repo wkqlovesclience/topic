@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.gome.dragon:dragon-mds-client:1.0.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://D:/repository/com/gome/dragon/dragon-mds-client/1.0.0-SNAPSHOT/dragon-mds-client-1.0.0-20180516.063032-228.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/repository/com/gome/dragon/dragon-mds-client/1.0.0-SNAPSHOT/dragon-mds-client-1.0.0-20180516.063032-228-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/repository/com/gome/dragon/dragon-mds-client/1.0.0-SNAPSHOT/dragon-mds-client-1.0.0-20180516.063032-228-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

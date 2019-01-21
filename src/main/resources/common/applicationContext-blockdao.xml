@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans default-autowire="byName">
+	
+	<bean id="resourceDao" class="com.coo8.btoc.persistence.impl.resource.ResourceDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+	<bean id="blockDao" class="com.coo8.btoc.persistence.impl.block.BlockDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+	<bean id="staticHtmlDao" class="com.coo8.btoc.persistence.impl.html.StaticHtmlDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+	
+	<bean id="templateDao" class="com.coo8.btoc.persistence.impl.template.TemplateDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+	<bean id="itemsDao" class="com.coo8.btoc.persistence.impl.items.ItemsDAOImpl">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>	
+	<!-- <bean id="jedisPool" class="redis.clients.jedis.JedisPool" destroy-method="destroy">
+		<constructor-arg index="0">
+			<ref bean="jedisPoolConfig"/>
+		</constructor-arg>
+		<constructor-arg index="1" value="172.18.0.152" />
+		<constructor-arg index="2" value="6379" type="int"/>
+	</bean>
+	
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxActive" value="200" />
+		<property name="testOnBorrow" value="true"/>
+	</bean> -->
+</beans>

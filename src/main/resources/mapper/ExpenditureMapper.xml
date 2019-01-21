@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--REM后台花费功能Mapper -->
+<mapper namespace="com.coo8.topic.expenditure.dao.ExpenditureMapper">
+
+	<resultMap id="expenditureResultMap" type="Expenditure">
+		<id property="id" jdbcType="INTEGER" column="id" />
+		<result property="stairChanId" jdbcType="BIGINT" column="channel_stair_id" />
+		<result property="secondChanId" jdbcType="BIGINT" column="channel_2_level_id" />
+		<result property="thirdChanId" jdbcType="INTEGER" column="channel_3_level_id" />
+		<result property="portId" jdbcType="INTEGER" column="port_id" />
+		<result property="UV" jdbcType="INTEGER" column="uv_count" />
+		<result property="orderNum" jdbcType="VARCHAR" column="order_quantity" />
+		<result property="sale" jdbcType="DECIMAL" column="sale_limit" />
+		<result property="expenditure" jdbcType="DECIMAL" column="expenditure_amount" />
+		<result property="creator" jdbcType="VARCHAR" column="creator" />
+		<result property="mender" jdbcType="VARCHAR" column="mender" />
+		<result property="createDate" jdbcType="DATE" column="create_date" />
+		<result property="updateDate" jdbcType="DATE" column="update_date" />
+		<result property="delFlag" jdbcType="BOOLEAN" column="del_flag" />
+		<result property="remark" jdbcType="VARCHAR" column="remark" />
+	</resultMap>
+	<resultMap type="PortType" id="portTypeMap">
+	<id property="id" jdbcType="INTEGER" column="id" />
+	<result property="portName" jdbcType="VARCHAR" column="port_name" />
+	</resultMap>
+	<resultMap type="ChannelStair" id="channelStairMap">
+	<id property="id" jdbcType="BIGINT" column="id" />
+	<result property="portId" jdbcType="INTEGER" column="port_id" />
+	<result property="stairName" jdbcType="VARCHAR" column="stair_name" />
+	</resultMap>
+	<resultMap type="ChannelSecond" id="channelSecondMap">
+	<id property="id" jdbcType="BIGINT" column="id" />
+	<result property="secondName" jdbcType="VARCHAR" column="second_name" />
+	</resultMap>
+	<resultMap type="ChannelThird" id="channelThirdMap">
+	<id property="id" jdbcType="INTEGER" column="id" />
+	<result property="thirdName" jdbcType="VARCHAR" column="third_name" />
+	</resultMap>
+
+
+    <resultMap id="BaseResultMap3" type="ExpendAnalyseBase" >
+        <result column="port_id" property="portId" />
+        <result column="port_name" property="portName" />
+        <collection property="stairChannelAndExpends" ofType="DataContains">
+            <result column="stair_id" property="stairId"></result>
+            <result column="stair_name" property="stairName"></result>
+            <result column="expendCount" property="expendAmount"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectPortExpendAmount" resultType="java.math.BigDecimal">
+        SELECT
+        sum( t1.expenditure_amount ) expendCount
+        FROM
+        t_topic_expenditure t1
+        LEFT JOIN t_topic_expenditure_channel_stair t2 ON t1.channel_stair_id = t2.id
+        LEFT JOIN t_topic_expenditure_port t3 ON t1.port_id = t3.id
+        <![CDATA[ WHERE t1.del_flag=0 AND DATE(t1.create_date) >= #{startDate} AND DATE(t1.create_date) <= #{endDate} AND t1.port_id=#{portId} ]]>
+    </select>
+
+
+    <select id="selectWholeExpendAmount" resultType="java.math.BigDecimal">
+        SELECT SUM(expenditure_amount) AS cost
+        FROM t_topic_expenditure
+        <![CDATA[ WHERE del_flag=0 AND DATE(create_date) >= #{startDate} AND DATE(create_date) <= #{endDate} ]]>
+    </select>
+
+
+
+
+    <select id="getExpenditureAnalyseListByDate" resultMap="BaseResultMap3" resultType="ExpendAnalyseBase">
+    SELECT
+    t1.port_id port_id,
+    t3.port_name port_name,
+    t1.channel_stair_id stair_id,
+    t2.stair_name stair_name,
+    sum( t1.expenditure_amount ) expendCount
+    FROM
+    t_topic_expenditure t1
+    LEFT JOIN t_topic_expenditure_channel_stair t2 ON t1.channel_stair_id = t2.id
+    LEFT JOIN t_topic_expenditure_port t3 ON t1.port_id = t3.id
+    <![CDATA[ WHERE t1.del_flag=0 AND DATE(t1.create_date) >= #{startDate} AND DATE(t1.create_date) <= #{endDate} ]]>
+    GROUP BY
+    t1.port_id,
+    t1.channel_stair_id
+
+  </select>
+
+
+    <resultMap id="BaseResultMap4" type="ExpendAnalyseCharge" >
+        <result column="yearNumber" property="yearNumber" />
+        <result column="monthNumber" property="monthNumber" />
+        <result column="channel_id" property="channelId" />
+        <result column="stair_name" property="stairName" />
+        <result column="monthCost" property="monthCost" />
+    </resultMap>
+
+    <select id="selectExpendDataInMonth" resultMap="BaseResultMap4" resultType="ExpendAnalyseCharge">
+    SELECT
+	t3.myYear AS yearNumber,t3.myMonth AS monthNumber,t3.channelId AS channel_id,t3.stair_name,SUM(t3.cost) AS monthCost
+    FROM
+        (
+        SELECT YEAR (t1.create_date) AS myYear,MONTH(t1.create_date) AS myMonth,t1.channel_stair_id AS channelId, t2.stair_name ,t1.expenditure_amount AS cost
+        FROM t_topic_expenditure t1 LEFT JOIN t_topic_expenditure_channel_stair t2 ON t1.channel_stair_id = t2.id
+        WHERE t1.del_flag=0
+        ) t3
+    WHERE
+        t3.myYear = #{yearNum} AND t3.channelId = #{stairId}
+    GROUP BY t3.myMonth
+  </select>
+
+    <resultMap id="BaseResultMap5" type="ExpendPortAnalyseCharge" >
+        <result column="yearNumber" property="yearNumber" />
+        <result column="monthNumber" property="monthNumber" />
+        <result column="portId" property="portId" />
+        <result column="portName" property="portName" />
+        <result column="monthCost" property="monthCost" />
+    </resultMap>
+
+    <select id="selectPortExpendDataInMonth" resultType="ExpendPortAnalyseCharge" resultMap="BaseResultMap5">
+
+    SELECT
+	t3.myYear AS yearNumber,t3.myMonth AS monthNumber,t3.portId AS portId,t3.port_name AS portName,SUM(t3.cost) AS monthCost
+    FROM
+        (
+			SELECT YEAR (t1.create_date) AS myYear,MONTH(t1.create_date) AS myMonth,t1.port_id AS portId, t2.port_name ,t1.expenditure_amount AS cost
+            FROM t_topic_expenditure t1 LEFT JOIN t_topic_expenditure_port t2 on t1.port_id=t2.id
+            WHERE t1.del_flag=0
+        ) t3
+    WHERE
+        t3.myYear = #{yearNum} AND t3.portId = #{portId}
+    GROUP BY t3.myMonth
+    </select>
+
+
+
+    <resultMap id="BaseResultMap6" type="WholeExpendAnalyseCharge" >
+        <result column="yearNumber" property="yearNumber" />
+        <result column="monthNumber" property="monthNumber" />
+        <result column="monthCost" property="monthCost" />
+    </resultMap>
+
+    <select id="selectWholeExpendDataInMonth" resultType="WholeExpendAnalyseCharge" resultMap="BaseResultMap6">
+        SELECT
+        t3.myYear AS yearNumber,
+        t3.myMonth AS monthNumber,
+        SUM( t3.cost ) AS monthCost
+        FROM
+            ( SELECT YEAR ( create_date ) AS myYear, MONTH ( create_date ) AS myMonth, expenditure_amount AS cost FROM t_topic_expenditure WHERE del_flag=0) t3
+        WHERE
+            t3.myYear = #{yearNum}
+        GROUP BY
+            t3.myMonth
+    </select>
+
+
+
+
+	<sql id="Base_Column_Fragment">
+		id,channel_stair_id,channel_2_level_id,channel_3_level_id,port_id,uv_count,order_quantity,sale_limit,
+		 expenditure_amount,creator,mender,create_date,update_date,del_flag,remark
+	</sql>
+	<!--id查询Expenditure数据 -->
+	<select id="getExpenditureById" resultMap="expenditureResultMap">
+		select <include refid="Base_Column_Fragment" />
+		 from t_topic_expenditure where id=#{id}
+		 and del_flag=false
+	</select>
+	<!--id查询Port数据 -->
+	<select id="getPortTypeList" resultMap="portTypeMap">
+		select id,port_name  from t_topic_expenditure_port
+		 where 1=1
+		<if test="id>0">
+		and id=#{id}
+		</if>
+	</select>
+	<!--id查询ChannelStair数据 -->
+	<select id="getChannelStairList" resultMap="channelStairMap">
+		select id,port_id,stair_name  from t_topic_expenditure_channel_stair 
+		 where 1=1
+		<if test="id>0">
+		and id=#{id}
+		</if>
+		<if test="portId>0">
+		and port_id=#{portId}
+		</if>
+		<if test="delFlag >=0">
+		and del_flag=#{delFlag}
+		</if>
+	</select>
+	<select id="getChannelStairByName" resultMap="channelStairMap">
+		select id,port_id,stair_name  from t_topic_expenditure_channel_stair 
+		 where  stair_name=#{name} 
+		 <if test="portId>0">
+		and port_id=#{portId}
+		</if>
+		and del_flag=0
+	</select>
+	<!--id查询ChannelSecond数据 -->
+	<select id="getChannelSecondList" resultMap="channelSecondMap">
+		select id,second_name  from t_topic_expenditure_channel_second
+		 where 1=1
+		<if test="id>0">
+		and id=#{id}
+		</if>
+		<if test="stairId>0">
+		and stair_id=#{stairId}
+		</if>
+		<if test="delFlag >=0">
+		and del_flag=#{delFlag}
+		</if>
+	</select>
+	<select id="getChannelSecondByName" resultMap="channelSecondMap">
+		select id,second_name  from t_topic_expenditure_channel_second 
+		 where  second_name=#{name}
+		 <if test="stairId>0">
+		and stair_id=#{stairId}
+		</if>
+		and del_flag=0
+	</select>
+	<!--id查询ChannelThird数据 -->
+	<select id="getChannelThirdList" resultMap="channelThirdMap">
+		select id,third_name  from t_topic_expenditure_channel_third
+		 where 1=1
+		<if test="id>0">
+		and id=#{id}
+		</if>
+		<if test="stairId>0">
+		and stair_id=#{stairId}
+		</if>
+		<if test="secondId>0">
+		and second_id=#{secondId}
+		</if>
+		<if test="delFlag >=0">
+		and del_flag=#{delFlag}
+		</if>
+	</select>
+	<select id="getChannelThirdByName" resultMap="channelThirdMap">
+		select id,third_name  from t_topic_expenditure_channel_third
+		 where  third_name=#{name}
+		<if test="secondId>0">
+		and second_id=#{secondId}
+		</if>
+		and del_flag=0
+	</select>
+	<select id="getPortByName" resultType="int">
+		select id  from t_topic_expenditure_port
+		 where  port_name=#{name}
+	</select>
+	<!-- 分页查询 -->
+	<select id="getExpenditureList" resultMap="expenditureResultMap">
+		select <include refid="Base_Column_Fragment" />
+		from t_topic_expenditure
+		<where>
+			<if test="id!=0">
+				 id=#{id}
+        	</if>
+				and del_flag=#{delFlag}
+        		<if test="stairChanId>0">
+				and channel_stair_id=#{stairChanId} 
+        	</if>
+        	<if test="secondChanId>0">
+				and channel_2_level_id=#{secondChanId} 
+        	</if>
+        	<if test="thirdChanId>0">
+				and channel_3_level_id=#{thirdChanId} 
+        	</if>
+			<if test="portId>0">
+				and port_id=#{portId}
+      	    </if>
+            <if test="startDate!=null">
+                <![CDATA[ and DATE(create_date) >= #{startDate} ]]>
+            </if>
+            <if test="endDate!=null">
+                <![CDATA[ and DATE(create_date) <= #{endDate} ]]>
+            </if>
+        </where>
+	</select>
+	<!-- 导出数据查询 -->
+	<select id="getExpenditureListByDate" resultMap="expenditureResultMap">
+	select <include refid="Base_Column_Fragment" />
+		from t_topic_expenditure
+		<where>
+		<if test="startDate != null">
+            <![CDATA[ DATE(create_date) >= #{startDate} ]]>
+		</if>
+		<if test="endDate != null">
+            <![CDATA[ and DATE (create_date) <= #{endDate} ]]>
+		</if>
+		and del_flag = false
+		</where>
+	</select>
+	<!-- 单条数据插入 -->
+	<insert id="insertExpenditureDetail"  parameterType="Expenditure" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+		insert into t_topic_expenditure
+	<trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="stairChanId != 0">
+        channel_stair_id,
+      </if>
+      <if test="secondChanId !=0">
+        channel_2_level_id,
+      </if>
+      <if test="thirdChanId != 0">
+        channel_3_level_id,
+      </if>
+      <if test="portId != 0">
+        port_id,
+      </if>
+      <if test="UV != 0">
+        uv_count,
+      </if>
+      <if test="orderNum != 0">
+        order_quantity,
+      </if>
+      <if test="sale != null">
+        sale_limit,
+      </if>
+      <if test="expenditure != null">
+        expenditure_amount,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="mender != null">
+        mender,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="delFlag != null">
+        del_flag,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="stairChanId != 0">
+        #{stairChanId},
+      </if>
+      <if test="secondChanId != 0">
+      #{secondChanId},
+      </if>
+      <if test="thirdChanId != 0">
+      #{thirdChanId},
+      </if>
+      <if test="portId != 0">
+      #{portId},
+      </if>
+      <if test="UV != 0">
+      #{UV},
+      </if>
+      <if test="orderNum != 0">
+      #{orderNum},
+      </if>
+      <if test="sale != null">
+      #{sale},
+      </if>
+      <if test="expenditure != null">
+      #{expenditure},
+      </if>
+      <if test="creator != null">
+      #{creator},
+      </if>
+      <if test="mender != null">
+      #{mender},
+      </if>
+      <if test="createDate != null">
+      #{createDate},
+      </if>
+      <if test="updateDate != null">
+      #{updateDate},
+      </if>
+      <if test="delFlag != null">
+      #{delFlag},
+      </if>
+      <if test="remark != null">
+      #{remark} ,
+      </if>
+    </trim>
+	</insert>
+	<!-- 插入端口信息 -->
+	<insert id="insertPortType" parameterType="PortType" useGeneratedKeys="true" keyProperty="id" keyColumn="id" >
+	insert into t_topic_expenditure_port
+	<trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="portName != null">
+       port_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+     <if test="id != 0">
+        #{id},
+      </if>
+      <if test="portName !=null">
+        #{portName},
+      </if>
+    </trim>
+	</insert>
+	<!-- 插入一级渠道信息 -->
+	<insert id="insertChannelDetail_Stair" parameterType="ChannelStair" >
+	insert into t_topic_expenditure_channel_stair
+	<trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != 0">
+        id,
+      </if>
+      <if test="portId != 0">
+       port_id,
+      </if>
+      <if test="stairName != null">
+       stair_name,
+      </if>
+       <if test="createDate != null">
+       create_date,
+      </if>
+       <if test="remark != null">
+       remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+     <if test="id != 0">
+        #{id},
+      </if>
+       <if test="portId != 0">
+        #{portId},
+      </if>
+      <if test="stairName !=null">
+        #{stairName},
+      </if>
+       <if test="createDate !=null">
+        #{createDate},
+      </if>
+       <if test="remark !=null">
+        #{remark},
+      </if>
+    </trim>
+	</insert>
+	<!-- 插入二级渠道信息 -->
+	<insert id="insertChannelDetail_Second" parameterType="ChannelSecond" >
+	insert into t_topic_expenditure_channel_second
+	<trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != 0">
+        id,
+      </if>
+      <if test="stairId != 0">
+       stair_id,
+      </if>
+       <if test="secondName != null">
+       second_name,
+      </if>
+       <if test="createDate != null">
+       create_date,
+      </if>
+       <if test="remark != null">
+       remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+     <if test="id != 0">
+        #{id},
+      </if>
+       <if test="stairId != 0">
+        #{stairId},
+      </if>
+      <if test="secondName !=null">
+        #{secondName},
+      </if>
+       <if test="createDate !=null">
+        #{createDate},
+      </if>
+       <if test="remark !=null">
+        #{remark},
+      </if>
+    </trim>
+	</insert>
+	<!-- 插入三级渠道信息 -->
+	<insert id="insertChannelDetail_Third" parameterType="ChannelThird" useGeneratedKeys="true" keyProperty="id" keyColumn="id" >
+	insert into t_topic_expenditure_channel_third
+	<trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != 0">
+        id,
+      </if>
+      <if test="stairId != 0">
+       stair_id,
+      </if>
+      <if test="secondId != 0">
+       second_id,
+      </if>
+       <if test="thirdName != null">
+       third_name,
+      </if>
+       <if test="createDate != null">
+       create_date,
+      </if>
+       <if test="remark != null">
+       remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+     <if test="id != 0">
+        #{id},
+      </if>
+       <if test="stairId != 0">
+        #{stairId},
+      </if>
+      <if test="secondId != 0">
+        #{secondId},
+      </if>
+      <if test="thirdName !=null">
+        #{thirdName},
+      </if>
+       <if test="createDate !=null">
+        #{createDate},
+      </if>
+       <if test="remark !=null">
+        #{remark},
+      </if>
+    </trim>
+	</insert>
+	<!-- 单条数据修改(包含删除) -->
+	<update id="updateExpenditure"  parameterType="Expenditure">
+	update t_topic_expenditure
+	<set>
+        uv_count = #{UV},
+        order_quantity = #{orderNum},
+         del_flag = #{delFlag},
+      <if test="sale != null">
+        sale_limit = #{sale},
+      </if>
+      <if test="expenditure != null">
+        expenditure_amount = #{expenditure},
+      </if>
+      <if test="mender != null">
+        mender = #{mender},
+	</if>
+      <if test="updateDate != null">
+        update_date = #{updateDate},
+      </if>
+	</set>
+	  where id = #{id}
+	</update>
+</mapper>

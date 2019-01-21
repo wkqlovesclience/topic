@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: cn.com.gome.ztghb:gis-client:1.2.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://D:/repository/cn/com/gome/ztghb/gis-client/1.2.0-SNAPSHOT/gis-client-1.2.0-20160901.063510-10.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/repository/cn/com/gome/ztghb/gis-client/1.2.0-SNAPSHOT/gis-client-1.2.0-20160901.063510-10-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/repository/cn/com/gome/ztghb/gis-client/1.2.0-SNAPSHOT/gis-client-1.2.0-20160901.063510-10-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

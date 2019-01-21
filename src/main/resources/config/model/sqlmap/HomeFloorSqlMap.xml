@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+ 
+<sqlMap namespace="HomeFloor" >
+
+    <resultMap id="RM.HomeFloor" class="com.coo8.btoc.model.rank.HomeFloor">
+        <result property="id" column="ID"/>
+        <result property="sort" column="SORT"/>
+        <result property="categoryid" column="CATEGORYID"/> 
+        <result property="create_date" column="CREATE_DATE"/>
+        <result property="create_user" column="CREATE_USER"/>
+        <result property="update_user" column="UPDATE_USER"/>
+        <result property="update_date" column="UPDATE_DATE"/>
+    </resultMap>
+    	  
+	<sql id="HomeFloor.columns">
+	    <![CDATA[
+        ID, SORT, CATEGORYID, CREATE_DATE, CREATE_USER, UPDATE_USER,UPDATE_DATE
+	    ]]>
+	</sql>
+	
+	<insert id="HomeFloor.insert" >
+    <![CDATA[
+        INSERT INTO home_floor ( 
+	      SORT, CATEGORYID, CREATE_DATE, CREATE_USER,UPDATE_USER, UPDATE_DATE
+        ) VALUES (  
+        	#sort#,
+        	#categoryid#, 
+        	now(),
+        	#create_user#,
+        	#update_user#,
+        	now()
+        )
+    ]]>
+	</insert>
+	
+	<update id="HomeFloor.update" >
+    <![CDATA[
+        UPDATE home_floor SET
+	        SORT = #sort#,
+	        CATEGORYID = #categoryid#,
+	        UPDATE_USER = #update_user#,
+	        UPDATE_DATE = now()
+        WHERE 
+	        ID = #id# 
+    ]]>
+    </update>
+
+    <delete id="HomeFloor.delete">
+    <![CDATA[
+        DELETE FROM home_floor WHERE
+        ID = #id# 
+    ]]>
+    </delete> 
+  
+	<select id="HomeFloor.getHomeFloorById"   resultMap="RM.HomeFloor">
+		SELECT
+			<include refid="HomeFloor.columns"/> 
+		FROM
+			home_floor 
+		WHERE id = #id#
+	</select>
+     
+    <sql id="HomeFloor.findPage.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	<!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="HomeFloor.findPage.list" resultMap="RM.HomeFloor">
+    	SELECT <include refid="HomeFloor.columns"/> FROM home_floor 
+		<include refid="HomeFloor.findPage.where"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    
+    <select id="HomeFloor.findPage.count" resultClass="long">
+        SELECT count(1) FROM home_floor <include refid="ItemFloor.findPage.where"/>
+    </select>
+     
+	
+</sqlMap>
+
+	

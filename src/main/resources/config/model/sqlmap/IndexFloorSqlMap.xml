@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+ 
+<sqlMap namespace="IndexFloor" >
+
+    <resultMap id="RM.IndexFloor" class="com.coo8.btoc.model.rank.IndexFloor">
+        <result property="id" column="ID"/> 
+        <result property="category_name" column="CATEGORY_NAME"/> 
+        <result property="category_id" column="CATEGORY_ID"/> 
+        <result property="priority" column="PRIORITY"/> 
+        <result property="is_valid" column="IS_VALID"/>
+        <result property="create_time" column="CREATE_TIME"/> 
+        <result property="update_time" column="UPDATE_TIME"/> 
+    </resultMap>
+    	  
+	<sql id="IndexFloor.columns">
+	    <![CDATA[
+      ID,CATEGORY_NAME,CATEGORY_ID,PRIORITY,IS_VALID,CREATE_TIME,UPDATE_TIME
+	    ]]>
+	</sql>
+	
+	<insert id="IndexFloor.insert" >
+    <![CDATA[
+        INSERT INTO t_rank_index_floor ( 
+	     CATEGORY_NAME,CATEGORY_ID,PRIORITY,IS_VALID,CREATE_TIME
+        ) VALUES (  
+        	#category_name#,
+        	#category_id#, 
+        	#priority#,
+        	#is_valid#,
+        	now()
+        	
+        )
+    ]]>
+	</insert>
+	
+	<update id="IndexFloor.update" >
+    <![CDATA[
+     
+        UPDATE t_rank_index_floor SET
+			CATEGORY_NAME = #category_name#,
+			CATEGORY_ID = #category_id#, 
+			PRIORITY = #priority#,
+			IS_VALID= #is_valid#,
+            UPDATE_TIME= #update_time#
+        WHERE 
+	        ID = #id# 
+    ]]>
+    </update>
+
+    <delete id="IndexFloor.delete">
+    <![CDATA[
+        DELETE FROM t_rank_index_floor WHERE
+        ID = #id# 
+    ]]>
+    </delete> 
+  
+	<select id="IndexFloor.getIndexFloorById"   resultMap="RM.IndexFloor">
+		SELECT
+			<include refid="IndexFloor.columns"/> 
+		FROM
+			t_rank_index_floor 
+		WHERE id = #id#
+	</select>
+     
+    <sql id="IndexFloor.findPage.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	<!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="IndexFloor.findPage.list" resultMap="RM.IndexFloor">
+    	SELECT <include refid="IndexFloor.columns"/> FROM t_rank_index_floor 
+		<include refid="IndexFloor.findPage.where"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    
+    <select id="IndexFloor.findPage.count" resultClass="long">
+        SELECT count(1) FROM t_rank_index_floor <include refid="IndexFloor.findPage.where"/>
+    </select>
+     
+	
+</sqlMap>
+
+	

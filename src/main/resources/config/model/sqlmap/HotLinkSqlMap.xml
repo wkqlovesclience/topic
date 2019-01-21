@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+ 
+<sqlMap namespace="HotLink" >
+
+    <typeAlias alias="hotLink" type="com.coo8.hotlink.model.HotLink"/>
+
+    <resultMap id="RM.HotLink" class="com.coo8.hotlink.model.HotLink">
+        <result property="id" column="ID"/>
+        <result property="hotName" column="HOT_NAME"/>
+        <result property="pcUrl" column="PC_URL"/>
+        <result property="wapUrl" column="WAP_URL"/>
+        <result property="sort" column="SORT"/>
+        <result property="moduleType" column="MODULE_TYPE"/>
+        <result property="moduleId" column="MODULE_ID"/>
+        <result property="createDate" column="CREATE_DATE"/>
+        <result property="createUser" column="CREATE_USER"/>
+        <result property="updateUser" column="UPDATE_USER"/>
+        <result property="updateDate" column="UPDATE_DATE"/>
+    </resultMap>
+    
+    
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="HotLink.columns">
+	    <![CDATA[
+        ID ,HOT_NAME ,PC_URL,WAP_URL,SORT,MODULE_TYPE,MODULE_ID,CREATE_DATE,CREATE_USER,UPDATE_USER,UPDATE_DATE
+	    ]]>
+	</sql>
+	
+    <insert id="HotLink.insert">
+    
+    <![CDATA[
+        INSERT INTO t_hot_links ( 
+	        HOT_NAME  ,
+	        PC_URL  ,
+	        WAP_URL  ,
+	        SORT  ,
+	        MODULE_TYPE,
+	        MODULE_ID,
+	        CREATE_DATE  ,
+	        CREATE_USER  ,
+	        UPDATE_USER  ,
+	        UPDATE_DATE  
+        ) VALUES ( 
+        	#hotName# ,
+        	#pcUrl# ,
+        	#wapUrl# ,
+        	#sort# ,
+        	#moduleType# ,
+        	#moduleId# ,
+        	#createDate# ,
+        	#createUser# ,
+        	#updateUser# ,
+        	#updateDate# 
+        )
+    ]]>
+    </insert>
+    
+
+   
+
+    <update id="HotLink.update" >
+        UPDATE t_hot_links SET
+	        HOT_NAME = #hotName# ,
+	        PC_URL = #pcUrl# ,
+	        WAP_URL = #wapUrl# ,
+	        SORT = #sort#,
+	        MODULE_TYPE = #moduleType# ,
+	        MODULE_ID = #moduleId# ,
+	        CREATE_DATE = #createDate# ,
+	        CREATE_USER = #createUser#,
+	        UPDATE_USER = #updateUser# ,
+	        UPDATE_DATE = #updateDate# 
+        WHERE 
+	        ID = #id#
+    </update>
+
+    <delete id="HotLink.delete">
+    <![CDATA[
+        DELETE FROM t_hot_links WHERE
+        ID = #id#
+    ]]>
+    </delete>
+    
+    
+    
+    
+    
+    <select id="HotLink.getById" resultMap="RM.HotLink">
+	    SELECT <include refid="HotLink.columns"/>
+	    <![CDATA[
+	        FROM t_hot_links 
+	        WHERE 
+		        ID = #id#
+	    ]]>
+    </select>
+    
+        
+    
+	<sql id="HotLink.getByWhere.where">
+	    <dynamic>
+		       <isNotEmpty prepend="AND" property="hotName">
+		             HOT_NAME = #hotName#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="pcUrl">
+		             PC_URL = #pcUrl#
+		       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	
+
+	 <select id="HotLink.getByWhere" parameterClass="hotLink" resultMap="RM.HotLink">
+	    SELECT <include refid="HotLink.columns"/>
+        FROM t_hot_links 
+        WHERE 1=1
+         <include refid="HotLink.getByWhere.where"/>
+	 
+    </select>
+    
+
+	<sql id="HotLink.findPage.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="keyName">
+		             HOT_NAME = #hotName#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="pcUrl">
+		             PC_URL = #pcUrl#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="wapUrl">
+		             WAP_URL = #wapUrl#
+		       </isNotEmpty>
+		        <isNotEmpty prepend="AND" property="createUser">
+		             CREATE_USER = #createUser#
+		       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	
+
+    <select id="HotLink.findPage.count" parameterClass="map"  resultClass="long">
+        SELECT count(*) FROM t_hot_links
+        <dynamic prepend="WHERE">
+			<isNotNull property="hotLinkId" prepend="and">
+				ID = #hotLinkId#			
+			</isNotNull>
+			<isNotNull property="hotLinkName" prepend="and">
+				HOT_NAME = #hotLinkName#			
+			</isNotNull>
+			<isNotNull property="moduleId" prepend="and">
+				MODULE_ID = #moduleId# 			
+			</isNotNull>
+			<isNotNull property="hotLinkModuleType" prepend="and">
+				MODULE_TYPE = #hotLinkModuleType#			
+			</isNotNull>
+		</dynamic>
+    </select>
+
+	
+	<select id="HotLink.findPage" parameterClass="map"   resultMap="RM.HotLink">
+	    	SELECT <include refid="HotLink.columns"/> FROM t_hot_links
+	    	<dynamic prepend="WHERE">
+			<isNotNull property="hotLinkId" prepend="and">
+				ID = #hotLinkId#			
+			</isNotNull>
+			<isNotNull property="hotLinkName" prepend="and">
+				HOT_NAME = #hotLinkName#			
+			</isNotNull>
+			<isNotNull property="moduleId" prepend="and">
+				MODULE_ID = #moduleId# 			
+			</isNotNull>
+			<isNotNull property="hotLinkModuleType" prepend="and">
+				MODULE_TYPE = #hotLinkModuleType#			
+			</isNotNull>
+		</dynamic>
+		 ORDER BY id DESC
+	    </select>
+	    
+	    
+	<select id="HotLink.findListLike" resultMap="RM.HotLink">
+    	SELECT <include refid="HotLink.columns"/> FROM t_hot_links
+		<include refid="HotLink.findPage.where"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    
+ 
+</sqlMap>
+

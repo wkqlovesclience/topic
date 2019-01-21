@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="FacetGroupItem">
+	
+	<typeAlias alias="facetGroupItem" type="com.coo8.btoc.model.rank.FacetGroupItem"/>
+	
+	<!-- the selected fields of t_facetgroup table -->
+	<sql id="selectFacetGroupItemSql">
+		b.id, b.catid catId, b.value, b.code, b.index, b.parent parentId, b.facetid facetId,
+		b.insertdate insertDate, b.creator, b.updator, b.updatedate updateDate, b.isshow
+	</sql>
+	
+	<!-- block table name -->
+	<sql id="facetGroupItemTable">
+		t_facetgroupitem b
+	</sql>
+	
+	<!-- create facetGroupItem -->
+	<insert id="add" parameterClass="facetGroupItem">
+		INSERT INTO t_facetgroupitem 
+				(	catid, value, code, `index`, parent, facetid, insertdate, 
+   					creator, updator, updatedate, isshow
+   				)
+   		  VALUES(	#catId#, #value#, #code#, #index#, #parentId#, #facetId#, now(),
+   					 #creator#, #updator#, now(), #isshow#
+   				)
+	</insert>
+	
+	<!-- update facetGroupItem -->
+	<update id="update" parameterClass="facetGroupItem">
+		update t_facetgroupitem set
+			updator = #updator#,
+			updatedate = now()
+			<isNotNull property="catId" prepend=",">
+				catid = #catId#
+			</isNotNull>
+			<isNotEmpty property="value" prepend=",">
+				value = #value#
+			</isNotEmpty>
+			<isNotNull property="code" prepend=",">
+				code = #code#
+			</isNotNull>
+			<isNotEmpty property="index" prepend=",">
+				`index` = #index#
+			</isNotEmpty>
+			<isNotEmpty property="parentId" prepend=",">
+				parent = #parentId#
+			</isNotEmpty>
+			<isNotEmpty property="facetId" prepend=",">
+				facetid = #facetId#
+			</isNotEmpty>
+			<isNotEmpty property="isshow" prepend=",">
+				isshow = #isshow#
+			</isNotEmpty>
+		where id = #id#
+	</update>
+	
+	<!-- facetGroup delete -->
+	<delete id="delete" parameterClass="string">
+	DELETE FROM t_facetgroupitem WHERE id = #id#
+	</delete>
+	
+	<!-- facetGroupItemTable update isShow status -->
+	<update id="updateIsShow" parameterClass="string">
+		UPDATE <include refid="facetGroupItemTable"/> SET isshow = 0 WHERE id = #id#
+	</update>
+	
+	<!-- query category by id -->
+	<select id="getById" parameterClass="string" resultClass="facetGroupItem">
+		SELECT
+			<include refid="selectFacetGroupItemSql"/>
+		FROM
+			<include refid="facetGroupItemTable"/>
+		WHERE b.id = #id#
+	</select>
+	
+	<!-- 符合条件的个数 -->
+	<select id="count" parameterClass="map" resultClass="int">
+		SELECT count(b.id) FROM <include refid="facetGroupItemTable"/>
+		<dynamic prepend="WHERE">
+		    <isNotNull property="qid" prepend="and">
+                b.id = #qid#  
+            </isNotNull>
+			<isNotNull property="qcatid" prepend="and">
+				b.catid = #qcatid#	
+			</isNotNull>
+			<isNotNull property="qparent_id" prepend="and">
+                b.parent = #qparent_id#  
+            </isNotNull>
+			<isNotNull property="qis_show" prepend="and">
+				b.isshow = #qis_show#			
+			</isNotNull>
+			<isNotNull property="qvalue" prepend="and">
+				upper(b.value) like CONCAT('%',upper(trim(#qvalue#)),'%')
+			</isNotNull>
+			<isNotEmpty property="qcreate_time" prepend="and">
+			    DATE_FORMAT(b.insertdate,'%Y-%m-%d') = #qcreate_time#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- 查询平面组列表 -->
+	<select id="list" parameterClass="map" resultClass="facetGroupItem">
+		SELECT 
+			<include refid="selectFacetGroupItemSql"/>
+		FROM
+			<include refid="facetGroupItemTable"/>
+		<dynamic prepend="WHERE">
+		    <isNotNull property="qid" prepend="and">
+                b.id = #qid#  
+            </isNotNull>
+			<isNotNull property="qcatid" prepend="and">
+				b.catid = #qcatid#	
+			</isNotNull>
+			<isNotNull property="qparent_id" prepend="and">
+                b.parent = #qparent_id#  
+            </isNotNull>
+			<isNotNull property="qis_show" prepend="and">
+				b.isshow = #qis_show#			
+			</isNotNull>
+			<isNotNull property="qvalue" prepend="and">
+				upper(b.value) like CONCAT('%',upper(trim(#qvalue#)),'%')
+			</isNotNull>
+			<isNotEmpty property="qcreate_time" prepend="and">
+				DATE_FORMAT(b.insertdate,'%Y-%m-%d') = #qcreate_time#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY b.catid asc,b.parent asc,b.index asc,b.updatedate desc 
+	</select>
+    <update id="changeShowState" parameterClass="map">
+        update t_facetgroupitem
+        set isshow=#isShow#
+        where id in($ids$)
+    </update>
+</sqlMap>

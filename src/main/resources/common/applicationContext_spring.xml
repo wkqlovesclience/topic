@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="GBK"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+>
+	<bean id="SpringBeanFactory" class="com.coo8.btoc.util.support.SpringBeanFactory" />
+	<bean id="SpringHelper" class="com.coo8.btoc.util.SpringHelper" />
+
+	<!-- 开发环境 -->
+	<!-- 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+            <property name="driverClass" value="com.mysql.jdbc.Driver" />
+            <property name="checkoutTimeout" value="60000" />
+            <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/kubatopic?useUnicode=true&amp;characterEncoding=UTF-8" />
+            <property name="user" value="root" />
+            <property name="password" value="Aa!@#123" />
+        </bean> -->
+
+	<!-- 配置常规数据源，平时开发建议使用此配置。 -->
+	<bean id="dataSource" class="com.gome.datasource.DiamondDataSource">
+		<property name="appName" value="${dataSource.appName}" />
+		<property name="dbKey" value="${dataSource.dbKey}" />
+	</bean>
+	<!-- SEO国美门店数据源配置 -->
+	<bean id="dataSourceGomeSc" class="com.gome.datasource.DiamondDataSource">
+		<property name="appName" value="gcc_gomesc" />
+		<property name="dbKey" value="gcc_gomesc" />
+	</bean>
+
+	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:sqlMapConfig.xml" />
+		<!-- <property name="mappingLocations" value="classpath:config/model/sqlmap/*.xml"></property> -->
+	</bean>
+	<bean id="sqlMapClientGomeSc" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="dataSource" ref="dataSourceGomeSc" />
+		<property name="configLocation" value="classpath:sqlMapConfig.xml" />
+		<!-- <property name="mappingLocation">
+            <value>classpath:config/model/gomesc/*.xml</value>
+        </property> -->
+	</bean>
+
+	<bean id="transactionManager"
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+		<property name="rollbackOnCommitFailure" value="true" />
+	</bean>
+	<bean id="transactionManagerGomeSc" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSourceGomeSc" />
+		<property name="rollbackOnCommitFailure" value="true" />
+	</bean>
+
+	<!-- 配置事务 -->
+	<aop:config proxy-target-class="true">
+		<aop:advisor pointcut="execution(* com.coo8.btoc.business..*Manager*.*(..))"
+					 advice-ref="txAdvice" />
+	</aop:config>
+	<aop:config proxy-target-class="true">
+		<aop:advisor pointcut="execution(* com.coo8.topic.business.interfaces.IGomeStoresManager.*(..))"
+					 advice-ref="txAdviceGomeSc" />
+	</aop:config>
+	<aop:config proxy-target-class="true">
+		<aop:advisor pointcut="execution(* com.coo8.item.business..*Manager*.*(..))"
+					 advice-ref="txAdvice" />
+	</aop:config>
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="apply*" rollback-for="Exception" read-only="false" />
+			<tx:method name="del*" rollback-for="Exception" read-only="false" />
+			<tx:method name="batch*" rollback-for="Exception" read-only="false"/>
+			<tx:method name="create*" rollback-for="Exception" read-only="false" />
+			<tx:method name="query*" rollback-for="Exception" read-only="false" />
+			<tx:method name="modify*" rollback-for="Exception" read-only="false" />
+			<tx:method name="save*" rollback-for="Exception" read-only="false" />
+			<tx:method name="clear*" rollback-for="Exception" read-only="false" />
+			<tx:method name="update*" rollback-for="Exception" read-only="false" />
+			<tx:method name="edit*" rollback-for="Exception" read-only="false" />
+			<tx:method name="move*" rollback-for="Exception" read-only="false"/>
+			<tx:method name="remove*" rollback-for="Exception" read-only="false"/>
+			<tx:method name="delete*" rollback-for="Exception" read-only="false"/>
+			<tx:method name="add*" rollback-for="Exception" read-only="false"/>
+			<tx:method name="new*" rollback-for="Exception" read-only="false"/>
+			<tx:method name="gen*" rollback-for="Exception" />
+			<tx:method name="insert*" rollback-for="Exception" read-only="false"/>
+			<tx:method name="adviseUser" rollback-for="Exception" read-only="false" />
+			<tx:method name="call*" rollback-for="Exception" read-only="false" />
+			<tx:method name="change*" rollback-for="Exception" read-only="false"/>
+			<tx:method name="publish*" rollback-for="Exception" read-only="false"/>
+			<tx:method name="*" rollback-for="Exception" read-only="false" />
+		</tx:attributes>
+	</tx:advice>
+	<tx:advice id="txAdviceGomeSc" transaction-manager="transactionManagerGomeSc">
+		<tx:attributes>
+			<tx:method name="*" rollback-for="Exception" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- test configure and BTOC base DAO -->
+	<!--
+		选项打开了 com.coo8.junit 的组件注解 test时可以继承 AbstractTest，拥有测试完成后自动回滚事务的功能。
+	-->
+	<context:component-scan base-package="com.coo8.junit" />
+
+	<!--
+	    common super DAO 抽象
+		共享DAO的sqlMapClient和dataSource属性
+	-->
+	<bean id="BizCommonDAO" abstract="true">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	
+	<!-- 采用注解的方式配置bean -->
+	<context:annotation-config />
+	<!-- 配置要扫描的包 -->
+	<context:component-scan base-package="com.coo8.topic.expenditure.*" />
+	<!-- 配置常规数据源，平时开发建议使用此配置。 -->
+	
+		<!-- 添加Mybatis数据源 date:2018年10月10日11:51:14 -->
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:/mapper/*.xml</value>
+			</list>
+		</property>
+	</bean>
+<!-- 	DAO接口所在包名，Spring会自动查找其下的类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.coo8.topic.expenditure.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+<tx:annotation-driven transaction-manager="transactionManager" />
+</beans>

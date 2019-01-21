@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="StaticHtml">
+	
+	<typeAlias alias="staticHtml" type="com.coo8.btoc.model.html.StaticHtml"/>
+	
+	<sql id="field">
+	   id            ,      
+	   template_id   templateId,      
+	   name          ,      
+	   path          ,      
+	   description   ,      
+	   type          ,      
+	   created_time  createdTime,      
+	   creator       ,      
+	   updator       ,      
+	   updated_time  updatedTime,
+	   ref_id refId     
+	</sql>
+	
+	<sql id="tableName">
+		btoc_static_html
+	</sql>
+	
+	<select id="selectById" parameterClass="int" resultClass="staticHtml" >
+		select
+			<include refid="field"/>
+		from
+			<include refid="tableName"/>
+		where
+			id = #id#
+	</select>
+	
+	<insert id="insertHtml" parameterClass="staticHtml">
+		insert into btoc_static_html
+			(template_id, name, path, description, type, created_time, creator, ref_id)
+			values
+			(#templateId#, #name#, #path#, #description#, #type#, CURRENT_TIMESTAMP, #creator#, #refId#)
+	</insert>
+	
+	<delete id="deleteStaticHtml" parameterClass="staticHtml">
+		delete from btoc_static_html 
+		 	where id = #id#
+	</delete>
+	
+	<update id="updateHtml" parameterClass="staticHtml">
+		update btoc_static_html
+			set updator = #updator#,
+			    updated_time = CURRENT_TIMESTAMP
+			    <dynamic prepend=",">
+			    	<isNotNull property="name" prepend=",">
+			    		name = #name#
+			    	</isNotNull>
+			    	<isNotNull property="description" prepend=",">
+			    		description = #description#
+			    	</isNotNull>
+			    	<isNotNull property="path" prepend=",">
+			    		path = #path#
+			    	</isNotNull>
+			    	<isNotNull property="templateId" prepend=",">
+			    		template_Id = #templateId#
+			    	</isNotNull>
+			    	<isNotNull property="refId" prepend=",">
+			    		ref_id = #refId#
+			    	</isNotNull>
+			    </dynamic>
+			where id = #id#
+	</update>
+	
+	<select id="queryHtmls" parameterClass="staticHtml" resultClass="staticHtml" >
+		select
+			<include refid="field"/>
+		from
+			<include refid="tableName"/>
+		<dynamic prepend="where">
+			<isNotNull property="type" prepend="and">
+				type = #type#
+			</isNotNull>
+			<isNotEmpty property="name" prepend="and">
+				upper(name) like CONCAT('%',upper(trim(#name#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="description" prepend="and">
+				upper(description) like CONCAT('%',upper(trim(#description#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="creator" prepend="and">
+				upper(creator) like CONCAT('%',upper(trim(#creator#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="updator" prepend="and">
+				upper(updator) like CONCAT('%',upper(trim(#updator#)),'%')
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="queryHtmlCounts" parameterClass="staticHtml" resultClass="int" >
+		select
+			count(1)
+		from
+			<include refid="tableName"/>
+		<dynamic prepend="where">
+			<isNotNull property="type" prepend="and">
+				type = #type#
+			</isNotNull>
+			<isNotEmpty property="name" prepend="and">
+				upper(name) like CONCAT('%',upper(trim(#name#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="description" prepend="and">
+				upper(description) like CONCAT('%',upper(trim(#description#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="creator" prepend="and">
+				upper(creator) like CONCAT('%',upper(trim(#creator#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="updator" prepend="and">
+				upper(updator) like CONCAT('%',upper(trim(#updator#)),'%')
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+		
+	<parameterMap id="publishMap" class="map">
+		<parameter property="id"  javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN"></parameter>
+    </parameterMap>
+    
+    <procedure id="updateStaticPublish" parameterMap="publishMap">
+        { call put_static_html_to_queue(?) }
+    </procedure>
+	
+	<parameterMap id="publicCatalogMap" class="map">
+		<parameter property="catalogId" javaType="java.lang.Integer" jdbcType="int" mode="IN"></parameter>
+		<parameter property="staticId" javaType="java.lang.Integer" jdbcType="int" mode="IN"></parameter>
+    </parameterMap>
+	
+	
+	<procedure id="updateCatalogPublish" parameterMap="publicCatalogMap">
+        { call put_catalog_to_queue(?,?) }
+    </procedure>
+	
+</sqlMap>

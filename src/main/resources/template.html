@@ -1,0 +1,61 @@
+写一个replace任务，把它们的模版替换成我的模版
+
+html1.html
+<head>
+<title>${title }</title>
+<meta content="${keywords }" name="keywords">
+<meta content="${description }" name="description">
+<link href="http://s.51mdq.com/css/huodong.css?t=2011092711" rel="stylesheet" type="text/css">
+<script src="http://s.51mdq.com/js/jquery-1.4.2.min.js?t=2011092711" type="text/javascript"></script>
+</head>
+<body>
+</body>
+<div>
+	<div class="banner">
+		#foreach ($item in $headPicList)
+		<img alt="${item.imgalt }" src="${item.imgurl }">
+		#end
+	</div>
+
+	#foreach ($item in $blockList)//块循环
+	<div class="module hd992_f1 CJQG">
+            <div class="hd"><h3></h3></div>
+            <div class="bd clearfix">
+				#foreach ($item in $blockItemList)//块内商品循环
+                <div class="item">
+                    <div class="pic">
+                    	
+                    	<a target="_blank" href="http://www.coo8.com/product/141408.html" class="hd992-t hd992p141408"></a>
+                    	<a target="_blank" href="http://www.coo8.com/product/141408.html"><img alt="阿珂姆（ACOME）MONTANA徒步背包 50L（铁锈色）" src="http://p4.51mdq.com/img/201109/07/330_20110907030622796.jpg"></a>
+                    </div>
+                    <p class="fh2"><a href="http://www.coo8.com/product/141408.html" title="阿珂姆（ACOME）MONTANA徒步背包 50L（铁锈色）" target="_blank">阿珂姆（ACOME）MONTANA徒步背包 50L（铁锈色）</a></p>
+                    <p class="price">活动价：<img src="http://price.51mdq.com/iprice/141/141408,1.png"></p>
+                    <a class="buy" href="http://buy.coo8.com/cart/shoppingcart/additem2shoppingcart.action?itype=1&amp;itemnum=1&amp;itemid=141408" target="_blank">立即购买</a>
+                </div>
+				#end
+            </div>
+        </div>
+	#end
+
+
+	#if($list.size() > 40)//判断有没有这些东东
+	<div class="banner">
+		尾1回顶部
+	</div>
+	#end
+	<div class="notice">//这里还有dl?http://www.coo8.com/actnew/1007.html
+		尾2通知//${sssssssssssss}
+		<span class="text_style">相关产品：
+			#foreach ($item in $aboutItemList)//块内商品循环
+			<a target="_blank" title="${item.text }" href="${item.href }">${item.text }</a>
+			#end
+		</span>
+	</div>
+</div>
+
+尾1 block
+尾2(ga) block
+
+css1.css
+
+

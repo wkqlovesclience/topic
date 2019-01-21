@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="GroupHotLinks">
+	<resultMap id="grouphotlink" class="com.coo8.btoc.model.rank.GroupHotLinks">
+        <result property="ID" column="ID"/>
+        <result property="GROUP_ID" column="GROUP_ID"/>
+        <result property="GROUP_NAME" column="GROUP_NAME"/>
+        <result property="LINK_NAME" column="LINK_NAME"/>
+        <result property="LINK_URL" column="LINK_URL"/>
+        <result property="PRIORITY" column="PRIORITY"/>
+        <result property="IS_VALID" column="IS_VALID"/>
+        <result property="CREATE_TIME" column="CREATE_TIME"/>
+        <result property="UPDATE_TIME" column="UPDATE_TIME"/>
+    </resultMap>
+    
+    <sql id="selectgrouphotlinksSql">
+        ID,GROUP_ID,GROUP_NAME,LINK_NAME,LINK_URL,PRIORITY,IS_VALID,CREATE_TIME,UPDATE_TIME
+	</sql>
+	
+	
+	<insert id="GroupHotLinks.insert" >
+    <![CDATA[
+        INSERT INTO t_group_hot_links ( 
+	    GROUP_ID, 
+	    GROUP_NAME, 
+	    LINK_NAME, 
+		LINK_URL, 
+		PRIORITY, 
+		IS_VALID, 
+		CREATE_TIME
+        ) VALUES (  
+	        #GROUP_ID#,
+	        #GROUP_NAME#,
+	        #LINK_NAME#,
+	        #LINK_URL#,
+	        #PRIORITY#,
+	        #IS_VALID#,
+	       	now()
+	       
+        )
+    ]]>
+	</insert>
+	
+	<update id="GroupHotLinks.update" >
+    <![CDATA[
+     
+        UPDATE t_group_hot_links SET
+        GROUP_ID=#GROUP_ID#,
+	    GROUP_NAME=#GROUP_NAME#,
+	    LINK_NAME=#LINK_NAME#,
+		LINK_URL=#LINK_URL#,
+		PRIORITY=#PRIORITY#,
+		IS_VALID=#IS_VALID#,
+		UPDATE_TIME=now()
+		WHERE 
+	        ID = #ID# 
+    ]]>
+    </update>
+
+    <delete id="GroupHotLinks.delete">
+    <![CDATA[
+        DELETE FROM t_group_hot_links WHERE
+        ID = #ID# 
+    ]]>
+    </delete> 
+  
+	<select id="GroupHotLinks.getgrouphotlinksById"   resultMap="grouphotlink">
+		SELECT
+			<include refid="selectgrouphotlinksSql"/> 
+		FROM
+			t_group_hot_links 
+		WHERE id = #ID#
+	</select>
+     
+    <sql id="GroupHotLinks.findPage.where">
+	    <dynamic prepend="WHERE">
+		    <isNotNull property="groupId" prepend="and">
+				GROUP_ID = #groupId#	
+			</isNotNull>
+			<isNotNull property="groupName" prepend="and">
+				GROUP_NAME = #groupName#	
+			</isNotNull> 
+	    </dynamic>	
+	</sql>
+	<!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="GroupHotLinks.findPage.list" resultMap="grouphotlink">
+    	SELECT <include refid="selectgrouphotlinksSql"/> FROM t_group_hot_links  
+		<include refid="GroupHotLinks.findPage.where"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    
+    <select id="GroupHotLinks.findPage.count" resultClass="long">
+        SELECT count(1) FROM t_group_hot_links <include refid="GroupHotLinks.findPage.where"/>
+    </select>
+ 
+</sqlMap>

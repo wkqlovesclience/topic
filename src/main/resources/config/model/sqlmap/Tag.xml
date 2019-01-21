@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Tag">
+	
+	<typeAlias alias="tag" type="com.coo8.topic.model.Tag"/>
+	
+	<!-- the selected fields of tag table -->
+	<sql id="selectTagSql">
+		b.id, b.parent_id as parentId,(select tagname from t_tag t where t.id = b.parent_id) as parentName,
+		b.tagname as tagName, 
+		(select count(1) from t_tag where b.id = parent_id) as subtagCount, b.site, 
+		b.create_time createTime, b.update_time updateTime, b.creator, b.modifier
+	</sql>
+	
+	<!-- tag table name -->
+	<sql id="tagTable">
+		t_tag b
+	</sql>
+	
+	<!-- create tag -->
+	<insert id="add" parameterClass="tag">
+		INSERT INTO t_tag 
+				( parent_id, tagname, create_time, update_time, creator, modifier )
+   		  VALUES( #parentId#, #tagName#, now(), now(), #creator#, #modifier# )
+   		<selectKey resultClass="int" keyProperty="id">
+			select last_insert_id() as ID from t_tag limit 1
+		</selectKey>
+	</insert>
+	
+	<!-- tag delete -->
+	<delete id="delete" parameterClass="int">
+		DELETE FROM t_tag WHERE id = #id#
+	</delete>
+	
+	<!-- 级联删除 tag delete -->
+	<delete id="deleteByParentId" parameterClass="int">
+		DELETE FROM t_tag WHERE parent_id = #id#
+	</delete>
+	
+	<!-- update tag -->
+	<update id="update" parameterClass="tag">
+		update t_tag set
+			modifier = #modifier#,
+			update_time = now()
+			<isNotNull property="tagName" prepend=",">
+				tagname = #tagName#
+			</isNotNull>
+		where
+			id = #id#
+	</update>
+	
+	<!-- get all tag -->
+	<select id="all" resultClass="tag">
+		SELECT
+			<include refid="selectTagSql"/>
+		FROM
+			<include refid="tagTable"/>
+	</select>
+	
+	<!-- query tag by id -->
+	<select id="getById" parameterClass="int" resultClass="tag">
+		SELECT
+			<include refid="selectTagSql"/>
+		FROM
+			<include refid="tagTable"/>
+		WHERE
+			id = #id#	
+	</select>
+	
+	<!-- query tag by parentId -->
+	<select id="getByParentId" parameterClass="map" resultClass="tag">
+		SELECT
+			<include refid="selectTagSql"/>
+		FROM
+			<include refid="tagTable"/>
+		WHERE
+			parent_id = #qparentId#
+			<dynamic>
+				<isNotNull property="qcreator" prepend="and">
+					b.creator = #qcreator#			
+				</isNotNull>
+				<isNotNull property="qsite" prepend="and">
+					b.site = #qsite#
+				</isNotNull>
+				<isNotEmpty property="qtagname" prepend="and">
+					upper(b.tagname) like CONCAT('%',upper(trim(#qtagname#)),'%')
+				</isNotEmpty>
+				<isNotEmpty property="qcreateTime" prepend="and">
+					upper(b.create_time) like CONCAT('%',upper(trim(#qcreateTime#)),'%')
+				</isNotEmpty>
+			</dynamic>
+	</select>
+	
+	<!-- query tag count by parentId -->
+	<select id="countByParentId" parameterClass="map" resultClass="int">
+		SELECT
+			count(*) as times
+		FROM
+			<include refid="tagTable"/>
+		WHERE
+			parent_id = #qparentId#
+			<dynamic>
+				<isNotNull property="qcreator" prepend="and">
+					b.creator = #qcreator#			
+				</isNotNull>
+				<isNotNull property="qsite" prepend="and">
+					b.site = #qsite#
+				</isNotNull>
+				<isNotEmpty property="qtagname" prepend="and">
+					upper(b.tagname) like CONCAT('%',upper(trim(#qtagname#)),'%')
+				</isNotEmpty>
+				<isNotEmpty property="qcreateTime" prepend="and">
+					upper(b.create_time) like CONCAT('%',upper(trim(#qcreateTime#)),'%')
+				</isNotEmpty>
+			</dynamic>
+	</select>
+	
+	<!-- query all subtag -->
+	<select id="getAllFirstTag" resultClass="tag">
+		SELECT
+			<include refid="selectTagSql"/>
+		FROM
+			<include refid="tagTable"/>
+		WHERE
+			parent_id <![CDATA[ = ]]> 0
+	</select>
+	
+	<!-- query subtag by parentId -->
+	<select id="getByIntParentId" parameterClass="int" resultClass="tag">
+		SELECT
+			<include refid="selectTagSql"/>
+		FROM
+			<include refid="tagTable"/>
+		WHERE
+			parent_id = #parentId#
+	</select>
+	
+	<!-- query subtag by parentId -->
+	<select id="getChildren" parameterClass="map" resultClass="tag">
+		SELECT
+			<include refid="selectTagSql"/>
+		FROM
+			<include refid="tagTable"/>
+		WHERE
+			b.parent_id <![CDATA[ <> ]]> 0
+			<dynamic>
+				<isNotNull property="qcreator" prepend="and">
+					b.creator = #qcreator#			
+				</isNotNull>
+				<isNotNull property="qsite" prepend="and">
+					b.site = #qsite#
+				</isNotNull>
+				<isNotEmpty property="qtagname" prepend="and">
+					upper(b.tagname) like CONCAT('%',upper(trim(#qtagname#)),'%')
+				</isNotEmpty>
+				<isNotEmpty property="qcreateTime" prepend="and">
+					upper(b.create_time) like CONCAT('%',upper(trim(#qcreateTime#)),'%')
+				</isNotEmpty>
+			</dynamic>
+		ORDER BY b.create_time DESC
+	</select>
+	
+	<!-- query subtag count by parentId -->
+	<select id="countChildren" parameterClass="map" resultClass="int">
+		SELECT
+			count(*) as times
+		FROM
+			<include refid="tagTable"/>
+		WHERE
+			parent_id <![CDATA[ <> ]]> 0
+			<dynamic>
+				<isNotNull property="qcreator" prepend="and">
+					b.creator = #qcreator#			
+				</isNotNull>
+				<isNotNull property="qsite" prepend="and">
+					b.site = #qsite#
+				</isNotNull>
+				<isNotEmpty property="qtagname" prepend="and">
+					upper(b.tagname) like CONCAT('%',upper(trim(#qtagname#)),'%')
+				</isNotEmpty>
+				<isNotEmpty property="qcreateTime" prepend="and">
+					upper(b.create_time) like CONCAT('%',upper(trim(#qcreateTime#)),'%')
+				</isNotEmpty>
+			</dynamic>
+	</select>
+	
+	<!-- 符合条件tag的个数 -->
+	<select id="count" parameterClass="map" resultClass="int">
+		SELECT count(1) FROM <include refid="tagTable"/> WHERE parent_id = 0
+		<dynamic>
+			<isNotNull property="qcreator" prepend="and">
+				b.creator = #qcreator#			
+			</isNotNull>
+			<isNotNull property="qsite" prepend="and">
+				b.site = #qsite#
+			</isNotNull>
+			<isNotEmpty property="qtagname" prepend="and">
+				upper(b.tagname) like CONCAT('%',upper(trim(#qtagname#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="qcreateTime" prepend="and">
+				upper(b.create_time) like CONCAT('%',upper(trim(#qcreateTime#)),'%')
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- 通过静态页ID与模板ID查询块 -->
+	<select id="list" parameterClass="map" resultClass="tag">
+		SELECT
+			<include refid="selectTagSql"/>
+		FROM
+			<include refid="tagTable"/>
+		WHERE parent_id = 0
+		<dynamic>
+			<isNotNull property="qcreator" prepend="and">
+				b.creator = #qcreator#			
+			</isNotNull>
+			<isNotNull property="qsite" prepend="and">
+				b.site = #qsite#
+			</isNotNull>
+			<isNotEmpty property="qtagname" prepend="and">
+				upper(b.tagname) like CONCAT('%',upper(trim(#qtagname#)),'%')
+			</isNotEmpty>
+			<isNotEmpty property="qcreateTime" prepend="and">
+				upper(b.create_time) like CONCAT('%',upper(trim(#qcreateTime#)),'%')
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY b.create_time DESC
+	</select>
+	
+	<!-- 获取二级标签下面的商品数目 -->
+	<select id="productCountOfSubtag" resultClass="int" parameterClass="int">
+	   SELECT COUNT(0) FROM t_hotkeywords t where t.SECONDTAG_ID=#subtagId#
+	</select>
+	<!-- 获取一级标签下面的二级标签数目 -->
+    <select id="subtagCountOfFirstTag" resultClass="int" parameterClass="int">
+       SELECT COUNT(0) FROM t_tag t where t.PARENT_ID=#tagId#
+    </select>
+    <!-- 通过表格数据的Id+名称获取Tag -->
+    <select id="getTagFromExcel" resultClass="tag" parameterClass="string">
+        SELECT
+            <include refid="selectTagSql"/>
+        FROM
+            <include refid="tagTable"/>
+        WHERE
+            concat(id,',',tagname) = #tagName# and parent_id != 0
+    </select>
+</sqlMap>

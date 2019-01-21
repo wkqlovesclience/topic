@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ProductWordsCard" >
+	<typeAlias alias="productWordsCard" type="com.gome.productwords.model.ProductWordsCard"/>
+    <resultMap id="RM.ProductWordsCard" class="com.gome.productwords.model.ProductWordsCard">
+        <result property="id" column="ID"/>
+        <result property="productWordsBase" column="PRODUCTWORDS_BASE"/>
+        <result property="productWordsName" column="PRODUCTWORDS_NAME"/>
+        <result property="createDate" column="CREATE_TIME"/>
+        <result property="updateDate" column="UPDATE_TIME"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="modifier" column="MODIFIER"/> 
+        <result property="isInvalid" column="IS_INVALID"/>
+        <result property="isDelete" column="IS_DELETE"/> 
+        <result property="isEditor" column="IS_EDITOR"/>
+		<result property="beginLetter" column="CAPITAL"/>
+		<result property="isEnable" column="IS_ENABLED"/>
+		<result property="search_status" column="SEARCH_STATUS"/>
+		<result property="search_amount" column="SEARCH_AMOUNT"/>
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="ProductWordsCard.columns">
+	    <![CDATA[
+       ID,PRODUCTWORDS_BASE,PRODUCTWORDS_NAME,CREATE_TIME,UPDATE_TIME,CREATOR,MODIFIER,IS_INVALID,IS_DELETE,IS_EDITOR,CAPITAL,SEARCH_STATUS,IS_ENABLED,SEARCH_AMOUNT
+	    ]]>
+	</sql>
+
+  <insert id="ProductWordsCard.insert" >
+    <![CDATA[
+        INSERT INTO t_sku_productwords_promotion (
+			PRODUCTWORDS_BASE,
+			PRODUCTWORDS_NAME,
+			CREATE_TIME,
+			UPDATE_TIME,
+			CREATOR,
+			IS_DELETE,
+			IS_EDITOR,
+			IS_INVALID,
+			CAPITAL,
+			SEARCH_STATUS,
+			IS_ENABLED
+        ) VALUES (
+        	#productWordsBase# ,
+        	#productWordsName# ,
+        	#createDate# ,
+        	#updateDate# ,
+        	#creator# ,
+        	#isDelete#,
+        	#isEditor#,
+        	#isInvalid#,
+        	#beginLetter#,
+        	#search_status#,
+        	#isEnable#
+        )
+    ]]>
+    <selectKey resultClass="int" keyProperty="id" type="post">  
+          select last_insert_id() as id
+    </selectKey>     
+    </insert>
+	  
+    <select id="ProductWordsCard.getById" resultMap="RM.ProductWordsCard">
+	    SELECT <include refid="ProductWordsCard.columns"/>
+	    <![CDATA[
+	        FROM t_sku_productwords_promotion 
+	        WHERE 
+		        ID = #id# AND IS_DELETE=0
+	    ]]>
+    </select>
+
+
+    <select id="ProductWordsCard.InterfaceUseGetById" resultMap="RM.ProductWordsCard">
+        SELECT <include refid="ProductWordsCard.columns"/>
+        <![CDATA[
+	        FROM t_sku_productwords_promotion
+	        WHERE
+		        ID = #id# AND IS_INVALID=1 AND IS_DELETE=0
+	    ]]>
+    </select>
+
+    
+      
+    <update id="ProductWordsCard.update" >
+    
+        UPDATE t_sku_productwords_promotion SET	 
+           UPDATE_TIME = #updateDate#
+	       <isNotEmpty prepend="," property="modifier">
+	            MODIFIER = #modifier#
+	       </isNotEmpty>
+		   <isNotEmpty prepend="," property="productWordsBase">
+			    PRODUCTWORDS_BASE = #productWordsBase#
+		   </isNotEmpty>
+	       <isNotEmpty prepend="," property="isEditor">
+	            IS_EDITOR = #isEditor#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="," property="isDelete">
+	            IS_DELETE = #isDelete#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="," property="isInvalid">
+	            IS_INVALID = #isInvalid#
+	       </isNotEmpty>
+			<isNotEmpty prepend="," property="isEnable">
+				IS_ENABLED = #isEnable#
+			</isNotEmpty>
+			<isNotEmpty prepend="," property="search_status">
+				SEARCH_STATUS = #search_status#
+			</isNotEmpty>
+        WHERE 
+	        ID = #id# 
+   
+    </update>
+    
+    <select id="ProductWordsCard.getByProductWordsName" parameterClass="java.lang.String" resultMap="RM.ProductWordsCard">
+		SELECT * 
+		<![CDATA[
+		FROM t_sku_productwords_promotion 
+		WHERE 
+		     PRODUCTWORDS_NAME = #productWordsName#
+		AND
+		     IS_DELETE = 0
+		]]>
+	</select>
+	
+	 <sql id="ProductWordsCard.findPageLike.where">
+	    <dynamic prepend="WHERE">
+	  	   <isNotEmpty prepend="AND" property="productWordsName">
+			    PRODUCTWORDS_NAME like concat ('%',#productWordsName#,'%')
+	  	   </isNotEmpty>
+           <isNotEmpty prepend="AND" property="isDelete">
+	            IS_DELETE = #isDelete#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="isInvalid">
+	            IS_INVALID = #isInvalid#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="isEditor">
+	            IS_EDITOR = #isEditor#
+	       </isNotEmpty>
+			<isNotEmpty prepend="AND" property="qcreateTime">
+				upper(CREATE_TIME) like CONCAT('%',upper(trim(#qcreateTime#)),'%')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="beginLetter">
+				CAPITAL=#beginLetter#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="isEnable">
+				IS_ENABLED = #isEnable#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="search_status">
+				SEARCH_STATUS = #search_status#
+			</isNotEmpty>
+	    </dynamic>	
+	</sql>
+	
+	 <select id="ProductWordsCard.findPageLike.count" resultClass="long">
+        SELECT count(*) FROM t_sku_productwords_promotion  <include refid="ProductWordsCard.findPageLike.where"/>    
+    </select>
+    
+     <select id="ProductWordsCard.findPageLike" resultMap="RM.ProductWordsCard">
+    	SELECT <include refid="ProductWordsCard.columns"/> FROM t_sku_productwords_promotion  
+		<include refid="ProductWordsCard.findPageLike.where"/>
+		<dynamic prepend="ORDER BY">
+			ID DESC
+		</dynamic>
+    </select>
+
+	<delete id="ProductWordsCard.delete">
+		<![CDATA[
+        DELETE FROM t_sku_productwords_promotion WHERE
+        ID = #id#
+    ]]>
+	</delete>
+
+	<select id="ProductWordsCard.range" resultMap="RM.ProductWordsCard">
+		SELECT
+		<include refid="ProductWordsCard.columns"/>
+		FROM
+		t_sku_productwords_promotion
+		WHERE
+		id <![CDATA[ >= ]]> #minId# and id <![CDATA[ <= ]]> #maxId# and IS_DELETE = 0
+	</select>
+
+	<select id="ProductWordsCard.randomSize" resultMap="RM.ProductWordsCard">
+		SELECT
+		<include refid="ProductWordsCard.columns"/>
+		FROM t_sku_productwords_promotion
+		WHERE IS_DELETE =0 AND IS_INVALID=1
+		ORDER BY rand()
+		limit #randomSize#
+	</select>
+
+	<select id="ProductWordsCard.getByProductWordsBase" resultMap="RM.ProductWordsCard">
+		SELECT
+		<include refid="ProductWordsCard.columns"/>
+		 FROM t_sku_productwords_promotion WHERE PRODUCTWORDS_BASE = #productWordsBase# AND IS_DELETE =0 AND IS_INVALID=1
+		  ORDER BY rand()
+		 limit 15
+	</select>
+
+	<select id="ProductWordsCard.findPageLike.letterCount" resultClass="java.lang.Integer">
+		SELECT count(*) FROM t_sku_productwords_promotion  <include refid="ProductWordsCard.findPageLike.where"/>
+	</select>
+
+	<select id="ProductWordsCard.getRefreshProductWords" resultMap="RM.ProductWordsCard">
+		SELECT
+		<include refid="ProductWordsCard.columns"/>
+		FROM t_sku_productwords_promotion
+		WHERE IS_DELETE =0 AND IS_INVALID=1
+		ORDER BY CREATE_TIME DESC
+		limit #num#
+	</select>
+
+	<select id="ProductWordsCard.singleSameProductWordBase" resultMap="RM.ProductWordsCard">
+		select
+		<include refid="ProductWordsCard.columns"/>
+		from t_sku_productwords_promotion
+		where PRODUCTWORDS_BASE = (SELECT p.PRODUCTWORDS_BASE FROM t_sku_productwords_promotion p WHERE p.ID = #productWordsId# AND p.IS_DELETE =0 AND p.IS_INVALID=1) AND IS_DELETE =0 AND IS_INVALID=1
+		ORDER BY rand()
+		limit 2
+	</select>
+
+	<select id="ProductWordsCard.getIsEnableCount" resultClass="java.lang.Integer">
+		SELECT count(*) FROM t_sku_productwords_promotion  WHERE IS_ENABLED = 1 AND IS_DELETE = 0
+	</select>
+
+	<select id="ProductWordsCard.getNotEnableCount" resultClass="java.lang.Integer">
+		SELECT count(*) FROM t_sku_productwords_promotion  WHERE IS_ENABLED = 0 AND IS_DELETE = 0
+	</select>
+
+
+
+        
+</sqlMap>

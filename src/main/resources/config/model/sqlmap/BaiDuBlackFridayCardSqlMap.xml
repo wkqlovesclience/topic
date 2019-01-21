@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="BaiDuBlackFridayCard" >
+    <resultMap id="RM.BaiDuBlackFridayCard" class="com.gome.baidublackfriday.model.BaiDuBlackFridayCard">
+        <result property="id" column="ID"/>
+        <result property="skuId" column="SKU_ID"/>
+        <result property="productId" column="PRODUCT_ID"/>
+        <result property="createDate" column="CREATE_TIME"/>
+        <result property="updateDate" column="UPDATE_TIME"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="modifier" column="MODIFIER"/>
+        <result property="type" column="TYPE"/>     
+        <result property="tag" column="TAG"/>   
+        <result property="isDelete" column="IS_DELETE"/> 
+        <result property="isEditor" column="IS_EDITOR"/>
+        <result property="isInvalid" column="IS_INVALID"/>
+        <result property="originPrice" column="ORIGIN_PRICE"/>   
+        <result property="salePrice" column="SALE_PRICE"/> 
+        <result property="customUrl" column="CUSTOM_URL"/>
+        <result property="createNum" column="CREATE_NUM"/>   
+    </resultMap>
+    
+   
+     	
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="BaiDuBlackFridayCard.columns">
+	    <![CDATA[
+       ID,SKU_ID,PRODUCT_ID,CREATE_TIME,UPDATE_TIME,CREATOR,MODIFIER,TYPE,TAG,IS_DELETE,IS_EDITOR,IS_INVALID,ORIGIN_PRICE,SALE_PRICE,CUSTOM_URL,CREATE_NUM
+	    ]]>
+	</sql>
+	
+	
+
+
+  <insert id="BaiDuBlackFridayCard.insert" >
+    <![CDATA[
+        INSERT INTO t_sku_baidublackfriday_promotion ( 
+	        ID,
+			SKU_ID,
+			PRODUCT_ID,
+			CREATE_TIME,
+			UPDATE_TIME,
+			CREATOR,
+			TYPE,
+			TAG,
+			IS_DELETE,
+			IS_EDITOR,
+			IS_INVALID
+        ) VALUES ( 
+        	#id# ,
+        	#skuId# ,
+        	#productId# ,
+        	#createDate# ,
+        	#updateDate# ,
+        	#creator# ,
+        	#type# ,
+        	#tag# ,
+        	#isDelete#,
+        	#isEditor#,
+        	#isInvalid#
+        )
+    ]]>
+    <selectKey resultClass="int" keyProperty="id" type="post">  
+          select last_insert_id() as id
+    </selectKey>     
+    </insert>
+	  
+    <select id="BaiDuBlackFridayCard.getById" resultMap="RM.BaiDuBlackFridayCard">
+	    SELECT <include refid="BaiDuBlackFridayCard.columns"/>
+	    <![CDATA[
+	        FROM t_sku_baidublackfriday_promotion 
+	        WHERE 
+		        ID = #id# 
+	    ]]>
+    </select>
+    
+      
+    <update id="BaiDuBlackFridayCard.update" >
+    
+        UPDATE t_sku_baidublackfriday_promotion SET	 UPDATE_TIME = #updateDate#,
+	       ORIGIN_PRICE = #originPrice#,
+	       SALE_PRICE = #salePrice#,
+	       CUSTOM_URL = #customUrl#
+	       <isNotEmpty prepend="," property="modifier">
+	            MODIFIER = #modifier#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="," property="isEditor">
+	            IS_EDITOR = #isEditor#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="," property="isDelete">
+	            IS_DELETE = #isDelete#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="," property="isInvalid">
+	            IS_INVALID = #isInvalid#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="," property="type">
+	            TYPE = #type#
+	       </isNotEmpty>	
+	       <isNotEmpty prepend="," property="tag">
+	            TAG = #tag#
+	       </isNotEmpty>
+        WHERE 
+	        ID = #id# 
+   
+    </update>
+    
+    <select id="BaiDuBlackFridayCard.getByskuId" parameterClass="java.lang.String" resultMap="RM.BaiDuBlackFridayCard">
+		SELECT * 
+		<![CDATA[
+		FROM t_sku_baidublackfriday_promotion 
+		WHERE 
+		     SKU_ID = #skuId#
+		 AND 
+		     IS_DELETE = 0
+		]]>
+	</select>
+	
+	 <sql id="BaiDuBlackFridayCard.findPageLike.where">
+	    <dynamic prepend="WHERE">
+           <isNotEmpty prepend="AND" property="isDelete">
+	            IS_DELETE = #isDelete#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="skuId">
+	            SKU_ID = #skuId#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="isInvalid">
+	            IS_INVALID = #isInvalid#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="isEditor">
+	            IS_EDITOR = #isEditor#
+	       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	
+	 <select id="BaiDuBlackFridayCard.findPageLike.count" resultClass="long">
+        SELECT count(*) FROM t_sku_baidublackfriday_promotion  <include refid="BaiDuBlackFridayCard.findPageLike.where"/>    
+    </select>
+    
+     <select id="BaiDuBlackFridayCard.findPageLike" resultMap="RM.BaiDuBlackFridayCard">
+    	SELECT <include refid="BaiDuBlackFridayCard.columns"/> FROM t_sku_baidublackfriday_promotion  
+		<include refid="BaiDuBlackFridayCard.findPageLike.where"/>
+		<dynamic prepend="ORDER BY">
+			UPDATE_TIME DESC
+		</dynamic>
+    </select>
+        
+</sqlMap>
+

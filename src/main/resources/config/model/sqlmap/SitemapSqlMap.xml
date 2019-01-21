@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Sitemap">
+	<typeAlias alias="sitemapEntity" type="com.coo8.topic.model.sitemap.SeoSiteMap"/>
+	<typeAlias alias="sitemapUploadEntity" type="com.coo8.topic.model.sitemap.SeoSiteMapUpload"/>
+	<typeAlias alias="sitemapBaseInfoEntity" type="com.coo8.topic.model.sitemap.SeoSiteMapBase"/>
+	<resultMap id="sitemapMap" class="sitemapEntity">
+	   <result property="id" column="id"/>
+	   <result property="name" column="name"/>
+	   <result property="urlCatalog" column="url_catalog"/>
+	   <result property="count" column="count"/>
+	   <result property="creator" column="creator"/>
+	   <result property="updator" column="updator"/>
+	   <result property="createDate" column="create_date"/>
+	   <result property="updateDate" column="update_date"/>
+	   <result property="expand" column="expand"/>
+	   <result property="isDelete" column="is_delete"/>
+	   <result property="status" column="status"/>
+	   <result property="site" column="site"/>
+	</resultMap>
+	<resultMap id="sitemapUploadMap" class="sitemapUploadEntity">
+	   <result property="id" column="id"/>
+       <result property="filename" column="filename"/>
+       <result property="path" column="path"/>
+       <result property="uploadUser" column="upload_user"/>
+       <result property="uploadTime" column="upload_time"/>
+       <result property="expand" column="expand"/>
+       <result property="isDelete" column="is_delete"/>
+       <result property="site" column="site"/>
+	</resultMap>
+	<resultMap id="sitemapBaseInfoMap" class="sitemapBaseInfoEntity">
+	   <result property="id" column="id"/>
+	   <result property="name" column="name"/>
+	   <result property="keyword" column="keyword"/>
+	   <result property="type" column="type"/>
+	   <result property="expand" column="expand"/>
+	   <result property="remain" column="remain"/>
+	   <result property="remark" column="remark"/>
+	   <result property="isDelete" column="is_delete"/>
+	</resultMap>
+	
+	<!-- 网站地图管理 -->
+	<sql id="sitemapTable">
+	   t_seo_sitemap
+	</sql>
+	<sql id="sitemapColumns">
+	   id,name,url_catalog,count,creator,updator,create_date,update_date,expand,is_delete,status,site
+	</sql>
+	<sql id="sitemapWheres">
+	   <dynamic>
+	       <isNotEmpty property="id" prepend="and">
+	           id=#id#
+	       </isNotEmpty>
+	       <isNotEmpty property="name" prepend="and">
+               name=#name#
+           </isNotEmpty>
+           <isNotEmpty property="site" prepend="and">
+               site=#site#
+           </isNotEmpty>
+           <isNotEmpty property="status" prepend="and">
+               status = #status#
+           </isNotEmpty>
+	   </dynamic>
+	</sql>
+	<select id="getSitemapById" parameterClass="int" resultMap="sitemapMap">
+	   select <include refid="sitemapColumns"/>
+	   from <include refid="sitemapTable"/>
+	   where id=#id#
+	</select>
+	<select id="querySitemapTotalCount" parameterClass="map" resultClass="int">
+	   select count(id)
+       from <include refid="sitemapTable"/>
+       where 1=1
+       <include refid="sitemapWheres"/>
+	</select>
+	<select id="querySitemapForList" parameterClass="map" resultMap="sitemapMap">
+	   select <include refid="sitemapColumns"/>
+       from <include refid="sitemapTable"/>
+       where 1=1 
+       <include refid="sitemapWheres"/>
+       <dynamic prepend="ORDER BY">
+            <isNotEmpty property="sortColumns" prepend=" ">
+                $sortColumns$
+            </isNotEmpty>
+        </dynamic>
+	</select>
+	<insert id="insertSitemap" parameterClass="sitemapEntity">
+	   insert into <include refid="sitemapTable"/>(name,url_catalog,count,creator,create_date,expand,is_delete,status,site)
+	   values(#name#,#urlCatalog#,#count#,#creator#,NOW(),#expand#,#isDelete#,#status#,#site#)
+	   <selectKey resultClass="int" keyProperty="id">
+	       select last_insert_id() as ID from <include refid="sitemapTable"/> limit 1
+	   </selectKey>
+	</insert>
+	<update id="updateSitemap" parameterClass="sitemapEntity">
+	   update <include refid="sitemapTable"/>
+	   set update_date=NOW(),expand=#expand#
+	   <isNotEmpty property="updator" prepend=",">
+	       updator=#updator#
+	   </isNotEmpty>
+	   <isNotEmpty property="name" prepend=",">
+	       name=#name#
+	   </isNotEmpty>
+	   <isNotEmpty property="urlCatalog" prepend=",">
+           url_catalog=#urlCatalog#
+       </isNotEmpty>
+       <isNotEmpty property="isDelete" prepend=",">
+           is_delete=#isDelete#
+       </isNotEmpty>
+       <isNotEmpty property="status" prepend=",">
+           status=#status#
+       </isNotEmpty>
+       where id=#id#
+	</update>
+	<delete id="deleteSitemap" parameterClass="int">
+	   update <include refid="sitemapTable"/>
+	   set is_delete=1
+	   where id=#id#
+	</delete>
+	<update id="changeSitemapStatus" parameterClass="map">
+	   update <include refid="sitemapTable"/>
+	   set status=#status#
+	   where id=#id#
+	</update>
+	
+	<update id="updateMapId" parameterClass="map">
+	   update <include refid="sitemapTable"/>
+	   set id=#nid#
+	   where id=#uid#
+	</update>
+	
+	<!-- 手动上传 -->
+    <sql id="sitemapUploadTable">
+       t_seo_sitemap_upload
+    </sql>
+    <sql id="sitemapUploadColumns">
+       id,filename,path,upload_user,upload_time,expand,is_delete,site
+    </sql>
+    <sql id="sitemapUploadWheres">
+       <dynamic>
+           <isNotEmpty property="id" prepend="and">
+               id=#id#
+           </isNotEmpty>
+           <isNotEmpty property="filename" prepend="and">
+               filename like '%$filename$%'
+           </isNotEmpty>
+           <isNotEmpty property="uploadUser" prepend="and">
+               upload_user=#uploadUser#
+           </isNotEmpty>
+       </dynamic>
+    </sql>
+    <select id="getSiteMapUploadById" parameterClass="int" resultMap="sitemapUploadMap">
+       select <include refid="sitemapUploadColumns"/>
+       from <include refid="sitemapUploadTable"/>
+       where id=#id#
+    </select>
+    <select id="quyeryUplaodTotalCount" parameterClass="map" resultClass="int">
+       select count(id)
+       from <include refid="sitemapUploadTable"/>
+       where 1=1
+       <include refid="sitemapUploadWheres"/>
+    </select>
+    <select id="queryUploadForList" parameterClass="map" resultMap="sitemapUploadMap">
+       select <include refid="sitemapUploadColumns"/>
+       from <include refid="sitemapUploadTable"/>
+       where 1=1
+       <include refid="sitemapUploadWheres"/>
+       <dynamic prepend="ORDER BY">
+            <isNotEmpty property="sortColumns" prepend=" ">
+                $sortColumns$
+            </isNotEmpty>
+        </dynamic>
+    </select>
+    <insert id="insertUpload" parameterClass="sitemapUploadEntity">
+       insert into <include refid="sitemapUploadTable"/>(filename,path,upload_user,upload_time,expand,site)
+       values(#filename#,#path#,#uploadUser#,NOW(),#expand#,#site#)
+       <selectKey resultClass="int" keyProperty="id">
+           select last_insert_id() as ID from <include refid="sitemapUploadTable"/> limit 1
+       </selectKey>
+    </insert>
+    <delete id="deleteUplaod" parameterClass="int">
+       update <include refid="sitemapUploadTable"/>
+       set is_delete='1',path=''
+       where id=#id#
+    </delete>
+    
+    <!-- 网站地图管理：基础信息 -->
+    <sql id="sitemapBaseInfoTable">
+       t_seo_sitemap_base
+    </sql>
+    <sql id="sitemapBaseInfoColumns">
+       id,name,keyword,type,expand,remain,remark,is_delete
+    </sql>
+    <sql id="sitemapBaseInfoWheres">
+       <dynamic>
+           <isNotEmpty property="id" prepend="and">
+               id=#id#
+           </isNotEmpty>
+           <isNotEmpty property="name" prepend="and">
+               name=#name#
+           </isNotEmpty>
+           <isNotEmpty property="keyword" prepend="and">
+               keyword=#keyword#
+           </isNotEmpty>
+           <isNotEmpty property="type" prepend="and">
+               type=#type#
+           </isNotEmpty>
+           <isNotEmpty property="isDelete" prepend="and">
+               is_delete=#isDelete#
+           </isNotEmpty>
+       </dynamic>
+    </sql>
+    <select id="getBaseInfoById" parameterClass="int" resultMap="sitemapBaseInfoMap">
+       select <include refid="sitemapBaseInfoColumns"/>
+       from <include refid="sitemapBaseInfoTable"/>
+       where id=#id#
+    </select>
+    <select id="getBaseInfoByKeyword" parameterClass="string" resultMap="sitemapBaseInfoMap">
+       select <include refid="sitemapBaseInfoColumns"/>
+       from <include refid="sitemapBaseInfoTable"/>
+       where keyword=#keyword#
+    </select>
+    <select id="queryBaseInfoTotalCount" parameterClass="map" resultClass="int">
+       select count(id)
+       from <include refid="sitemapBaseInfoTable"/>
+       where 1=1
+       <include refid="sitemapBaseInfoWheres"/>
+       <dynamic prepend="ORDER BY">
+            <isNotEmpty property="sortColumns" prepend=" ">
+                $sortColumns$
+            </isNotEmpty>
+        </dynamic>
+    </select>
+    <select id="queryBaseInfoForList" parameterClass="map" resultMap="sitemapBaseInfoMap">
+       select <include refid="sitemapBaseInfoColumns"/>
+       from <include refid="sitemapBaseInfoTable"/>
+       where 1=1
+       <include refid="sitemapBaseInfoWheres"/>
+    </select>
+    <insert id="insertBaseInfo" parameterClass="sitemapBaseInfoEntity">
+       insert into <include refid="sitemapBaseInfoTable"/>(name,keyword,type,expand,remain,remark,is_delete)
+       values(#name#,#keyword#,#type#,#expand#,#remain#,#remark#,#isDelete#)
+       <selectKey resultClass="int" keyProperty="id">
+           select last_insert_id() as ID from <include refid="sitemapBaseInfoTable"/> limit 1
+       </selectKey>
+    </insert>
+    <update id="updateBaseInfo" parameterClass="sitemapBaseInfoEntity">
+        update <include refid="sitemapBaseInfoTable"/>
+        set name=#name#,keyword=#keyword#,type=#type#,is_delete=#isDelete#,expand=#expand#
+        where id=#id#
+    </update>
+    <delete id="deleteBaseInfo" parameterClass="int">
+       delete from <include refid="sitemapBaseInfoTable"/>
+       where id=#id#
+    </delete>
+    
+</sqlMap>
+

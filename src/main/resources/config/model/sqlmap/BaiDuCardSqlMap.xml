@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PromotionCard" >
+
+    <resultMap id="RM.PromotionCard" class="com.gome.promotioncard.model.PromotionCard">
+        <result property="id" column="ID"/>
+        <result property="skuId" column="SKU_ID"/>
+        <result property="productId" column="PRODUCT_ID"/>
+        <result property="createDate" column="CREATE_TIME"/>
+        <result property="updateDate" column="UPDATE_TIME"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="modifier" column="MODIFIER"/>
+        <result property="content" column="CONTENT"/>      
+        <result property="isDelete" column="IS_DELETE"/> 
+        <result property="isEditor" column="IS_EDITOR"/> 
+             
+    </resultMap>
+    
+   
+     	
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="PromotionCard.columns">
+	    <![CDATA[
+       ID,SKU_ID,PRODUCT_ID,CREATE_TIME,UPDATE_TIME,CREATOR,MODIFIER,CONTENT,IS_DELETE,IS_EDITOR
+	    ]]>
+	</sql>
+	
+	
+
+
+  <insert id="PromotionCard.insert" >
+    <![CDATA[
+        INSERT INTO t_sku_promotion ( 
+	        ID,
+			SKU_ID,
+			PRODUCT_ID,
+			CREATE_TIME,
+			UPDATE_TIME,
+			CREATOR,
+			CONTENT,
+			IS_DELETE,
+			IS_EDITOR
+        ) VALUES ( 
+        	#id# ,
+        	#skuId# ,
+        	#productId# ,
+        	#createDate# ,
+        	#updateDate# ,
+        	#creator# ,
+        	#content# ,
+        	#isDelete#,
+        	#isEditor#
+        )
+    ]]>
+    <selectKey resultClass="int" keyProperty="id" type="post">  
+          select last_insert_id() as id
+    </selectKey>     
+    </insert>
+	  
+    <select id="PromotionCard.getById" resultMap="RM.PromotionCard">
+	    SELECT <include refid="PromotionCard.columns"/>
+	    <![CDATA[
+	        FROM t_sku_promotion 
+	        WHERE 
+		        ID = #id# 
+	    ]]>
+    </select>
+    
+      
+    <update id="PromotionCard.update" >
+    
+        UPDATE t_sku_promotion SET	     	       
+	        UPDATE_TIME = #updateDate# ,
+	        MODIFIER = #modifier# ,	      	       
+	        IS_DELETE = #isDelete#,
+	        IS_EDITOR = #isEditor#,	     
+	         CONTENT = #content#	     
+        WHERE 
+	        ID = #id# 
+   
+    </update>
+    
+    <select id="PromotionCard.getByskuId" parameterClass="java.lang.String" resultMap="RM.PromotionCard">
+		SELECT * 
+		<![CDATA[
+		FROM t_sku_promotion 
+		WHERE 
+		     SKU_ID = #skuId#
+		 AND 
+		     IS_DELETE = 0
+		]]>
+	</select>
+	
+	 <sql id="PromotionCard.findPageLike.where">
+	    <dynamic prepend="WHERE">
+           <isNotEmpty prepend="AND" property="isDelete">
+	            IS_DELETE = #isDelete#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="productId">
+	            PRODUCT_ID = #productId#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="isEditor">
+	            IS_EDITOR = #isEditor#
+	       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	
+	 <select id="PromotionCard.findPageLike.count" resultClass="long">
+        SELECT count(*) FROM t_sku_promotion <include refid="PromotionCard.findPageLike.where"/>    
+    </select>
+    
+     <select id="PromotionCard.findPageLike" resultMap="RM.PromotionCard">
+    	SELECT <include refid="PromotionCard.columns"/> FROM t_sku_promotion 
+		<include refid="PromotionCard.findPageLike.where"/>
+		<dynamic prepend="ORDER BY">
+			UPDATE_TIME DESC
+		</dynamic>
+    </select>
+        
+</sqlMap>
+

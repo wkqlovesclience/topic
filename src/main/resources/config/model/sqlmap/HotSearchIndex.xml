@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="HotSearchIndexs">
+    <typeAlias alias="HotSearchIndex" type="com.coo8.topic.model.HotSearchIndex"/>
+	<resultMap id="HotSearchIndexMap" class="com.coo8.topic.model.HotSearchIndex">
+	    <result property="id" column="id"/>
+	    <result property="hotSearchId" column="hotsearch_id"/>
+	    <result property="hotSearchTitle" column="title"/>
+	    <result property="pinyin" column="pinyin"/>
+	    <result property="hotSearchIndex" column="hotsearch_index"/>
+	    <result property="source" column="source"/>
+	    <result property="priority" column="priority"/>
+	    <result property="status" column="status"/>
+	    <result property="operator" column="operator"/>
+	    <result property="updatetime" column="updatetime"/>
+	    <result property="createtime" column="createtime"/>
+	    <result property="site" column="site"/>
+	</resultMap>
+	<sql id="columns">
+	   <![CDATA[
+	   t1.id,t1.hotsearch_id,t2.title,t1.pinyin,t1.hotsearch_index,t1.source,t1.priority,t1.status,t1.operator,t1.updatetime,
+	   t1.createtime,t1.site
+	   ]]>
+	</sql>
+	<sql id="conditionWheres">
+	   <dynamic prepend="and">
+	       <isNotEmpty prepend="and" property="hotSearchIndex">
+               <isEqual property="hotSearchIndex" compareValue="_" open="(" close=")">
+                   <![CDATA[ t1.hotsearch_index >='0' AND t1.hotsearch_index <='9' ]]>
+               </isEqual>
+               <isNotEqual property="hotSearchIndex" compareValue="_">
+                   t1.hotsearch_index = #hotSearchIndex#
+               </isNotEqual>
+           </isNotEmpty>
+	       <isNotEmpty property="id" prepend="and">
+	           t1.id=#id#
+	       </isNotEmpty>
+	       <isNotEmpty prepend="AND" property="site">
+               t1.site = #site#
+           </isNotEmpty>
+           <isNotEmpty prepend="ORDER BY" property="sortColumns">
+               $sortColumns$
+           </isNotEmpty>
+	   </dynamic>
+	</sql>
+	<select id="queryList" resultMap="HotSearchIndexs.HotSearchIndexMap" parameterClass="map">
+	   select <include refid="HotSearchIndexs.columns"/>
+	   from t_hotsearch_index t1 join t_hotsearchword t2 on t1.hotsearch_id = t2.id
+	   where t1.source='0' 
+	   <include refid="HotSearchIndexs.conditionWheres"/>
+	</select>
+	<select id="queryListCount" resultClass="int">
+	   select count(0) 
+	   from t_hotsearch_index t1 join t_hotsearchword t2 on t1.hotsearch_id = t2.id 
+	   where t1.source='0' 
+	   <include refid="HotSearchIndexs.conditionWheres"/>
+	</select>
+	<select id="getById" parameterClass="int" resultMap="HotSearchIndexs.HotSearchIndexMap">
+	   select <include refid="HotSearchIndexs.columns"/>
+       from t_hotsearch_index t1 join t_hotsearchword t2 on t1.hotsearch_id = t2.id
+       where t1.source='0' and t1.id=#id#
+	</select>
+	<insert id="insertHotSearchIndex" parameterClass="HotSearchIndex">
+	   insert into t_hotsearch_index(hotsearch_id,pinyin,hotsearch_index,source,priority,status,operator,updatetime,createtime,site)
+	   values(#hotSearchId#,#pinyin#,#hotSearchIndex#,#source#,#priority#,#status#,#operator#,NOW(),#createtime#,#site#)
+	</insert>
+	<update id="updateHotSearchIndex" parameterClass="HotSearchIndex">
+	   update t_hotsearch_index
+	   set hotsearch_index=#hotSearchIndex#,priority=#priority#,status=#status#,operator=#operator#,updatetime=NOW()
+	   where id=#id#
+	</update>
+	<delete id="deleteHotSearchIndex" parameterClass="int">
+	   DELETE FROM t_hotsearch_index where `id`=#id#
+	</delete>
+	<select id="getSpecificHotSearchCheck" parameterClass="map" resultClass="int">
+	   select t.ISCHECK isCheck from t_hotsearchword t where t.id=#hotSearchId# and t.site=#site#
+	</select>
+	<select id="getSpecificHotSearchIndexCount" parameterClass="map" resultClass="int">
+	   select count(0) from t_hotsearch_index t where t.hotsearch_id=#hotSearchId# and t.site=#site#
+	   <isNotEmpty property="source" prepend="and">
+	       t.source=#source#
+	   </isNotEmpty>
+	</select>
+	<select id="getHotSearchTitleName" parameterClass="int" resultClass="string">
+	   select t.title from t_hotsearchword t where t.id=#hotSearchId#
+	</select>
+	
+	
+</sqlMap>

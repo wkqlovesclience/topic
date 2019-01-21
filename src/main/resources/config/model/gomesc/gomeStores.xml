@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="gomeStores">
+    <typeAlias alias="storesInfo" type="com.coo8.topic.model.gomeStores.StoresInfo"/>
+    <typeAlias alias="storesCoordinate" type="com.coo8.topic.model.gomeStores.StoresCoordinate"/>
+    <typeAlias alias="gomeMstDivision" type="com.coo8.topic.model.gomeStores.GomeMstDivision"/>
+    
+    <resultMap id="storesInfoMap" class="storesInfo">
+        <result property="id" column="id"/>
+        <result property="storeName" column="store_name"/>
+        <result property="storeAddress" column="store_address"/>
+        <result property="storeCoordinate" column="store_coordinate"/>
+        <result property="storePhone" column="store_phone"/>
+        <result property="storeFax" column="store_fax"/>
+        <result property="storeBusinesstime" column="store_businessTime"/>
+        <result property="storeWebsite" column="store_website"/>
+        <result property="storePort" column="store_port"/>
+        <result property="storeBusroutes" column="store_busRoutes"/>
+        <result property="storeOthers" column="store_others"/>
+        <result property="storeImageurl" column="store_imageUrl"/>
+        <result property="storeSynopsis" column="store_synopsis"/>
+    </resultMap>
+    
+    <resultMap id="storesCoordinateMap" class="storesCoordinate">
+        <result property="id" column="id"/>
+        <result property="cityId" column="cityid"/>
+        <result property="provinceId" column="provinceid"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="pLocationX" column="p_location_x"/>
+        <result property="pLocationY" column="p_location_y"/>
+        <result property="locationX" column="location_x"/>
+        <result property="locationY" column="location_y"/>
+        <result property="storeX" column="store_x"/>
+        <result property="storeY" column="store_y"/>
+        <result property="storeType" column="store_type"/>
+        <result property="mapLevel" column="map_level"/>
+        <result property="pMapLevel" column="p_map_level"/>
+        <result property="name" column="name"/>
+        <result property="address" column="address"/>
+    </resultMap>
+    
+    <resultMap id="gomeMstDivisionMap" class="gomeMstDivision">
+        <result property="daId" column="da_id" />
+        <result property="orderNo" column="order_no" />
+        <result property="divLevel" column="div_level" />
+        <result property="parentDivisionName" column="parent_division_name" />
+        <result property="parentDivisionCode" column="parent_division_code" />
+        <result property="divisionName" column="division_name" />
+        <result property="divisionCode" column="division_code" />
+    </resultMap>
+    
+    <sql id="storesInfoTable">
+        gome_stores_info
+    </sql>
+    <sql id="storesInfoColumns">
+        id,store_name,store_address,store_coordinate,store_phone,store_fax,store_businessTime,store_website,store_port,store_busRoutes,store_others,store_imageUrl,store_synopsis
+    </sql>
+    <sql id="storesCoordinateTable">
+        gome_stores_coordinate
+    </sql>
+    <sql id="storesCoordinateColumns">
+        id,cityid,provinceid,title,content,p_location_x,p_location_y,location_x,location_y,store_x,store_y,store_type,map_level,p_map_level,name,address
+    </sql>
+    <sql id="gomeMstDivisionTable">
+        gome_mst_division
+    </sql>
+    <sql id="gomeMstDivisionColumns">
+        da_id,order_no,div_level,parent_division_name,parent_division_code,division_name,division_code
+    </sql>
+    
+    <select id="getStoresInfoById" parameterClass="int" resultMap="storesInfoMap">
+        select <include refid="storesInfoColumns"/>
+        from <include refid="storesInfoTable"/>
+        where id=#id#
+    </select>
+    <select id="getStoresInfoIds" parameterClass="map" resultClass="int">
+        select id
+        from <include refid="storesInfoTable"/>
+        where 1=1
+        <isNotEmpty prepend=" and " property="startId">
+            <![CDATA[ id >= #startId# ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend=" and " property="endId">
+             <![CDATA[ id <= #endId# ]]>
+        </isNotEmpty>
+    </select>
+    <select id="getStoresCoordinateById" parameterClass="int" resultMap="storesCoordinateMap">
+        select <include refid="storesCoordinateColumns"/>
+        from <include refid="storesCoordinateTable"/>
+        where id=#id#
+    </select>
+    <select id="getStoresCoorIds" parameterClass="map" resultClass="int">
+        select id
+        from <include refid="storesCoordinateTable"/>
+        where 1=1
+        <isNotEmpty prepend=" and " property="startId">
+            <![CDATA[ id >= #startId# ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend=" and " property="endId">
+             <![CDATA[ id <= #endId# ]]>
+        </isNotEmpty>
+    </select>
+    <select id="getDivisionName" parameterClass="string" resultClass="string">
+        select division_name from <include refid="gomeMstDivisionTable"/>
+        where division_code=#divisionCode#
+    </select>
+    <select id="isStoresExist" parameterClass="int" resultClass="int">
+        select count(0)
+        from <include refid="storesCoordinateTable"/>
+        where id=#id#
+    </select>
+    
+    <select id="getStoresCoordinateList" parameterClass="map" resultMap="storesCoordinateMap">
+        select <include refid="storesCoordinateColumns"/>
+        from <include refid="storesCoordinateTable"/>
+        where 1=1 
+        <isNotEmpty prepend=" and " property="storeType">
+            store_type=#storeType#
+        </isNotEmpty>
+    </select>
+    <select id="getStoresInfoList" resultMap="storesInfoMap">
+        select <include refid="storesInfoColumns"/>
+        from <include refid="storesInfoTable"/>
+    </select>
+</sqlMap>

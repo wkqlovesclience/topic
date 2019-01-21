@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+ 
+<sqlMap namespace="Keywords" >
+
+    <resultMap id="RM.Keywords" class="com.coo8.topic.model.Keywords">
+        <result property="id" column="ID"/>
+        <result property="types" column="TYPES"/>
+        <result property="names" column="NAMES"/>
+        <result property="url" column="URL"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="modifier" column="MODIFIER"/>
+        <result property="site" column="SITE"/>
+    </resultMap>
+	<resultMap id="RM.Keywords_" class="com.coo8.topic.model.Keywords">
+        <result property="id" column="ID"/>
+        <result property="types" column="TYPES"/>
+        <result property="names" column="NAMES"/>
+        <result property="url" column="URL"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+        <result property="creator" column="CREATOR"/>
+        <result property="modifier" column="MODIFIER"/>
+        <result property="site" column="SITE"/>
+        <result property="titleId" column="TITLE_ID"/>
+    </resultMap>
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="Keywords.columns">
+	    <![CDATA[
+        ID ,TYPES ,NAMES ,URL ,CREATE_TIME ,UPDATE_TIME ,CREATOR ,MODIFIER,SITE
+	    ]]>
+	</sql>
+	
+    <insert id="Keywords.insert" >
+    <![CDATA[
+        INSERT INTO t_keywords ( 
+	        TYPES  ,
+	        NAMES  ,
+	        URL  ,
+	        CREATE_TIME  ,
+	        UPDATE_TIME  ,
+	        CREATOR  ,
+	        SITE
+        ) VALUES ( 
+        	#types# ,
+        	#names# ,
+        	#url# ,
+        	#createTime# ,
+        	#updateTime# ,
+        	#creator# ,
+        	#site#
+        )
+    ]]>
+    <selectKey resultClass="int" keyProperty="id" type="post">  
+          select last_insert_id() as id
+    </selectKey>  
+    <!--
+    mysql:		type="post" SELECT  select last_insert_id()
+    sqlserver:	type="post" SELECT  @@identity  AS  ID
+    sybase:		type="post" SELECT  @@identity  AS  ID
+    oracle:		type="pre" 	SELECT  sequenceName.nextval AS ID FROM DUAL
+    DB2:		type="pre"	values nextval for sequenceName
+    -->
+        
+    </insert>
+
+    <update id="Keywords.update" >
+    <![CDATA[
+        UPDATE t_keywords SET
+	        TYPES = #types# ,
+	        NAMES = #names# ,
+	        URL = #url# ,
+	        UPDATE_TIME = #updateTime# ,
+	        MODIFIER = #modifier# 
+        WHERE 
+	        ID = #id# 
+    ]]>
+    </update>
+
+    <delete id="Keywords.delete">
+    <![CDATA[
+        DELETE FROM t_keywords WHERE
+        ID = #id# 
+    ]]>
+    </delete>
+    
+    <select id="Keywords.getById" resultMap="RM.Keywords">
+	    SELECT <include refid="Keywords.columns"/>
+	    <![CDATA[
+	        FROM t_keywords 
+	        WHERE 
+		        ID = #id# 
+	    ]]>
+    </select>
+    <sql id="Keywords.findPage.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="types">
+		             TYPES = #types#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="names">
+		             NAMES = #names#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="url">
+		             URL = #url#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeBegin">
+		             CREATE_TIME >= #createTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeEnd">
+		             CREATE_TIME &lt;= #createTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeBegin">
+		             UPDATE_TIME >= #updateTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeEnd">
+		             UPDATE_TIME &lt;= #updateTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="creator">
+		             CREATOR = #creator#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="site">
+		             SITE = #site#
+		       </isNotEmpty>		       
+	    </dynamic>	
+	</sql>
+	<sql id="Keywords.findPageLike.where">
+	    <dynamic prepend="WHERE">
+		       <isNotEmpty prepend="AND" property="id">
+		             ID = #id#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="types">
+		             TYPES = #types#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="names">
+		              NAMES like '%$names$%' 
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="url">
+		             URL = #url#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeBegin">
+		             CREATE_TIME >= #createTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="createTimeEnd">
+		             CREATE_TIME &lt;= #createTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeBegin">
+		             UPDATE_TIME >= #updateTimeBegin#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="updateTimeEnd">
+		             UPDATE_TIME &lt;= #updateTimeEnd#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="creator">
+		             CREATOR = #creator#
+		       </isNotEmpty>
+		       <isNotEmpty prepend="AND" property="site">
+		             SITE = #site#
+		       </isNotEmpty>
+	    </dynamic>	
+	</sql>
+	 
+    <select id="Keywords.findPage.count" resultClass="long">
+        SELECT count(1) FROM t_keywords <include refid="Keywords.findPage.where"/>    
+    </select>
+    
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="Keywords.findPageLike.count" resultClass="long">
+        SELECT count(1) FROM t_keywords <include refid="Keywords.findPageLike.where"/>    
+    </select>
+    
+    <select id="Keywords.findPage" resultMap="RM.Keywords">
+    	SELECT <include refid="Keywords.columns"/> FROM t_keywords 
+		<include refid="Keywords.findPage.where"/>
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    <select id="Keywords.findPageLike" resultMap="RM.Keywords">
+    	SELECT <include refid="Keywords.columns"/> FROM t_keywords 
+		 <include refid="Keywords.findPageLike.where"/> 
+		<dynamic prepend="ORDER BY">
+			<isNotEmpty property="sortColumns">$sortColumns$</isNotEmpty>
+		</dynamic>
+    </select>
+    
+    <sql id="Keywords.columns_">
+	    <![CDATA[
+        t1.ID ,t1.TYPES ,t1.NAMES ,t1.URL ,t1.CREATE_TIME ,t1.UPDATE_TIME ,t1.CREATOR ,t1.MODIFIER,t1.SITE,t2.TITLE_ID,t2.ARTICLE_ID
+	    ]]>
+	</sql>
+	<select id="Keywords.findAllTab" resultMap="RM.Keywords_" parameterClass="java.util.HashMap">
+		SELECT DISTINCT <include refid="Keywords.columns_"/> FROM t_keywords t1 JOIN t_keywords_rel t2 ON t1.ID = t2.KEYWORDS
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="site" prepend="AND">
+				t1.SITE = #site#
+			</isNotEmpty>
+			<isNotEmpty property="types" prepend="AND">
+				t1.TYPES = #types#
+			</isNotEmpty>
+			<isNotNull property="ids" prepend="AND">
+				t2.TITLE_ID 
+				<iterate property="ids" prepend="IN" open="(" close=")" conjunction=",">
+					#ids[]#
+				</iterate>
+			</isNotNull>
+			<isNotNull property="aids" prepend="AND">
+				t2.ARTICLE_ID 
+				<iterate property="aids" prepend="IN" open="(" close=")" conjunction=",">
+					#aids[]#
+				</iterate>
+			</isNotNull>
+		</dynamic> 
+	</select>
+	
+</sqlMap>
+
